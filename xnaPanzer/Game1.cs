@@ -138,7 +138,7 @@ namespace xnaPanzer
 
             // draw the next terrain image
             offset = this.CalculateSpritesheetCoordinates(this.m_TerrainCounter);
-            this.m_spriteBatch.Draw(this.m_MapSpriteSheet, new Rectangle(60, 50, m_TERRAIN_IMAGE_WIDTH, m_TERRAIN_IMAGE_HEIGHT),
+            this.m_spriteBatch.Draw(this.m_MapSpriteSheet, new Rectangle(61, 50, m_TERRAIN_IMAGE_WIDTH, m_TERRAIN_IMAGE_HEIGHT),
                 new Rectangle(offset.x, offset.y, m_TERRAIN_IMAGE_WIDTH, m_TERRAIN_IMAGE_HEIGHT), Color.White);
 
             // draw the next unit
