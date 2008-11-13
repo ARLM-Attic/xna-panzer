@@ -52,6 +52,15 @@ namespace xnaPanzer
         const int m_TERRAIN_BORDER_HEIGHT = 1;
         const int m_TERRAIN_BORDER_WIDTH = 1;
 
+        // 2xA + 2xB = 2x15 + 2x15 = 30 + 30 = 60 (width of each hex in pixels)
+        // 2xC = 2x25 = 50 (height of each hex in pixels)
+        const int m_HEXPART_LENGTH_A = 15;                              // angle width
+        const int m_HEXPART_LENGTH_B = 15;                              // half of square width
+        const int m_HEXPART_LENGTH_C = 25;                              // half of hex height
+        const int m_HEXPART_LENGTH_BBA = 45;                            // 3/4 width of hex
+        const int m_HEXPART_FULL_HEIGHT = 50;                           // full height of hex
+        const int m_HEXPART_FULL_WIDTH = 60;                            // full width of hex
+
         const int m_VIEWPORT_LEFT_X_COORD = 50;
         const int m_VIEWPORT_TOP_Y_COORD = 150;
         const int m_VIEWPORT_HEX_HEIGHT = 5;
@@ -182,12 +191,36 @@ namespace xnaPanzer
                     // destination rectangle
                     new Rectangle(m_VIEWPORT_LEFT_X_COORD, m_VIEWPORT_TOP_Y_COORD + (y * m_UNIT_IMAGE_HEIGHT), width, m_UNIT_IMAGE_HEIGHT),
                     // source rectangle
-                    new Rectangle(offset.x, offset.y, width, m_UNIT_IMAGE_HEIGHT),
+                    new Rectangle(offset.x, offset.y, width, m_HEXPART_FULL_HEIGHT),
                     Color.White);
             }
 
             // draw all the full hexes
+            int rightmostHexX = this.m_ViewportLeftHexX + m_VIEWPORT_HEX_WIDTH - 1;
+            int bottommostHexY = this.m_ViewportTopHexY + m_VIEWPORT_HEX_HEIGHT - 1;
+            Rectangle sourceRect = new Rectangle(0, 0, m_HEXPART_FULL_WIDTH, m_HEXPART_FULL_HEIGHT);
 
+            for (int x = this.m_ViewportLeftHexX; x <= rightmostHexX; x++) {
+                for (int y = this.m_ViewportTopHexY; y <= bottommostHexY; y++) {
+                    offset = this.CalculateSpritesheetCoordinates(this.m_map[x, y]);
+                    sourceRect.X = offset.x;
+                    sourceRect.Y = offset.y;
+
+                    // calculate where the hex should be drawn on the viewport
+                    Rectangle destRect = new Rectangle(m_VIEWPORT_LEFT_X_COORD + m_HEXPART_LENGTH_A + ((x - 1) * m_HEXPART_LENGTH_BBA),
+                            m_VIEWPORT_TOP_Y_COORD + ((y - 1) * m_HEXPART_FULL_HEIGHT), m_HEXPART_FULL_WIDTH, m_HEXPART_FULL_HEIGHT);
+
+                    // if odd-numbered hex column then shift hex down by half a hex
+                    if ((x % 2) == 1) {                                 // if remainder = 1 then odd-numbered column
+                        destRect.Y += m_HEXPART_LENGTH_C;
+                    }
+
+                    this.m_spriteBatch.Draw(this.m_MapSpriteSheet,
+                        destRect,                                       // destination rectangle
+                        sourceRect,                                     // source rectangle
+                        Color.White);                                   // white = don't apply tinting
+                }
+            }
 
             this.m_spriteBatch.End();
 
