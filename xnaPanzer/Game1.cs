@@ -52,6 +52,19 @@ namespace xnaPanzer
         const int m_TERRAIN_BORDER_HEIGHT = 1;
         const int m_TERRAIN_BORDER_WIDTH = 1;
 
+        const int m_VIEWPORT_LEFT_X_COORD = 50;
+        const int m_VIEWPORT_TOP_Y_COORD = 150;
+        const int m_VIEWPORT_HEX_HEIGHT = 5;
+        const int m_VIEWPORT_HEX_WIDTH = 5;
+
+        const int m_MAP_HEX_WIDTH = 25;
+        const int m_MAP_HEX_HEIGHT = 20;
+
+        int m_ViewportLeftHexX = 1;
+        int m_ViewportTopHexY = 1;
+        
+        int[,] m_map;
+
         public Game1()
         {
             m_graphics = new GraphicsDeviceManager(this);
@@ -70,6 +83,16 @@ namespace xnaPanzer
             this.m_graphics.PreferredBackBufferWidth = 1024;
             this.m_graphics.PreferredBackBufferHeight = 768;
             this.m_graphics.ApplyChanges();
+
+            //this.m_map = new int[m_MAP_HEX_WIDTH, m_MAP_HEX_HEIGHT];
+            Random random = new Random(unchecked((int) (DateTime.Now.Ticks)));
+            this.m_map = new int[m_MAP_HEX_WIDTH, m_MAP_HEX_HEIGHT];
+            for (int x = 0; x < m_MAP_HEX_WIDTH; x++) {
+                //this.m_map[x][ = new int[20];
+                for (int y = 0; y < m_MAP_HEX_HEIGHT; y++) {
+                    this.m_map[x,y] = random.Next(10);
+                }
+            }
 
             base.Initialize();
         }
@@ -145,6 +168,26 @@ namespace xnaPanzer
             offset = this.CalculateSpritesheetCoordinates(this.m_UnitCounter);
             this.m_spriteBatch.Draw(this.m_UnitSpriteSheet, new Rectangle(0, 0, m_UNIT_IMAGE_WIDTH, m_UNIT_IMAGE_HEIGHT),
                 new Rectangle(offset.x, offset.y, m_UNIT_IMAGE_WIDTH, m_UNIT_IMAGE_HEIGHT), Color.White);
+
+            int partialLeftX = this.m_ViewportLeftHexX - 1;
+            int partialTopY = this.m_ViewportTopHexY - 1;
+
+            // draw partial leftmost column
+            int width = m_UNIT_IMAGE_WIDTH / 2;
+            for (int y = partialLeftX; y < this.m_ViewportTopHexY + m_VIEWPORT_HEX_HEIGHT; y++) {
+                offset = this.CalculateSpritesheetCoordinates(this.m_map[0, y]);
+                offset.x += (m_TERRAIN_IMAGE_WIDTH / 2);
+
+                this.m_spriteBatch.Draw(this.m_MapSpriteSheet,
+                    // destination rectangle
+                    new Rectangle(m_VIEWPORT_LEFT_X_COORD, m_VIEWPORT_TOP_Y_COORD + (y * m_UNIT_IMAGE_HEIGHT), width, m_UNIT_IMAGE_HEIGHT),
+                    // source rectangle
+                    new Rectangle(offset.x, offset.y, width, m_UNIT_IMAGE_HEIGHT),
+                    Color.White);
+            }
+
+            // draw all the full hexes
+
 
             this.m_spriteBatch.End();
 
