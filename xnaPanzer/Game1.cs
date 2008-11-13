@@ -146,6 +146,12 @@ namespace xnaPanzer
                 this.Exit();
             }
 
+            if (keyboardState.IsKeyDown(Keys.Down)) {
+                if (this.m_ViewportTopHexY + m_VIEWPORT_HEX_HEIGHT - 1 < m_MAP_HEX_HEIGHT) {
+                    ++this.m_ViewportTopHexY;
+                }
+            }
+
             // TODO: Add your update logic here
             m_UnitCounter = ++m_UnitCounter % m_NUM_UNITS_IN_SPRITE_SHEET;
             m_TerrainCounter = ++m_TerrainCounter % m_NUM_TERRAIN_HEXES_IN_SPRITE_SHEET;
@@ -183,13 +189,15 @@ namespace xnaPanzer
 
             // draw partial leftmost column
             int width = m_UNIT_IMAGE_WIDTH / 2;
-            for (int y = partialLeftX; y < this.m_ViewportTopHexY + m_VIEWPORT_HEX_HEIGHT; y++) {
+            for (int y = partialTopY; y <= this.m_ViewportTopHexY + m_VIEWPORT_HEX_HEIGHT - 1; y++) {
                 offset = this.CalculateSpritesheetCoordinates(this.m_map[0, y]);
                 offset.x += (m_TERRAIN_IMAGE_WIDTH / 2);
+                int relativeY = (y % m_VIEWPORT_HEX_HEIGHT);  // THIS DOESN'T WORK!
 
                 this.m_spriteBatch.Draw(this.m_MapSpriteSheet,
                     // destination rectangle
-                    new Rectangle(m_VIEWPORT_LEFT_X_COORD, m_VIEWPORT_TOP_Y_COORD + (y * m_UNIT_IMAGE_HEIGHT), width, m_UNIT_IMAGE_HEIGHT),
+//                    new Rectangle(m_VIEWPORT_LEFT_X_COORD, m_VIEWPORT_TOP_Y_COORD + (y * m_UNIT_IMAGE_HEIGHT), width, m_UNIT_IMAGE_HEIGHT),
+                    new Rectangle(m_VIEWPORT_LEFT_X_COORD, m_VIEWPORT_TOP_Y_COORD + (relativeY * m_UNIT_IMAGE_HEIGHT), width, m_UNIT_IMAGE_HEIGHT),
                     // source rectangle
                     new Rectangle(offset.x, offset.y, width, m_HEXPART_FULL_HEIGHT),
                     Color.White);
@@ -207,8 +215,9 @@ namespace xnaPanzer
                     sourceRect.Y = offset.y;
 
                     // calculate where the hex should be drawn on the viewport
+                    int relativeY = (y % m_VIEWPORT_HEX_HEIGHT) - 1;
                     Rectangle destRect = new Rectangle(m_VIEWPORT_LEFT_X_COORD + m_HEXPART_LENGTH_A + ((x - 1) * m_HEXPART_LENGTH_BBA),
-                            m_VIEWPORT_TOP_Y_COORD + ((y - 1) * m_HEXPART_FULL_HEIGHT), m_HEXPART_FULL_WIDTH, m_HEXPART_FULL_HEIGHT);
+                            m_VIEWPORT_TOP_Y_COORD + (relativeY * m_HEXPART_FULL_HEIGHT), m_HEXPART_FULL_WIDTH, m_HEXPART_FULL_HEIGHT);
 
                     // if odd-numbered hex column then shift hex down by half a hex
                     if ((x % 2) == 1) {                                 // if remainder = 1 then odd-numbered column
