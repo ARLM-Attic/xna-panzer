@@ -36,10 +36,8 @@ namespace xnaPanzer
         Texture2D m_UnitSpriteSheet;
         SpriteFont Font1;
 
-        int m_UnitCounter = 0;
-        int m_TerrainCounter = 0;
-
         int[,] m_AllowableMoves = new int[5, 5];
+        string[] terrainNames = new string[10] { "Clear", "Mtn", "Airport", "Fort", "Woods", "swamp", "Improved", "Water", "Rough", "City" };
 
         // constants for calculating combat unit offset into sprite sheet
         const int m_NUM_UNITS_IN_SPRITE_SHEET = 90;
@@ -66,14 +64,14 @@ namespace xnaPanzer
 
         const int m_VIEWPORT_LEFT_X_COORD = 50;
         const int m_VIEWPORT_TOP_Y_COORD = 150;
-        const int m_VIEWPORT_HEX_HEIGHT = 5;
-        const int m_VIEWPORT_HEX_WIDTH = 5;
+        const int m_VIEWPORT_HEX_HEIGHT = 8;
+        const int m_VIEWPORT_HEX_WIDTH = 10;
 
         const int m_MAP_HEX_WIDTH = 25;
         const int m_MAP_HEX_HEIGHT = 20;
 
-        int m_ViewportLeftHexX = 1;
-        int m_ViewportTopHexY = 1;
+        int m_ViewportLeftHexX = 0;
+        int m_ViewportTopHexY = 0;
         
         int[,] m_map;
 
@@ -107,7 +105,8 @@ namespace xnaPanzer
             for (int x = 0; x < m_MAP_HEX_WIDTH; x++) {
                 //this.m_map[x][ = new int[20];
                 for (int y = 0; y < m_MAP_HEX_HEIGHT; y++) {
-                    this.m_map[x,y] = random.Next(10);
+                    this.m_map[x, y] = random.Next(10); // (int)(y % 10); // random.Next(10);
+                    //Console.WriteLine("m_map[{0},{1}] = {2}", x.ToString(), y.ToString(), this.terrainNames[this.m_map[x,y]]);
                 }
             }
 
@@ -132,7 +131,7 @@ namespace xnaPanzer
             m_MapSpriteSheet = this.Content.Load<Texture2D>("tacmap_terrain_xnaPanzer");
             m_UnitSpriteSheet = this.Content.Load<Texture2D>("tacicons_start_at_0");
 
-            Font1 = Content.Load<SpriteFont>("Courier New");
+            Font1 = Content.Load<SpriteFont>("Fonts/SpriteFont1");
 
 
         }
@@ -164,23 +163,31 @@ namespace xnaPanzer
             }
 
             if (keyboardState.IsKeyDown(Keys.Down) && !this.previousKeyboardState.IsKeyDown(Keys.Down)) {
-                if (this.m_ViewportTopHexY + m_VIEWPORT_HEX_HEIGHT + 1 < m_MAP_HEX_HEIGHT) {
-                    ++this.m_ViewportTopHexY;
+                if (this.m_ViewportTopHexY + m_VIEWPORT_HEX_HEIGHT + 2 < m_MAP_HEX_HEIGHT) {
+                    this.m_ViewportTopHexY += 2;
                 }
             }
 
             if (keyboardState.IsKeyDown(Keys.Up) && !this.previousKeyboardState.IsKeyDown(Keys.Up)) {
-                if (this.m_ViewportTopHexY > 1) {
-                    --this.m_ViewportTopHexY;
+                if (this.m_ViewportTopHexY >= 2) {
+                    this.m_ViewportTopHexY -= 2;
+                }
+            }
+
+            if (keyboardState.IsKeyDown(Keys.Left) && !this.previousKeyboardState.IsKeyDown(Keys.Left)) {
+                if (this.m_ViewportLeftHexX  >= 2) {
+                    this.m_ViewportLeftHexX -= 2;
+                }
+            }
+
+            if (keyboardState.IsKeyDown(Keys.Right) && !this.previousKeyboardState.IsKeyDown(Keys.Right)) {
+                if (this.m_ViewportLeftHexX + m_VIEWPORT_HEX_WIDTH + 2 < m_MAP_HEX_WIDTH) {
+                    this.m_ViewportLeftHexX += 2;
                 }
             }
 
             previousKeyboardState = keyboardState;
             previousGamepadState = gamepadState;
-
-            // TODO: Add your update logic here
-            m_UnitCounter = ++m_UnitCounter % m_NUM_UNITS_IN_SPRITE_SHEET;
-            m_TerrainCounter = ++m_TerrainCounter % m_NUM_TERRAIN_HEXES_IN_SPRITE_SHEET;
 
             base.Update(gameTime);
         }
@@ -193,42 +200,11 @@ namespace xnaPanzer
         {
             m_graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
-
             this.m_spriteBatch.Begin();
 
             //this.m_spriteBatch.Draw(this.m_UnitSpriteSheet, new Rectangle(0, 0, this.m_UnitSpriteSheet.Width, this.m_UnitSpriteSheet.Height), Color.White);
-            Offset offset; // = this.CalculateSpritesheetCoordinates(this.m_UnitCounter);
+            Offset offset = new Offset() ; // = this.CalculateSpritesheetCoordinates(this.m_UnitCounter);
 
-            // draw the next terrain image
-            offset = this.CalculateSpritesheetCoordinates(this.m_TerrainCounter);
-            this.m_spriteBatch.Draw(this.m_MapSpriteSheet, new Rectangle(61, 50, m_TERRAIN_IMAGE_WIDTH, m_TERRAIN_IMAGE_HEIGHT),
-                new Rectangle(offset.x, offset.y, m_TERRAIN_IMAGE_WIDTH, m_TERRAIN_IMAGE_HEIGHT), Color.White);
-
-            // draw the next unit
-            offset = this.CalculateSpritesheetCoordinates(this.m_UnitCounter);
-            this.m_spriteBatch.Draw(this.m_UnitSpriteSheet, new Rectangle(0, 0, m_UNIT_IMAGE_WIDTH, m_UNIT_IMAGE_HEIGHT),
-                new Rectangle(offset.x, offset.y, m_UNIT_IMAGE_WIDTH, m_UNIT_IMAGE_HEIGHT), Color.White);
-/*
-            int partialLeftX = this.m_ViewportLeftHexX - 1;
-            int partialTopY = this.m_ViewportTopHexY - 1;
-
-            // draw partial leftmost column
-            int width = m_UNIT_IMAGE_WIDTH / 2;
-            for (int y = partialTopY; y <= this.m_ViewportTopHexY + m_VIEWPORT_HEX_HEIGHT - 1; y++) {
-                offset = this.CalculateSpritesheetCoordinates(this.m_map[0, y]);
-                offset.x += (m_TERRAIN_IMAGE_WIDTH / 2);
-                int relativeY = (y % m_VIEWPORT_HEX_HEIGHT);  // THIS DOESN'T WORK!
-
-                this.m_spriteBatch.Draw(this.m_MapSpriteSheet,
-                    // destination rectangle
-//                    new Rectangle(m_VIEWPORT_LEFT_X_COORD, m_VIEWPORT_TOP_Y_COORD + (y * m_UNIT_IMAGE_HEIGHT), width, m_UNIT_IMAGE_HEIGHT),
-                    new Rectangle(m_VIEWPORT_LEFT_X_COORD, m_VIEWPORT_TOP_Y_COORD + (relativeY * m_UNIT_IMAGE_HEIGHT), width, m_UNIT_IMAGE_HEIGHT),
-                    // source rectangle
-                    new Rectangle(offset.x, offset.y, width, m_HEXPART_FULL_HEIGHT),
-                    Color.White);
-            }
-*/
             // draw all the hexes that are fully or partially visible within the viewport
             // note: the game GUI will mask out partial hexes around the edges of the viewport when it is drawn
             // in a later step
@@ -236,19 +212,22 @@ namespace xnaPanzer
             int bottommostHexY = this.m_ViewportTopHexY + m_VIEWPORT_HEX_HEIGHT;
             Rectangle sourceRect = new Rectangle(0, 0, m_HEXPART_FULL_WIDTH, m_HEXPART_FULL_HEIGHT);
 
-            for (int x = this.m_ViewportLeftHexX - 1; x <= rightmostHexX; x++) {
-                for (int y = this.m_ViewportTopHexY; y <= bottommostHexY; y++) {
+            int relativeY = -99;
+            int columnNumber = 0;
+            int rowNumber;
+            for (int x = this.m_ViewportLeftHexX; x < rightmostHexX; x++) {
+                rowNumber = 0;
+                for (int y = this.m_ViewportTopHexY; y < bottommostHexY; y++) {
                     offset = this.CalculateSpritesheetCoordinates(this.m_map[x, y]);
                     sourceRect.X = offset.x;
                     sourceRect.Y = offset.y;
 
                     // calculate where the hex should be drawn on the viewport
-                    int relativeY = (y % m_VIEWPORT_HEX_HEIGHT) - 1;
-                    Rectangle destRect = new Rectangle(m_VIEWPORT_LEFT_X_COORD + m_HEXPART_LENGTH_A + ((x - 1) * m_HEXPART_LENGTH_BBA),
-                            m_VIEWPORT_TOP_Y_COORD + (relativeY * m_HEXPART_FULL_HEIGHT), m_HEXPART_FULL_WIDTH, m_HEXPART_FULL_HEIGHT);
+                    relativeY = (y % m_VIEWPORT_HEX_HEIGHT) - 1;
+                    Rectangle destRect = new Rectangle(m_VIEWPORT_LEFT_X_COORD + m_HEXPART_LENGTH_A + ((columnNumber - 1) * m_HEXPART_LENGTH_BBA),
+                            m_VIEWPORT_TOP_Y_COORD + (rowNumber * m_HEXPART_FULL_HEIGHT), m_HEXPART_FULL_WIDTH, m_HEXPART_FULL_HEIGHT);
 
-                    // if odd-numbered hex column then shift hex down by half a hex
-                    if ((x % 2) == 1) {                                 // if remainder = 1 then odd-numbered column
+                    if ((columnNumber % 2) == 1) {                                 // if remainder = 1 then odd-numbered column
                         destRect.Y += m_HEXPART_LENGTH_C;
                     }
 
@@ -256,11 +235,20 @@ namespace xnaPanzer
                         destRect,                                       // destination rectangle
                         sourceRect,                                     // source rectangle
                         Color.White);                                   // white = don't apply tinting
+
+                    ++rowNumber;
                 }
+                //Console.WriteLine("x = " + x.ToString() +
+                //    ", map[x,m_viewportTopHexY] = " + this.m_map[x, this.m_ViewportTopHexY].ToString() +
+                //    ", offset = " + offset.x.ToString() + "," + offset.y.ToString() +
+                //    ", relativeY = " + relativeY.ToString());
+                ++columnNumber;
             }
 
             this.m_spriteBatch.DrawString(Font1, "m_ViewportLeftHexX = " + this.m_ViewportLeftHexX.ToString() +
-                ", m_ViewportTopHexY = " + this.m_ViewportTopHexY.ToString(), new Vector2(100, 500), Color.White);
+                ", m_ViewportTopHexY = " + this.m_ViewportTopHexY.ToString() +
+                ", bottommostHexY = " + bottommostHexY.ToString()
+                , new Vector2(10, 600), Color.White);
 
             this.m_spriteBatch.End();
 
