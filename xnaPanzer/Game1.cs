@@ -62,9 +62,12 @@ namespace xnaPanzer
         const int m_HEXPART_FULL_HEIGHT = 50;                           // full height of hex
         const int m_HEXPART_FULL_WIDTH = 60;                            // full width of hex
 
-        const int m_VIEWPORT_LEFT_X_COORD = 50;
-        const int m_VIEWPORT_TOP_Y_COORD = 150;
-        const int m_VIEWPORT_HEX_HEIGHT = 8;
+        const int m_VIEWPORT_MIN_X_COORD = 50;
+        const int m_VIEWPORT_MAX_X_COORD = 450;
+        const int m_VIEWPORT_MIN_Y_COORD = 50;
+        const int m_VIEWPORT_MAX_Y_COORD = 550;
+        const int m_VIEWPORT_TOP_Y_COORD = 50;
+        const int m_VIEWPORT_HEX_HEIGHT = 10;
         const int m_VIEWPORT_HEX_WIDTH = 10;
 
         const int m_MAP_HEX_WIDTH = 25;
@@ -72,8 +75,24 @@ namespace xnaPanzer
 
         int m_ViewportLeftHexX = 0;
         int m_ViewportTopHexY = 0;
+        int m_MouseHexX = -1;
+        int m_MouseHexY = -1;
         
         int[,] m_map;
+
+        int[, ,] m_DeltaX = new int[2, 2, 50]
+            { 
+                { 
+                    { 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0 },
+                    { 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0 },
+                }, 
+                { 
+                    { 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0 },
+                    { 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0 },
+                }
+            };
+
+        int[, ,] m_DeltaY = new int[2, 6, 5];
 
         KeyboardState keyboardState;
         KeyboardState previousKeyboardState;
@@ -95,9 +114,10 @@ namespace xnaPanzer
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            this.m_graphics.PreferredBackBufferWidth = 1024;
-            this.m_graphics.PreferredBackBufferHeight = 768;
+            this.m_graphics.PreferredBackBufferWidth = 800;
+            this.m_graphics.PreferredBackBufferHeight = 600;
             this.m_graphics.ApplyChanges();
+            this.IsMouseVisible = true;
 
             //this.m_map = new int[m_MAP_HEX_WIDTH, m_MAP_HEX_HEIGHT];
             Random random = new Random(unchecked((int) (DateTime.Now.Ticks)));
@@ -110,6 +130,15 @@ namespace xnaPanzer
                 }
             }
 
+            for (int i = 0; i < 2; i++) {
+                for (int x = 0; x < 6; x++) {
+                    for (int y = 0; y < 5; y++) {
+                        this.m_DeltaY[i, x, y] = 0;
+                    }
+                }
+            }
+
+            // init keyboard & gamepad states (the previous ones are used to help detect keypresses)
             KeyboardState keyboardState = Keyboard.GetState();
             KeyboardState previousKeyboardState = Keyboard.GetState();
             GamePadState gamepadState = GamePad.GetState(PlayerIndex.One);
@@ -132,8 +161,6 @@ namespace xnaPanzer
             m_UnitSpriteSheet = this.Content.Load<Texture2D>("tacicons_start_at_0");
 
             Font1 = Content.Load<SpriteFont>("Fonts/SpriteFont1");
-
-
         }
 
         /// <summary>
@@ -162,6 +189,8 @@ namespace xnaPanzer
                 this.Exit();
             }
 
+            // scroll the map in the appropriate direction(s) if the arrows keys were just pressed
+
             if (keyboardState.IsKeyDown(Keys.Down) && !this.previousKeyboardState.IsKeyDown(Keys.Down)) {
                 if (this.m_ViewportTopHexY + m_VIEWPORT_HEX_HEIGHT + 2 < m_MAP_HEX_HEIGHT) {
                     this.m_ViewportTopHexY += 2;
@@ -185,6 +214,13 @@ namespace xnaPanzer
                     this.m_ViewportLeftHexX += 2;
                 }
             }
+
+            MouseState ms = new MouseState();
+            ms = Mouse.GetState();
+
+            MapLocation ml = this.ConvertMousePositionToMapLocation(ms.X, ms.Y);
+            this.m_MouseHexX = ml.x;
+            this.m_MouseHexY = ml.y;
 
             previousKeyboardState = keyboardState;
             previousGamepadState = gamepadState;
@@ -224,7 +260,7 @@ namespace xnaPanzer
 
                     // calculate where the hex should be drawn on the viewport
                     relativeY = (y % m_VIEWPORT_HEX_HEIGHT) - 1;
-                    Rectangle destRect = new Rectangle(m_VIEWPORT_LEFT_X_COORD + m_HEXPART_LENGTH_A + ((columnNumber - 1) * m_HEXPART_LENGTH_BBA),
+                    Rectangle destRect = new Rectangle(m_VIEWPORT_MIN_X_COORD + m_HEXPART_LENGTH_A + ((columnNumber - 1) * m_HEXPART_LENGTH_BBA),
                             m_VIEWPORT_TOP_Y_COORD + (rowNumber * m_HEXPART_FULL_HEIGHT), m_HEXPART_FULL_WIDTH, m_HEXPART_FULL_HEIGHT);
 
                     if ((columnNumber % 2) == 1) {                                 // if remainder = 1 then odd-numbered column
@@ -245,11 +281,19 @@ namespace xnaPanzer
                 ++columnNumber;
             }
 
-            this.m_spriteBatch.DrawString(Font1, "m_ViewportLeftHexX = " + this.m_ViewportLeftHexX.ToString() +
-                ", m_ViewportTopHexY = " + this.m_ViewportTopHexY.ToString() +
-                ", bottommostHexY = " + bottommostHexY.ToString()
-                , new Vector2(10, 600), Color.White);
-
+            if (this.m_MouseHexX != -1) {
+                this.m_spriteBatch.DrawString(Font1,
+                    "m_ViewportLeftHexX = " + this.m_ViewportLeftHexX.ToString() +
+                    ", m_ViewportTopHexY = " + this.m_ViewportTopHexY.ToString() +
+                    ", Mouse hex X,Y = " + this.m_MouseHexX.ToString() + ", " + this.m_MouseHexY.ToString()
+                    , new Vector2(10, 550), Color.White);
+            } else {
+                MouseState ms = new MouseState();
+                ms = Mouse.GetState();
+                this.m_spriteBatch.DrawString(Font1,
+                    "Mouse coord X,Y = " + ms.X.ToString() + ", " + ms.Y.ToString()
+                    , new Vector2(10, 550), Color.White);
+            }
             this.m_spriteBatch.End();
 
             base.Draw(gameTime);
@@ -284,13 +328,13 @@ namespace xnaPanzer
 
             return offset;
         }
-        /*
-        private MapLocation ConvertMousePositionToMapLocation(int _mouseX, int _mouseY)
+        
+        public MapLocation ConvertMousePositionToMapLocation(int _mouseX, int _mouseY)
         {
             // abort if mouse is not within the viewport (the map portion of the screen)
             if (_mouseX < m_VIEWPORT_MIN_X_COORD || _mouseX > m_VIEWPORT_MAX_X_COORD ||
                 _mouseY < m_VIEWPORT_MIN_Y_COORD || _mouseY > m_VIEWPORT_MAX_Y_COORD) {
-                return new HexLocation(-1, -1);
+                return new MapLocation(-1, -1);
             }
 
             // adjust mouse coords for viewport position relative to top-left of screen
@@ -299,8 +343,8 @@ namespace xnaPanzer
 
             // calculate which map square mouse cursor is in (each square is composed of 3 partial hexes)
             // there are 2 types of map squares, one for hex X being even and one for odd
-            squareHexX = (int)(_mouseX / m_HEXPART_FULL_WIDTH);
-            squareHexY = (int)(_mouseY / m_HEXPART_FULL_HEIGHT);
+            int squareHexX = (int)(_mouseX / m_HEXPART_LENGTH_BBA);
+            int squareHexY = (int)(_mouseY / m_HEXPART_FULL_HEIGHT);
 
             // calculate relative mouse position within that square
             // e.g. if mouse x,y = 390,300 (within the map viewport) and hex width,height = 60,50 then
@@ -312,15 +356,20 @@ namespace xnaPanzer
 
             // drill into mask square to see what x,y values (deltas) need to be added to square x,y to yield map hex x,y
             // note: there are two mask squares: one where square x is odd and one for even
-            int isXOdd = (int)(mouseXWithinSquare % 1);                         // 1 = odd, 0 = even
-            int deltaX = m_DeltaX[isXOdd, mouseXWithinSquare, mouseYWithinSquare];
-            int deltaY = m_DeltaX[isXOdd, mouseXWithinSquare, mouseYWithinSquare];
+            int isXOdd;
+            if ((squareHexX % 1) == 1) {
+                isXOdd = 1;
+            } else {
+                isXOdd = 0;
+            } //((squareHexX % 1) == 1));                      // 1 = odd, 0 = even
+            int deltaX = 1; // m_DeltaX[isXOdd, mouseXWithinSquare, mouseYWithinSquare];
+            int deltaY = 1; // m_DeltaX[isXOdd, mouseXWithinSquare, mouseYWithinSquare];
 
             // now calculate the actual map hex x,y
-            return new HexLocation(_mouseX + deltaX, _mouseY + deltaY);
+            return new MapLocation(squareHexX + deltaX, squareHexY + deltaY);
         }
-        */
-    } // class Game1
+
+} // class Game1
 
     public struct MapLocation
     {
