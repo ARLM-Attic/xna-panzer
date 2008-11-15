@@ -69,6 +69,14 @@ namespace xnaPanzer
         const int m_VIEWPORT_MIN_Y_COORD = 50;
         const int m_VIEWPORT_MAX_Y_COORD = m_VIEWPORT_MIN_Y_COORD + (m_VIEWPORT_HEX_HEIGHT * m_HEXPART_FULL_HEIGHT) + m_HEXPART_LENGTH_C;
 
+        const int m_PreferredBackBufferWidth = 800;
+        const int m_PreferredBackBufferHeight = 600;
+
+        const int m_MOUSE_SCROLL_MIN_X = 5;
+        const int m_MOUSE_SCROLL_MAX_X = m_PreferredBackBufferWidth - 5;
+        const int m_MOUSE_SCROLL_MIN_Y = 5;
+        const int m_MOUSE_SCROLL_MAX_Y = m_PreferredBackBufferHeight - 5;
+
         const int m_MAP_HEX_WIDTH = 25;
         const int m_MAP_HEX_HEIGHT = 20;
 
@@ -191,25 +199,29 @@ namespace xnaPanzer
 
             // scroll the map in the appropriate direction(s) if the arrows keys were just pressed
 
-            if (keyboardState.IsKeyDown(Keys.Down) && !this.previousKeyboardState.IsKeyDown(Keys.Down)) {
+            if ((keyboardState.IsKeyDown(Keys.Down) && !this.previousKeyboardState.IsKeyDown(Keys.Down)) ||
+                (Mouse.GetState().Y >= m_MOUSE_SCROLL_MAX_Y)) {
                 if (this.m_ViewportTopHexY + m_VIEWPORT_HEX_HEIGHT + 2 < m_MAP_HEX_HEIGHT) {
                     this.m_ViewportTopHexY += 2;
                 }
             }
 
-            if (keyboardState.IsKeyDown(Keys.Up) && !this.previousKeyboardState.IsKeyDown(Keys.Up)) {
+            if ((keyboardState.IsKeyDown(Keys.Up) && !this.previousKeyboardState.IsKeyDown(Keys.Up)) ||
+                (Mouse.GetState().Y <= m_MOUSE_SCROLL_MIN_Y)) {
                 if (this.m_ViewportTopHexY >= 2) {
                     this.m_ViewportTopHexY -= 2;
                 }
             }
 
-            if (keyboardState.IsKeyDown(Keys.Left) && !this.previousKeyboardState.IsKeyDown(Keys.Left)) {
+            if ((keyboardState.IsKeyDown(Keys.Left) && !this.previousKeyboardState.IsKeyDown(Keys.Left)) ||
+                (Mouse.GetState().X <= m_MOUSE_SCROLL_MIN_X)) {
                 if (this.m_ViewportLeftHexX  >= 2) {
                     this.m_ViewportLeftHexX -= 2;
                 }
             }
 
-            if (keyboardState.IsKeyDown(Keys.Right) && !this.previousKeyboardState.IsKeyDown(Keys.Right)) {
+            if ((keyboardState.IsKeyDown(Keys.Right) && !this.previousKeyboardState.IsKeyDown(Keys.Right)) ||
+                (Mouse.GetState().X >= m_MOUSE_SCROLL_MAX_X)) {
                 if (this.m_ViewportLeftHexX + m_VIEWPORT_HEX_WIDTH + 2 < m_MAP_HEX_WIDTH) {
                     this.m_ViewportLeftHexX += 2;
                 }
@@ -366,7 +378,7 @@ namespace xnaPanzer
             int deltaY = 1; // m_DeltaX[isXOdd, mouseXWithinSquare, mouseYWithinSquare];
 
             // now calculate the actual map hex x,y
-            return new MapLocation(squareHexX + deltaX, squareHexY + deltaY);
+            return new MapLocation(squareHexX + deltaX + this.m_ViewportLeftHexX, squareHexY + deltaY + this.m_ViewportTopHexY);
         }
 
         private bool IsMouseInViewport()
