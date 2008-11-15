@@ -62,13 +62,12 @@ namespace xnaPanzer
         const int m_HEXPART_FULL_HEIGHT = 50;                           // full height of hex
         const int m_HEXPART_FULL_WIDTH = 60;                            // full width of hex
 
-        const int m_VIEWPORT_MIN_X_COORD = 50;
-        const int m_VIEWPORT_MAX_X_COORD = 450;
-        const int m_VIEWPORT_MIN_Y_COORD = 50;
-        const int m_VIEWPORT_MAX_Y_COORD = 550;
-        const int m_VIEWPORT_TOP_Y_COORD = 50;
         const int m_VIEWPORT_HEX_HEIGHT = 10;
         const int m_VIEWPORT_HEX_WIDTH = 10;
+        const int m_VIEWPORT_MIN_X_COORD = 50;
+        const int m_VIEWPORT_MAX_X_COORD = m_VIEWPORT_MIN_X_COORD + (m_VIEWPORT_HEX_WIDTH * m_HEXPART_LENGTH_BBA) + m_HEXPART_LENGTH_A;
+        const int m_VIEWPORT_MIN_Y_COORD = 50;
+        const int m_VIEWPORT_MAX_Y_COORD = m_VIEWPORT_MIN_Y_COORD + (m_VIEWPORT_HEX_HEIGHT * m_HEXPART_FULL_HEIGHT) + m_HEXPART_LENGTH_C;
 
         const int m_MAP_HEX_WIDTH = 25;
         const int m_MAP_HEX_HEIGHT = 20;
@@ -116,6 +115,7 @@ namespace xnaPanzer
             // TODO: Add your initialization logic here
             this.m_graphics.PreferredBackBufferWidth = 800;
             this.m_graphics.PreferredBackBufferHeight = 600;
+            this.m_graphics.IsFullScreen = true;
             this.m_graphics.ApplyChanges();
             this.IsMouseVisible = true;
 
@@ -260,8 +260,8 @@ namespace xnaPanzer
 
                     // calculate where the hex should be drawn on the viewport
                     relativeY = (y % m_VIEWPORT_HEX_HEIGHT) - 1;
-                    Rectangle destRect = new Rectangle(m_VIEWPORT_MIN_X_COORD + m_HEXPART_LENGTH_A + ((columnNumber - 1) * m_HEXPART_LENGTH_BBA),
-                            m_VIEWPORT_TOP_Y_COORD + (rowNumber * m_HEXPART_FULL_HEIGHT), m_HEXPART_FULL_WIDTH, m_HEXPART_FULL_HEIGHT);
+                    Rectangle destRect = new Rectangle(m_VIEWPORT_MIN_X_COORD + (columnNumber * m_HEXPART_LENGTH_BBA),
+                            m_VIEWPORT_MIN_Y_COORD + (rowNumber * m_HEXPART_FULL_HEIGHT), m_HEXPART_FULL_WIDTH, m_HEXPART_FULL_HEIGHT);
 
                     if ((columnNumber % 2) == 1) {                                 // if remainder = 1 then odd-numbered column
                         destRect.Y += m_HEXPART_LENGTH_C;
@@ -281,7 +281,7 @@ namespace xnaPanzer
                 ++columnNumber;
             }
 
-            if (this.m_MouseHexX != -1) {
+            if (this.IsMouseInViewport()) {
                 this.m_spriteBatch.DrawString(Font1,
                     "m_ViewportLeftHexX = " + this.m_ViewportLeftHexX.ToString() +
                     ", m_ViewportTopHexY = " + this.m_ViewportTopHexY.ToString() +
@@ -367,6 +367,15 @@ namespace xnaPanzer
 
             // now calculate the actual map hex x,y
             return new MapLocation(squareHexX + deltaX, squareHexY + deltaY);
+        }
+
+        private bool IsMouseInViewport()
+        {
+            int mx = Mouse.GetState().X;
+            int my = Mouse.GetState().Y;
+
+            return (mx >= m_VIEWPORT_MIN_X_COORD && mx <= m_VIEWPORT_MAX_X_COORD &&
+                my >= m_VIEWPORT_MIN_Y_COORD && my <= m_VIEWPORT_MAX_Y_COORD);
         }
 
 } // class Game1
