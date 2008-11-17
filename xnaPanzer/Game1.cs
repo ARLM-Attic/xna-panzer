@@ -87,18 +87,221 @@ namespace xnaPanzer
         
         int[,] m_map;
 
-        UInt16[] m_DeltaXForEvenX = new UInt16[50] {
-            0x0000,
+        UInt16[] m_DELTA_X_FOR_EVEN_SQUARE_X = new UInt16[50] {
+            0x0000, // 0 <-- y coord
+            0x0001, // 1
+            0x0001, // 2
+            0x0003, // 3
+            0x0007, // 4
+            0x0007, // 5
+            0x000F, // 6
+            0x000F, // 7
+            0x001F, // 8
+            0x003F, // 9 (6 bit on)
+            0x003F, // 10
+            0x007F, // 11
+            0x00FF, // 12
+            0x00FF, // 13
+            0x01FF, // 14
+            0x01FF, // 15
+            0x03FF, // 16
+            0x07FF, // 17
+            0x07FF, // 18
+            0x0FFF, // 19
+            0x1FFF, // 20
+            0x1FFF, // 21
+            0x3FFF, // 22
+            0x3FFF, // 23
+            0x7FFF, // 24
 
-                { 
-                    { 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0 },
-                    { 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0 },
-                }, 
-                { 
-                    { 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0 },
-                    { 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0 },
-                }
-            };
+            0xFFFF, // 25
+            0x7FFF,
+            0x7FFF,
+            0x3FFF,
+            0x3FFF,
+            0x1FFF, // 30
+            0x0fff,
+            0x0fff,
+            0x07ff,
+            0x03ff,
+            0x03ff,
+            0x01ff,
+            0x01ff,
+            0x00ff,
+            0x007f,
+            0x007f, // 40
+            0x003f,
+            0x001f,
+            0x001f,
+            0x000f,
+            0x000f,
+            0x0007,
+            0x0003,
+            0x0003,
+            0x0001  // 49 (line 50)
+        };
+
+        UInt16[] m_DELTA_X_FOR_ODD_SQUARE_X = new UInt16[50] {  // TODO: NOT ACTUAL VALUE!!!
+            0x0000, // 0 <-- y coord
+            0x0001, // 1
+            0x0001, // 2
+            0x0003, // 3
+            0x0007, // 4
+            0x0007, // 5
+            0x000F, // 6
+            0x000F, // 7
+            0x001F, // 8
+            0x003F, // 9 (6 bit on)
+            0x003F, // 10
+            0x007F, // 11
+            0x00FF, // 12
+            0x00FF, // 13
+            0x01FF, // 14
+            0x01FF, // 15
+            0x03FF, // 16
+            0x07FF, // 17
+            0x07FF, // 18
+            0x0FFF, // 19
+            0x1FFF, // 20
+            0x1FFF, // 21
+            0x3FFF, // 22
+            0x3FFF, // 23
+            0x7FFF, // 24
+
+            0xFFFF, // 25
+            0x7FFF,
+            0x7FFF,
+            0x3FFF,
+            0x3FFF,
+            0x1FFF, // 30
+            0x0fff,
+            0x0fff,
+            0x07ff,
+            0x03ff,
+            0x03ff,
+            0x01ff,
+            0x01ff,
+            0x00ff,
+            0x007f,
+            0x007f, // 40
+            0x003f,
+            0x001f,
+            0x001f,
+            0x000f,
+            0x000f,
+            0x0007,
+            0x0003,
+            0x0003,
+            0x0001  // 49 (line 50)
+        };
+
+        UInt16[] m_DELTA_Y_FOR_EVEN_SQUARE_X = new UInt16[50] {
+            0x0000, // 0 <-- y coord
+            0x0000, // 1
+            0x0000, // 2
+            0x0000, // 3
+            0x0000, // 4
+            0x0000, // 5
+            0x0000, // 6
+            0x0000, // 7
+            0x0000, // 8
+            0x0000, // 9 (6 bit on)
+            0x0000, // 10
+            0x0000, // 11
+            0x0000, // 12
+            0x0000, // 13
+            0x0000, // 14
+            0x0000, // 15
+            0x0000, // 16
+            0x0000, // 17
+            0x0000, // 18
+            0x0000, // 19
+            0x0000, // 20
+            0x0000, // 21
+            0x0000, // 22
+            0x0000, // 23
+            0x0000, // 24
+
+            0xFFFF, // 25
+            0x7FFF,
+            0x7FFF,
+            0x3FFF,
+            0x3FFF,
+            0x1FFF, // 30
+            0x0fff,
+            0x0fff,
+            0x07ff,
+            0x03ff,
+            0x03ff,
+            0x01ff,
+            0x01ff,
+            0x00ff,
+            0x007f,
+            0x007f, // 40
+            0x003f,
+            0x001f,
+            0x001f,
+            0x000f,
+            0x000f,
+            0x0007,
+            0x0003,
+            0x0003,
+            0x0001  // 49 (line 50)
+        };
+
+        UInt16[] m_DELTA_Y_FOR_ODD_SQUARE_X = new UInt16[50] {  // TODO: not actual values!!!
+            0x0000, // 0 <-- y coord
+            0x0000, // 1
+            0x0000, // 2
+            0x0000, // 3
+            0x0000, // 4
+            0x0000, // 5
+            0x0000, // 6
+            0x0000, // 7
+            0x0000, // 8
+            0x0000, // 9 (6 bit on)
+            0x0000, // 10
+            0x0000, // 11
+            0x0000, // 12
+            0x0000, // 13
+            0x0000, // 14
+            0x0000, // 15
+            0x0000, // 16
+            0x0000, // 17
+            0x0000, // 18
+            0x0000, // 19
+            0x0000, // 20
+            0x0000, // 21
+            0x0000, // 22
+            0x0000, // 23
+            0x0000, // 24
+
+            0x0001, // line 25
+            0x0001,
+            0x0001,
+            0x0001,
+            0x0001,
+            0x0001, // 30
+            0x0001,
+            0x0001,
+            0x0001,
+            0x0001,
+            0x0001,
+            0x0001,
+            0x0001,
+            0x0001,
+            0x0001,
+            0x0001, // 40
+            0x0001,
+            0x0001,
+            0x0001,
+            0x0001,
+            0x0001,
+            0x0001,
+            0x0001,
+            0x0001,
+            0x0001  // 49 (line 50)
+        };
 
         int[, ,] m_DeltaY = new int[2, 6, 5];
 
@@ -124,7 +327,7 @@ namespace xnaPanzer
             // TODO: Add your initialization logic here
             this.m_graphics.PreferredBackBufferWidth = 800;
             this.m_graphics.PreferredBackBufferHeight = 600;
-            this.m_graphics.IsFullScreen = true;
+            //this.m_graphics.IsFullScreen = true;
             this.m_graphics.ApplyChanges();
             this.IsMouseVisible = true;
 
@@ -371,17 +574,22 @@ namespace xnaPanzer
             // note: there are two mask squares: one where square x is odd and one for even
             int deltaX = 0; // m_DeltaX[isXOdd, mouseXWithinSquare, mouseYWithinSquare];
             int deltaY = 0; // m_DeltaX[isXOdd, mouseXWithinSquare, mouseYWithinSquare];
-            if ((squareHexX % 1) == 1) {                                // odd-numbered square?
-                if (mouseXWithinSquare < 15) {
+            if ((squareHexX & 1) == 0) {                                // even-numbered square?
+                if (mouseXWithinSquare > 14) {
+                    deltaX = 1;
                 } else {
-                    if 
+                    deltaX = (m_DELTA_X_FOR_EVEN_SQUARE_X[mouseYWithinSquare] & mouseXWithinSquare) == 0 ? 1 : 0;
+                    deltaY = (m_DELTA_Y_FOR_EVEN_SQUARE_X[mouseYWithinSquare] & mouseXWithinSquare) == 0 ? 1 : 0;
                 }
-            } else {
-                isXOdd = 0;
-            } //((squareHexX % 1) == 1));                      // 1 = odd, 0 = even
+            } else {                                                    // odd-numbered square
+            } //((squareHexX % 1) == 0));                      // 1 = even, 0 = odd
 
             // now calculate the actual map hex x,y
-            return new MapLocation(squareHexX + deltaX + this.m_ViewportLeftHexX, squareHexY + deltaY + this.m_ViewportTopHexY);
+            int hexX = squareHexX + deltaX + this.m_ViewportLeftHexX;
+            int hexY = squareHexY + deltaY + this.m_ViewportTopHexY;
+            Console.WriteLine("square: {0},{1}   mouse Relative: {2},{3}   delta: {4},{5}   hex: {6},{7}",
+                squareHexX, squareHexY, mouseXWithinSquare, mouseYWithinSquare, deltaX, deltaY, hexX, hexY);
+            return new MapLocation(hexX, hexY);
         }
 
         private bool IsMouseInViewport()
