@@ -34,6 +34,7 @@ namespace xnaPanzer
         SpriteBatch m_spriteBatch;
         Texture2D m_MapSpriteSheet;
         Texture2D m_UnitSpriteSheet;
+        Texture2D m_DeltaTextures;
         SpriteFont Font1;
 
         int[,] m_AllowableMoves = new int[5, 5];
@@ -370,6 +371,7 @@ namespace xnaPanzer
 
             //Load the images for map terrain and combat units from bitmap files
             m_MapSpriteSheet = this.Content.Load<Texture2D>("tacmap_terrain_xnaPanzer");
+            this.m_DeltaTextures = this.Content.Load<Texture2D>("DeltaTextures");
             m_UnitSpriteSheet = this.Content.Load<Texture2D>("tacicons_start_at_0");
 
             Font1 = Content.Load<SpriteFont>("Fonts/SpriteFont1");
@@ -567,22 +569,45 @@ namespace xnaPanzer
             //      : mouse is (390 % 60) = 30 pixels from left edge of that square
             //      : mouse is (300 % 50) = 0 pixels from top edge of that square
             //      : thus, the mouse cursor is at the very top-center of that map square
-            int mouseXWithinSquare = _mouseX % m_HEXPART_FULL_WIDTH;
+            int mouseXWithinSquare = _mouseX % m_HEXPART_LENGTH_BBA; ;
             int mouseYWithinSquare = _mouseY % m_HEXPART_FULL_HEIGHT;
 
             // drill into mask square to see what x,y values (deltas) need to be added to square x,y to yield map hex x,y
             // note: there are two mask squares: one where square x is odd and one for even
             int deltaX = 0; // m_DeltaX[isXOdd, mouseXWithinSquare, mouseYWithinSquare];
             int deltaY = 0; // m_DeltaX[isXOdd, mouseXWithinSquare, mouseYWithinSquare];
+            Color[] deltaColor = new Color[1];
             if ((squareHexX & 1) == 0) {                                // even-numbered square?
-                if (mouseXWithinSquare > 14) {
-                    deltaX = 1;
+                this.m_DeltaTextures.GetData(0, new Rectangle(mouseXWithinSquare, mouseYWithinSquare, 1, 1), deltaColor, 0, 1);
+                if (deltaColor[0].R == 255) {
+                    deltaX = -1;
+                } else if (deltaColor[0].B == 255) {
+                    deltaY = 1;
                 } else {
-                    deltaX = (m_DELTA_X_FOR_EVEN_SQUARE_X[mouseYWithinSquare] & mouseXWithinSquare) == 0 ? 1 : 0;
-                    deltaY = (m_DELTA_Y_FOR_EVEN_SQUARE_X[mouseYWithinSquare] & mouseXWithinSquare) == 0 ? 1 : 0;
                 }
+  //              Console.WriteLine("Even X: Pixel Color for " + mouseXWithinSquare + "," + mouseYWithinSquare + " = " + deltaColor[0].ToString());
             } else {                                                    // odd-numbered square
+                this.m_DeltaTextures.GetData(0, new Rectangle(mouseXWithinSquare + 45, mouseYWithinSquare, 1, 1), deltaColor, 0, 1);
+                if (deltaColor[0].R == 255) {
+                    deltaX = -1;
+                } else if (deltaColor[0].B == 255) {
+                    deltaY = 1;
+                } else {
+                }
+//                Console.WriteLine("Odd X: Pixel Color for " + mouseXWithinSquare + "," + mouseYWithinSquare + " = " + deltaColor[0].ToString());
             } //((squareHexX % 1) == 0));                      // 1 = even, 0 = odd
+//            Console.WriteLine("Pixel Color = " + deltaColor[0].ToString());
+
+   ////declare a uint array to hold the pixel data of our tilemap     backBufferData.GetData<Color>(
+        //0,
+        //sourceRectangle,
+        //retrievedColor,
+        //0,
+        //1);
+
+   //uint[] tilesource = new uint[tileMap.Width * tileMap.Height]; 
+   ////populate the array 
+   //tileMap.GetData(tilesource, 0, tileMap.Width * tileMap.Height);
 
             // now calculate the actual map hex x,y
             int hexX = squareHexX + deltaX + this.m_ViewportLeftHexX;
@@ -600,6 +625,12 @@ namespace xnaPanzer
             return (mx >= m_VIEWPORT_MIN_X_COORD && mx <= m_VIEWPORT_MAX_X_COORD &&
                 my >= m_VIEWPORT_MIN_Y_COORD && my <= m_VIEWPORT_MAX_Y_COORD);
         }
+
+        private float CalculateEvenHexSlopeForUpperHalf(int _x, int _y)
+        {
+            return (float) (_y - 24) / (_x - 0);
+        }
+
 
 } // class Game1
 
