@@ -87,8 +87,9 @@ namespace xnaPanzer
         
         int[,] m_map;
 
-        int[, ,] m_DeltaX = new int[2, 2, 50]
-            { 
+        UInt16[] m_DeltaXForEvenX = new UInt16[50] {
+            0x0000,
+
                 { 
                     { 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0 },
                     { 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0 },
@@ -368,14 +369,16 @@ namespace xnaPanzer
 
             // drill into mask square to see what x,y values (deltas) need to be added to square x,y to yield map hex x,y
             // note: there are two mask squares: one where square x is odd and one for even
-            int isXOdd;
-            if ((squareHexX % 1) == 1) {
-                isXOdd = 1;
+            int deltaX = 0; // m_DeltaX[isXOdd, mouseXWithinSquare, mouseYWithinSquare];
+            int deltaY = 0; // m_DeltaX[isXOdd, mouseXWithinSquare, mouseYWithinSquare];
+            if ((squareHexX % 1) == 1) {                                // odd-numbered square?
+                if (mouseXWithinSquare < 15) {
+                } else {
+                    if 
+                }
             } else {
                 isXOdd = 0;
             } //((squareHexX % 1) == 1));                      // 1 = odd, 0 = even
-            int deltaX = 1; // m_DeltaX[isXOdd, mouseXWithinSquare, mouseYWithinSquare];
-            int deltaY = 1; // m_DeltaX[isXOdd, mouseXWithinSquare, mouseYWithinSquare];
 
             // now calculate the actual map hex x,y
             return new MapLocation(squareHexX + deltaX + this.m_ViewportLeftHexX, squareHexY + deltaY + this.m_ViewportTopHexY);
