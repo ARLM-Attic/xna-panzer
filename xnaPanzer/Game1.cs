@@ -564,9 +564,9 @@ namespace xnaPanzer
             int squareHexX = (int)(_mouseX / m_HEXPART_LENGTH_BBA);
             int squareHexY = (int)(_mouseY / m_HEXPART_FULL_HEIGHT);
 
-            // calculate relative mouse position within that square
-            // e.g. if mouse x,y = 390,300 (within the map viewport) and hex width,height = 60,50 then
-            //      : mouse is (390 % 60) = 30 pixels from left edge of that square
+            // calculate relative mouse position within that square using the modulo operator
+            // e.g. if mouse x,y = 390,300 (within the map viewport) and hex 3/4 width,height = 60,50 then
+            //      : mouse is (390 % 45) = 30 pixels from left edge of that square
             //      : mouse is (300 % 50) = 0 pixels from top edge of that square
             //      : thus, the mouse cursor is at the very top-center of that map square
             int mouseXWithinSquare = _mouseX % m_HEXPART_LENGTH_BBA; ;
@@ -582,10 +582,10 @@ namespace xnaPanzer
                 if (deltaColor[0].R == 255) {
                     deltaX = -1;
                 } else if (deltaColor[0].B == 255) {
+                    deltaX = -1;
                     deltaY = 1;
                 } else {
                 }
-  //              Console.WriteLine("Even X: Pixel Color for " + mouseXWithinSquare + "," + mouseYWithinSquare + " = " + deltaColor[0].ToString());
             } else {                                                    // odd-numbered square
                 this.m_DeltaTextures.GetData(0, new Rectangle(mouseXWithinSquare + 45, mouseYWithinSquare, 1, 1), deltaColor, 0, 1);
                 if (deltaColor[0].R == 255) {
@@ -594,20 +594,7 @@ namespace xnaPanzer
                     deltaY = 1;
                 } else {
                 }
-//                Console.WriteLine("Odd X: Pixel Color for " + mouseXWithinSquare + "," + mouseYWithinSquare + " = " + deltaColor[0].ToString());
-            } //((squareHexX % 1) == 0));                      // 1 = even, 0 = odd
-//            Console.WriteLine("Pixel Color = " + deltaColor[0].ToString());
-
-   ////declare a uint array to hold the pixel data of our tilemap     backBufferData.GetData<Color>(
-        //0,
-        //sourceRectangle,
-        //retrievedColor,
-        //0,
-        //1);
-
-   //uint[] tilesource = new uint[tileMap.Width * tileMap.Height]; 
-   ////populate the array 
-   //tileMap.GetData(tilesource, 0, tileMap.Width * tileMap.Height);
+            }
 
             // now calculate the actual map hex x,y
             int hexX = squareHexX + deltaX + this.m_ViewportLeftHexX;
