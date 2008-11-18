@@ -1,3 +1,16 @@
+/**********************************************************************************************************************
+ * 
+ * Game1.cs
+ * 
+ * Contains prototyping code to experiment with creating a hex-based 2D map using Panzer General graphics.  This code
+ * is not expected to be used in the actual development of the xnaPanzer game but is merely a proof-of-concept
+ * experiment.
+ * 
+ * Created November 2008 by tscheffel using Visual Studio 2008 Professional and XNA Game Studio 3.0 (beta).
+ * 
+ * All rights not forfeited by the designated license are hereby reserved.
+ * 
+ *********************************************************************************************************************/
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,20 +26,8 @@ using Microsoft.Xna.Framework.Storage;
 
 namespace xnaPanzer
 {
-    public struct Offset
-    {
-        public int x;
-        public int y;
-
-        public Offset(Int16 _x, Int16 _y)
-        {
-            this.x = _x;
-            this.y = _y;
-        }
-    }
-
     /// <summary>
-    /// This is the main type for your game
+    /// This is the prototype development class for xnaPanzer
     /// </summary>
     public class Game1 : Microsoft.Xna.Framework.Game
     {
@@ -37,7 +38,7 @@ namespace xnaPanzer
         Texture2D m_DeltaTextures;
         SpriteFont Font1;
 
-        int[,] m_AllowableMoves = new int[5, 5];
+        int[,] m_AllowableMoves = new int[5, 5];                        // to be used for pathfinding algorithm
         string[] terrainNames = new string[10] { "Clear", "Mtn", "Airport", "Fort", "Woods", "swamp", "Improved", "Water", "Rough", "City" };
 
         // constants for calculating combat unit offset into sprite sheet
@@ -63,11 +64,12 @@ namespace xnaPanzer
         const int m_HEXPART_FULL_HEIGHT = 50;                           // full height of hex
         const int m_HEXPART_FULL_WIDTH = 60;                            // full width of hex
 
+        // defines the Viewpoint (viewable portion of the map)
         const int m_VIEWPORT_HEX_HEIGHT = 10;
         const int m_VIEWPORT_HEX_WIDTH = 10;
         const int m_VIEWPORT_MIN_X_COORD = 50;
         const int m_VIEWPORT_MAX_X_COORD = m_VIEWPORT_MIN_X_COORD + (m_VIEWPORT_HEX_WIDTH * m_HEXPART_LENGTH_BBA) + m_HEXPART_LENGTH_A;
-        const int m_VIEWPORT_MIN_Y_COORD = 50;
+        const int m_VIEWPORT_MIN_Y_COORD = 25;
         const int m_VIEWPORT_MAX_Y_COORD = m_VIEWPORT_MIN_Y_COORD + (m_VIEWPORT_HEX_HEIGHT * m_HEXPART_FULL_HEIGHT) + m_HEXPART_LENGTH_C;
 
         const int m_PreferredBackBufferWidth = 800;
@@ -88,224 +90,6 @@ namespace xnaPanzer
         
         int[,] m_map;
 
-        UInt16[] m_DELTA_X_FOR_EVEN_SQUARE_X = new UInt16[50] {
-            0x0000, // 0 <-- y coord
-            0x0001, // 1
-            0x0001, // 2
-            0x0003, // 3
-            0x0007, // 4
-            0x0007, // 5
-            0x000F, // 6
-            0x000F, // 7
-            0x001F, // 8
-            0x003F, // 9 (6 bit on)
-            0x003F, // 10
-            0x007F, // 11
-            0x00FF, // 12
-            0x00FF, // 13
-            0x01FF, // 14
-            0x01FF, // 15
-            0x03FF, // 16
-            0x07FF, // 17
-            0x07FF, // 18
-            0x0FFF, // 19
-            0x1FFF, // 20
-            0x1FFF, // 21
-            0x3FFF, // 22
-            0x3FFF, // 23
-            0x7FFF, // 24
-
-            0xFFFF, // 25
-            0x7FFF,
-            0x7FFF,
-            0x3FFF,
-            0x3FFF,
-            0x1FFF, // 30
-            0x0fff,
-            0x0fff,
-            0x07ff,
-            0x03ff,
-            0x03ff,
-            0x01ff,
-            0x01ff,
-            0x00ff,
-            0x007f,
-            0x007f, // 40
-            0x003f,
-            0x001f,
-            0x001f,
-            0x000f,
-            0x000f,
-            0x0007,
-            0x0003,
-            0x0003,
-            0x0001  // 49 (line 50)
-        };
-
-        UInt16[] m_DELTA_X_FOR_ODD_SQUARE_X = new UInt16[50] {  // TODO: NOT ACTUAL VALUE!!!
-            0x0000, // 0 <-- y coord
-            0x0001, // 1
-            0x0001, // 2
-            0x0003, // 3
-            0x0007, // 4
-            0x0007, // 5
-            0x000F, // 6
-            0x000F, // 7
-            0x001F, // 8
-            0x003F, // 9 (6 bit on)
-            0x003F, // 10
-            0x007F, // 11
-            0x00FF, // 12
-            0x00FF, // 13
-            0x01FF, // 14
-            0x01FF, // 15
-            0x03FF, // 16
-            0x07FF, // 17
-            0x07FF, // 18
-            0x0FFF, // 19
-            0x1FFF, // 20
-            0x1FFF, // 21
-            0x3FFF, // 22
-            0x3FFF, // 23
-            0x7FFF, // 24
-
-            0xFFFF, // 25
-            0x7FFF,
-            0x7FFF,
-            0x3FFF,
-            0x3FFF,
-            0x1FFF, // 30
-            0x0fff,
-            0x0fff,
-            0x07ff,
-            0x03ff,
-            0x03ff,
-            0x01ff,
-            0x01ff,
-            0x00ff,
-            0x007f,
-            0x007f, // 40
-            0x003f,
-            0x001f,
-            0x001f,
-            0x000f,
-            0x000f,
-            0x0007,
-            0x0003,
-            0x0003,
-            0x0001  // 49 (line 50)
-        };
-
-        UInt16[] m_DELTA_Y_FOR_EVEN_SQUARE_X = new UInt16[50] {
-            0x0000, // 0 <-- y coord
-            0x0000, // 1
-            0x0000, // 2
-            0x0000, // 3
-            0x0000, // 4
-            0x0000, // 5
-            0x0000, // 6
-            0x0000, // 7
-            0x0000, // 8
-            0x0000, // 9 (6 bit on)
-            0x0000, // 10
-            0x0000, // 11
-            0x0000, // 12
-            0x0000, // 13
-            0x0000, // 14
-            0x0000, // 15
-            0x0000, // 16
-            0x0000, // 17
-            0x0000, // 18
-            0x0000, // 19
-            0x0000, // 20
-            0x0000, // 21
-            0x0000, // 22
-            0x0000, // 23
-            0x0000, // 24
-
-            0xFFFF, // 25
-            0x7FFF,
-            0x7FFF,
-            0x3FFF,
-            0x3FFF,
-            0x1FFF, // 30
-            0x0fff,
-            0x0fff,
-            0x07ff,
-            0x03ff,
-            0x03ff,
-            0x01ff,
-            0x01ff,
-            0x00ff,
-            0x007f,
-            0x007f, // 40
-            0x003f,
-            0x001f,
-            0x001f,
-            0x000f,
-            0x000f,
-            0x0007,
-            0x0003,
-            0x0003,
-            0x0001  // 49 (line 50)
-        };
-
-        UInt16[] m_DELTA_Y_FOR_ODD_SQUARE_X = new UInt16[50] {  // TODO: not actual values!!!
-            0x0000, // 0 <-- y coord
-            0x0000, // 1
-            0x0000, // 2
-            0x0000, // 3
-            0x0000, // 4
-            0x0000, // 5
-            0x0000, // 6
-            0x0000, // 7
-            0x0000, // 8
-            0x0000, // 9 (6 bit on)
-            0x0000, // 10
-            0x0000, // 11
-            0x0000, // 12
-            0x0000, // 13
-            0x0000, // 14
-            0x0000, // 15
-            0x0000, // 16
-            0x0000, // 17
-            0x0000, // 18
-            0x0000, // 19
-            0x0000, // 20
-            0x0000, // 21
-            0x0000, // 22
-            0x0000, // 23
-            0x0000, // 24
-
-            0x0001, // line 25
-            0x0001,
-            0x0001,
-            0x0001,
-            0x0001,
-            0x0001, // 30
-            0x0001,
-            0x0001,
-            0x0001,
-            0x0001,
-            0x0001,
-            0x0001,
-            0x0001,
-            0x0001,
-            0x0001,
-            0x0001, // 40
-            0x0001,
-            0x0001,
-            0x0001,
-            0x0001,
-            0x0001,
-            0x0001,
-            0x0001,
-            0x0001,
-            0x0001  // 49 (line 50)
-        };
-
-        int[, ,] m_DeltaY = new int[2, 6, 5];
-
         KeyboardState keyboardState;
         KeyboardState previousKeyboardState;
         GamePadState gamepadState;
@@ -325,9 +109,8 @@ namespace xnaPanzer
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-            this.m_graphics.PreferredBackBufferWidth = 800;
-            this.m_graphics.PreferredBackBufferHeight = 600;
+            this.m_graphics.PreferredBackBufferWidth = m_PreferredBackBufferWidth;
+            this.m_graphics.PreferredBackBufferHeight = m_PreferredBackBufferHeight;
             //this.m_graphics.IsFullScreen = true;
             this.m_graphics.ApplyChanges();
             this.IsMouseVisible = true;
@@ -336,18 +119,8 @@ namespace xnaPanzer
             Random random = new Random(unchecked((int) (DateTime.Now.Ticks)));
             this.m_map = new int[m_MAP_HEX_WIDTH, m_MAP_HEX_HEIGHT];
             for (int x = 0; x < m_MAP_HEX_WIDTH; x++) {
-                //this.m_map[x][ = new int[20];
                 for (int y = 0; y < m_MAP_HEX_HEIGHT; y++) {
-                    this.m_map[x, y] = random.Next(10); // (int)(y % 10); // random.Next(10);
-                    //Console.WriteLine("m_map[{0},{1}] = {2}", x.ToString(), y.ToString(), this.terrainNames[this.m_map[x,y]]);
-                }
-            }
-
-            for (int i = 0; i < 2; i++) {
-                for (int x = 0; x < 6; x++) {
-                    for (int y = 0; y < 5; y++) {
-                        this.m_DeltaY[i, x, y] = 0;
-                    }
+                    this.m_map[x, y] = random.Next(10);
                 }
             }
 
@@ -361,8 +134,7 @@ namespace xnaPanzer
         }
 
         /// <summary>
-        /// LoadContent will be called once per game and is the place to load
-        /// all of your content.
+        /// LoadContent will be called once per game and is the place to load all game content
         /// </summary>
         protected override void LoadContent()
         {
@@ -378,8 +150,7 @@ namespace xnaPanzer
         }
 
         /// <summary>
-        /// UnloadContent will be called once per game and is the place to unload
-        /// all content.
+        /// UnloadContent will be called once per game and is the place to unload all game content
         /// </summary>
         protected override void UnloadContent()
         {
@@ -393,17 +164,20 @@ namespace xnaPanzer
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            // get keyboard & gamepad state
+            // get keyboard & gamepad states
             keyboardState = Keyboard.GetState();
             gamepadState = GamePad.GetState(PlayerIndex.One);
 
-            //Check to see if the game should be exited
-            if (gamepadState.Buttons.Back == ButtonState.Pressed || keyboardState.IsKeyDown(Keys.Escape) == true)
-            {
+            // see if the game should be exited
+            if (gamepadState.Buttons.Back == ButtonState.Pressed || keyboardState.IsKeyDown(Keys.Escape) == true) {
                 this.Exit();
             }
 
-            // scroll the map in the appropriate direction(s) if the arrows keys were just pressed
+            //
+            // Scroll the map in the appropriate direction(s) if the arrows keys were just pressed OR if the
+            // mouse cursor is located at an edge of the app window.  Currently scrolls by 2 hexes at a time.
+            // The present algorithm does not employ smooth scrolling.
+            //
 
             if ((keyboardState.IsKeyDown(Keys.Down) && !this.previousKeyboardState.IsKeyDown(Keys.Down)) ||
                 (Mouse.GetState().Y >= m_MOUSE_SCROLL_MAX_Y)) {
@@ -433,13 +207,12 @@ namespace xnaPanzer
                 }
             }
 
-            MouseState ms = new MouseState();
-            ms = Mouse.GetState();
-
-            MapLocation ml = this.ConvertMousePositionToMapLocation(ms.X, ms.Y);
+            // calculate current hex x,y of mouse cursor (-1,-1 if off viewport)
+            MapLocation ml = this.ConvertMousePositionToMapLocation(Mouse.GetState().X, Mouse.GetState().Y);
             this.m_MouseHexX = ml.x;
             this.m_MouseHexY = ml.y;
 
+            // set previous keyboard & gamepad states = to current states so we can detect new keypresses
             previousKeyboardState = keyboardState;
             previousGamepadState = gamepadState;
 
@@ -456,8 +229,10 @@ namespace xnaPanzer
 
             this.m_spriteBatch.Begin();
 
+            // uncomment the following line to display all the unit sprites (collage)
             //this.m_spriteBatch.Draw(this.m_UnitSpriteSheet, new Rectangle(0, 0, this.m_UnitSpriteSheet.Width, this.m_UnitSpriteSheet.Height), Color.White);
-            Offset offset = new Offset() ; // = this.CalculateSpritesheetCoordinates(this.m_UnitCounter);
+
+            Point offset = new Point() ;                                // used to store spritesheet source coords
 
             // draw all the hexes that are fully or partially visible within the viewport
             // note: the game GUI will mask out partial hexes around the edges of the viewport when it is drawn
@@ -473,8 +248,8 @@ namespace xnaPanzer
                 rowNumber = 0;
                 for (int y = this.m_ViewportTopHexY; y < bottommostHexY; y++) {
                     offset = this.CalculateSpritesheetCoordinates(this.m_map[x, y]);
-                    sourceRect.X = offset.x;
-                    sourceRect.Y = offset.y;
+                    sourceRect.X = offset.X;
+                    sourceRect.Y = offset.Y;
 
                     // calculate where the hex should be drawn on the viewport
                     relativeY = (y % m_VIEWPORT_HEX_HEIGHT) - 1;
@@ -492,10 +267,6 @@ namespace xnaPanzer
 
                     ++rowNumber;
                 }
-                //Console.WriteLine("x = " + x.ToString() +
-                //    ", map[x,m_viewportTopHexY] = " + this.m_map[x, this.m_ViewportTopHexY].ToString() +
-                //    ", offset = " + offset.x.ToString() + "," + offset.y.ToString() +
-                //    ", relativeY = " + relativeY.ToString());
                 ++columnNumber;
             }
 
@@ -530,7 +301,7 @@ namespace xnaPanzer
         /// </remarks>
         /// <param name="_spriteNumber">Sprite number within the sprite sheet, 0..# of sprites</param>
         /// <returns>An Offset object containing the x & y coords.</returns>
-        protected Offset CalculateSpritesheetCoordinates(int _spriteNumber)
+        protected Point CalculateSpritesheetCoordinates(int _spriteNumber)
         {
             // formula for calculating a unit's x,y coords within the source SHP bitmap:
             // e.g. sprite number = 125 --> tens = 12, ones = 5.  e.g. sprite number 9 --> tens = 0, ones = 9.
@@ -540,13 +311,19 @@ namespace xnaPanzer
             int tens = _spriteNumber / 10;
             int ones = _spriteNumber - (tens * 10);
 
-            Offset offset = new Offset();
-            offset.x = (ones * 60) + (ones * 1);
-            offset.y = (tens * 50) + (tens * 1);
+            Point offset = new Point();
+            offset.X = (ones * 60) + (ones * 1);
+            offset.Y = (tens * 50) + (tens * 1);
 
             return offset;
         }
-        
+
+        /// <summary>
+        /// Converts mouse x,y coordinates to map hex x,y location.
+        /// </summary>
+        /// <param name="_mouseX">integer contains mouse cursor X coordinate</param>
+        /// <param name="_mouseY">integer contains mouse cursor Y coordinate</param>
+        /// <returns>MapLocation (x,y point) of hex map x,y (or -1,-1 if off map)</returns>
         public MapLocation ConvertMousePositionToMapLocation(int _mouseX, int _mouseY)
         {
             // abort if mouse is not within the viewport (the map portion of the screen)
@@ -604,6 +381,10 @@ namespace xnaPanzer
             return new MapLocation(hexX, hexY);
         }
 
+        /// <summary>
+        /// Returns true if mouse is currently within the Viewport, false if not
+        /// </summary>
+        /// <returns></returns>
         private bool IsMouseInViewport()
         {
             int mx = Mouse.GetState().X;
@@ -613,14 +394,15 @@ namespace xnaPanzer
                 my >= m_VIEWPORT_MIN_Y_COORD && my <= m_VIEWPORT_MAX_Y_COORD);
         }
 
-        private float CalculateEvenHexSlopeForUpperHalf(int _x, int _y)
-        {
-            return (float) (_y - 24) / (_x - 0);
-        }
-
-
 } // class Game1
 
+    /// <summary>
+    /// Holds a map hex x,y location.
+    /// </summary>
+    /// <remarks>
+    /// This is essentially a Point structure.  I cloned it to clearly indicate it holds a map hex x,y as opposed to
+    /// mouse cursor x,y coordinates.
+    /// </remarks>
     public struct MapLocation
     {
         public int x;
@@ -633,21 +415,11 @@ namespace xnaPanzer
         }
     }
 
-    public struct CoOrds
-    {
-        public int x, y;
-
-        public CoOrds(int p1, int p2) {
-            x = p1;
-            y = p2;
-        }
-    }
-
-}
-
+} // namespace xnaPanzer
     
-    /*
-    
+/*
+    The following snippet is me jotting down my thoughts for the next big challenge: finding all the hexes that a
+    unit can move to.
 
     }
  
@@ -662,7 +434,7 @@ namespace xnaPanzer
                 }
             }
 
- * // clear out the array that contains whether the selected unit can move to a given hex
+        // clear out the array that contains whether the selected unit can move to a given hex
         for (int x = 0; x < 5; x++) {
             for (int y = 0; y < 5; y++) {
                 this.m_AllowableMoves[x, y] = 0;
