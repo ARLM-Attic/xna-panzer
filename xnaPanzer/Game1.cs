@@ -40,12 +40,16 @@ namespace xnaPanzer
         Texture2D m_DeltaTextures;
         SpriteFont m_font1;
 
+        Texture2D m_BevelLeftHook;
+        Texture2D m_BevelRightHook;
+        Texture2D m_BevelStraightLine;
+
         List<MapNode> m_ClosedList = new List<MapNode>();
         private int[] m_DeltaX = new int[6] { 0, 1, 1, 0, -1, -1 };
         private int[] m_DeltaYForEvenColumn = new int[6] { -1, -1, 0, 1, 0, -1 };
         private int[] m_DeltaYForOddColumn = new int[6] { -1, 0, 1, 1, 1, 0 };
 
-        string[] terrainNames = new string[10] { "Clear", "Mtn", "Airport", "Fort", "Woods", "swamp", "Improved", "Water", "Rough", "City" };
+        string[] m_TerrainNames = new string[10] { "Clear", "Mtn", "Airport", "Fort", "Woods", "swamp", "Improved", "Water", "Rough", "City" };
 
         // constants for calculating combat unit offset into sprite sheet
         const int m_NUM_UNITS_IN_SPRITE_SHEET = 90;
@@ -159,6 +163,10 @@ namespace xnaPanzer
             this.m_UnitSpriteSheet = this.Content.Load<Texture2D>("tacicons_start_at_0");
 
             this.m_font1 = Content.Load<SpriteFont>("Fonts/SpriteFont1");
+
+            this.m_BevelLeftHook = Content.Load<Texture2D>("GUI/Bevel_Left_Hook");
+            this.m_BevelRightHook = Content.Load<Texture2D>("GUI/Bevel_Right_Hook");
+            this.m_BevelStraightLine = Content.Load<Texture2D>("GUI/Bevel_Straight_Line");
         }
 
         /// <summary>
@@ -281,7 +289,7 @@ namespace xnaPanzer
                     Rectangle destRect = new Rectangle(m_VIEWPORT_MIN_X_COORD + (columnNumber * m_HEXPART_LENGTH_BBA),
                             m_VIEWPORT_MIN_Y_COORD + (rowNumber * m_HEXPART_FULL_HEIGHT), m_HEXPART_FULL_WIDTH, m_HEXPART_FULL_HEIGHT);
 
-                    if ((columnNumber % 2) == 1) {                                 // if remainder = 1 then odd-numbered column
+                    if (this.IsEvenNumber(columnNumber)) {             // shift odd-numbered columns down half a hex
                         destRect.Y += m_HEXPART_LENGTH_C;
                     }
 
@@ -301,12 +309,20 @@ namespace xnaPanzer
                 ++columnNumber;
             }
 
+            // 85,75 straight down
+            this.m_spriteBatch.Draw(this.m_BevelLeftHook, new Rectangle(85,75,8, 120), Color.White);
+
             if (this.IsMouseWithinViewport()) {
                 this.m_spriteBatch.DrawString(this.m_font1,
                     "m_ViewportLeftHexX = " + this.m_ViewportLeftHexX.ToString() +
                     ", m_ViewportTopHexY = " + this.m_ViewportTopHexY.ToString() +
                     ", Mouse hex X,Y = " + this.m_MouseHexX.ToString() + ", " + this.m_MouseHexY.ToString()
                     , new Vector2(10, 550), Color.White);
+                this.m_spriteBatch.DrawString(this.m_font1,
+                    "terrain[1,0] = " + this.m_TerrainNames[this.m_map[1,0]] +
+                    "  terrain[1,1] = " + this.m_TerrainNames[this.m_map[1, 1]] +
+                    "Mouse coord X,Y = " + Mouse.GetState().X.ToString() + ", " + Mouse.GetState().Y.ToString()
+                    , new Vector2(10, 570), Color.White);
             } else {
                 MouseState ms = new MouseState();
                 ms = Mouse.GetState();
@@ -612,7 +628,7 @@ namespace xnaPanzer
             {
                 x = _x;
                 y = _y;
-                movementPoints = 4;
+                movementPoints = 1;
             }
         }
 
