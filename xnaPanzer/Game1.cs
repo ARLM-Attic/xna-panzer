@@ -43,11 +43,14 @@ namespace xnaPanzer
         Texture2D m_BevelLeftHook;
         Texture2D m_BevelRightHook;
         Texture2D m_BevelStraightLine;
+        Texture2D m_DefaultGameScreenMask;
 
         List<MapNode> m_ClosedList = new List<MapNode>();
         private int[] m_DeltaX = new int[6] { 0, 1, 1, 0, -1, -1 };
-        private int[] m_DeltaYForEvenColumn = new int[6] { -1, -1, 0, 1, 0, -1 };
-        private int[] m_DeltaYForOddColumn = new int[6] { -1, 0, 1, 1, 1, 0 };
+        //private int[] m_DeltaYForEvenColumn = new int[6] { -1, -1, 0, 1, 0, -1 };
+        //private int[] m_DeltaYForOddColumn = new int[6] { -1, 0, 1, 1, 1, 0 };
+        private int[] m_DeltaYForEvenColumn = new int[6] { -1, 0, 1, 1, 1, 0 };
+        private int[] m_DeltaYForOddColumn = new int[6] { -1, -1, 0, 1, 0, -1 };
 
         string[] m_TerrainNames = new string[10] { "Clear", "Mtn", "Airport", "Fort", "Woods", "swamp", "Improved", "Water", "Rough", "City" };
 
@@ -76,11 +79,15 @@ namespace xnaPanzer
 
         // defines the Viewpoint (viewable portion of the map)
         const int m_VIEWPORT_HEX_HEIGHT = 10;
-        const int m_VIEWPORT_HEX_WIDTH = 10;
-        const int m_VIEWPORT_MIN_X_COORD = 50;
-        const int m_VIEWPORT_MAX_X_COORD = m_VIEWPORT_MIN_X_COORD + (m_VIEWPORT_HEX_WIDTH * m_HEXPART_LENGTH_BBA) + m_HEXPART_LENGTH_A;
-        const int m_VIEWPORT_MIN_Y_COORD = 25;
-        const int m_VIEWPORT_MAX_Y_COORD = m_VIEWPORT_MIN_Y_COORD + (m_VIEWPORT_HEX_HEIGHT * m_HEXPART_FULL_HEIGHT) + m_HEXPART_LENGTH_C;
+        const int m_VIEWPORT_HEX_WIDTH = 16;
+        const int m_VIEWPORT_MIN_X_COORD_DRAW = 0;
+        const int m_VIEWPORT_MIN_X_COORD_VISIBLE = 45;
+        const int m_VIEWPORT_MAX_X_COORD_DRAW = m_VIEWPORT_MIN_X_COORD_DRAW + (m_VIEWPORT_HEX_WIDTH * m_HEXPART_LENGTH_BBA) + m_HEXPART_LENGTH_A;
+        const int m_VIEWPORT_MAX_X_COORD_VISIBLE = m_VIEWPORT_MIN_X_COORD_DRAW + (m_VIEWPORT_HEX_WIDTH * m_HEXPART_LENGTH_BBA) + m_HEXPART_LENGTH_A - 45;
+        const int m_VIEWPORT_MIN_Y_COORD_DRAW = 25;
+        const int m_VIEWPORT_MIN_Y_COORD_VISIBLE = 75;
+        const int m_VIEWPORT_MAX_Y_COORD_DRAW = m_VIEWPORT_MIN_Y_COORD_DRAW + (m_VIEWPORT_HEX_HEIGHT * m_HEXPART_FULL_HEIGHT) + m_HEXPART_LENGTH_C;
+        const int m_VIEWPORT_MAX_Y_COORD_VISIBLE = m_VIEWPORT_MIN_Y_COORD_DRAW + (m_VIEWPORT_HEX_HEIGHT * m_HEXPART_FULL_HEIGHT) + m_HEXPART_LENGTH_C - 25;
 
         const int m_PreferredBackBufferWidth = 800;
         const int m_PreferredBackBufferHeight = 600;
@@ -167,6 +174,7 @@ namespace xnaPanzer
             this.m_BevelLeftHook = Content.Load<Texture2D>("GUI/Bevel_Left_Hook");
             this.m_BevelRightHook = Content.Load<Texture2D>("GUI/Bevel_Right_Hook");
             this.m_BevelStraightLine = Content.Load<Texture2D>("GUI/Bevel_Straight_Line");
+            this.m_DefaultGameScreenMask = Content.Load<Texture2D>("GUI/Default_Game_Screen_Mask");
         }
 
         /// <summary>
@@ -286,18 +294,18 @@ namespace xnaPanzer
 
                     // calculate where the hex should be drawn on the viewport
                     relativeY = (y % m_VIEWPORT_HEX_HEIGHT) - 1;
-                    Rectangle destRect = new Rectangle(m_VIEWPORT_MIN_X_COORD + (columnNumber * m_HEXPART_LENGTH_BBA),
-                            m_VIEWPORT_MIN_Y_COORD + (rowNumber * m_HEXPART_FULL_HEIGHT), m_HEXPART_FULL_WIDTH, m_HEXPART_FULL_HEIGHT);
+                    Rectangle destRect = new Rectangle(m_VIEWPORT_MIN_X_COORD_DRAW + (columnNumber * m_HEXPART_LENGTH_BBA),
+                            m_VIEWPORT_MIN_Y_COORD_DRAW + (rowNumber * m_HEXPART_FULL_HEIGHT), m_HEXPART_FULL_WIDTH, m_HEXPART_FULL_HEIGHT);
 
                     if (this.IsEvenNumber(columnNumber)) {             // shift odd-numbered columns down half a hex
                         destRect.Y += m_HEXPART_LENGTH_C;
                     }
 
-                    if (this.m_HexSelected != null && this.m_AllowableMoves[x,y] == 1) {
+                    if (this.m_HexSelected != null && this.m_AllowableMoves[x,y] == 0) {
                         this.m_spriteBatch.Draw(this.m_MapSpriteSheet,
                             destRect,                                       // destination rectangle
                             sourceRect,                                     // source rectangle
-                            Color.Cyan);                                   // white = don't apply tinting
+                            Color.DarkGray);                                   // white = don't apply tinting
                     } else {
                         this.m_spriteBatch.Draw(this.m_MapSpriteSheet,
                             destRect,                                       // destination rectangle
@@ -309,8 +317,16 @@ namespace xnaPanzer
                 ++columnNumber;
             }
 
+            // mask out viewport border
+            this.m_spriteBatch.Draw(this.m_DefaultGameScreenMask, new Rectangle(0, 0, 800, 600), Color.White);
+
             // 85,75 straight down
-            this.m_spriteBatch.Draw(this.m_BevelLeftHook, new Rectangle(85,75,8, 120), Color.White);
+            //this.m_spriteBatch.Draw(this.m_BevelLeftHook, new Rectangle(85,75,8, 120), Color.White);
+
+            // display info text at top
+            this.m_spriteBatch.DrawString(this.m_font1, "Scroll map with arrow keys and mouse.  Select/deselect a hex with left/right clicks." +
+                "\r\nNon-shaded hexes show where fictitious unit could NOT move.  Does not account\r\nfor terrain, enemy units, etc.",
+                new Vector2(10, 3), Color.White);
 
             if (this.IsMouseWithinViewport()) {
                 this.m_spriteBatch.DrawString(this.m_font1,
@@ -319,8 +335,6 @@ namespace xnaPanzer
                     ", Mouse hex X,Y = " + this.m_MouseHexX.ToString() + ", " + this.m_MouseHexY.ToString()
                     , new Vector2(10, 550), Color.White);
                 this.m_spriteBatch.DrawString(this.m_font1,
-                    "terrain[1,0] = " + this.m_TerrainNames[this.m_map[1,0]] +
-                    "  terrain[1,1] = " + this.m_TerrainNames[this.m_map[1, 1]] +
                     "Mouse coord X,Y = " + Mouse.GetState().X.ToString() + ", " + Mouse.GetState().Y.ToString()
                     , new Vector2(10, 570), Color.White);
             } else {
@@ -378,14 +392,14 @@ namespace xnaPanzer
         public MapLocation ConvertMousePositionToMapLocation(int _mouseX, int _mouseY)
         {
             // abort if mouse is not within the viewport (the map portion of the screen)
-            if (_mouseX < m_VIEWPORT_MIN_X_COORD || _mouseX > m_VIEWPORT_MAX_X_COORD ||
-                _mouseY < m_VIEWPORT_MIN_Y_COORD || _mouseY > m_VIEWPORT_MAX_Y_COORD) {
+            if (_mouseX < m_VIEWPORT_MIN_X_COORD_VISIBLE || _mouseX > m_VIEWPORT_MAX_X_COORD_VISIBLE ||
+                _mouseY < m_VIEWPORT_MIN_Y_COORD_VISIBLE || _mouseY > m_VIEWPORT_MAX_Y_COORD_VISIBLE) {
                 return new MapLocation(-1, -1);
             }
 
             // adjust mouse coords for viewport position relative to top-left of screen
-            _mouseX = _mouseX - m_VIEWPORT_MIN_X_COORD;
-            _mouseY = _mouseY - m_VIEWPORT_MIN_Y_COORD;
+            _mouseX = _mouseX - m_VIEWPORT_MIN_X_COORD_VISIBLE;
+            _mouseY = _mouseY - m_VIEWPORT_MIN_Y_COORD_VISIBLE;
 
             // calculate which map square mouse cursor is in (each square is composed of 3 partial hexes)
             // there are 2 types of map squares, one for hex X being even and one for odd
@@ -413,19 +427,21 @@ namespace xnaPanzer
             if ((squareHexX & 1) == 0) {                                // even-numbered square?
                 this.m_DeltaTextures.GetData(0, new Rectangle(mouseXWithinSquare, mouseYWithinSquare, 1, 1), deltaColor, 0, 1);
                 if (deltaColor[0].R == 255) {         
-                    deltaX = -1;
                 } else if (deltaColor[0].B == 255) {
-                    deltaX = -1;
                     deltaY = 1;
-                } else {
+                } else { // green
+                    deltaX = 1;
+                    deltaY = 1;
                 }
             } else {                                                    // odd-numbered square
                 this.m_DeltaTextures.GetData(0, new Rectangle(mouseXWithinSquare + 45, mouseYWithinSquare, 1, 1), deltaColor, 0, 1);
                 if (deltaColor[0].R == 255) {
-                    deltaX = -1;
-                } else if (deltaColor[0].B == 255) {
                     deltaY = 1;
-                } else {
+                } else if (deltaColor[0].B == 255) {
+                    deltaX = 1;
+                    deltaY = 1;
+                } else { // green
+                    deltaX = 1;
                 }
             }
 
@@ -449,8 +465,8 @@ namespace xnaPanzer
         /// </returns>
         private bool IsMouseWithinViewport()
         {
-            return (Mouse.GetState().X >= m_VIEWPORT_MIN_X_COORD && Mouse.GetState().X <= m_VIEWPORT_MAX_X_COORD &&
-                Mouse.GetState().Y >= m_VIEWPORT_MIN_Y_COORD && Mouse.GetState().Y <= m_VIEWPORT_MAX_Y_COORD);
+            return (Mouse.GetState().X >= m_VIEWPORT_MIN_X_COORD_VISIBLE && Mouse.GetState().X <= m_VIEWPORT_MAX_X_COORD_VISIBLE &&
+                Mouse.GetState().Y >= m_VIEWPORT_MIN_Y_COORD_VISIBLE && Mouse.GetState().Y <= m_VIEWPORT_MAX_Y_COORD_VISIBLE);
         }
 
         /// <summary>
@@ -529,15 +545,15 @@ namespace xnaPanzer
                 }
             }
  
-            // clear out the array that contains whether the selected unit can move to a given hex
-            Console.WriteLine("X = 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26");
-            for (int y = 0; y <= m_MAP_MAX_Y; y++) {
-                Console.Write(y.ToString() + " ");
-                for (int x = 0; x <= m_MAP_MAX_X; x++) {
-                    Console.Write(this.m_AllowableMoves[x, y].ToString() + " ");
-                }
-                Console.WriteLine();
-            }
+            // write array grid to console window
+            //Console.WriteLine("X = 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26");
+            //for (int y = 0; y <= m_MAP_MAX_Y; y++) {
+            //    Console.Write(y.ToString() + " ");
+            //    for (int x = 0; x <= m_MAP_MAX_X; x++) {
+            //        Console.Write(this.m_AllowableMoves[x, y].ToString() + " ");
+            //    }
+            //    Console.WriteLine();
+            //}
  
         }
  
@@ -628,7 +644,7 @@ namespace xnaPanzer
             {
                 x = _x;
                 y = _y;
-                movementPoints = 1;
+                movementPoints = 2;
             }
         }
 
