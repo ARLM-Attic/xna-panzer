@@ -1,6 +1,7 @@
 /**********************************************************************************************************************
  * 
- * DISCLAIMER: this file contains PROTOTYPE code to be used for proof-of-concept development only.
+ * DISCLAIMER: this file contains PROTOTYPE code to be used for proof-of-concept development only.  It is in no way
+ * representative of the proper way to do ANYTHING.
  * 
  * Game1.cs
  * 
@@ -44,6 +45,8 @@ namespace xnaPanzer
         Texture2D m_BevelRightHook;
         Texture2D m_BevelStraightLine;
         Texture2D m_DefaultGameScreenMask;
+
+        Texture2D m_HexGridParts;
 
         List<MapNode> m_ClosedList = new List<MapNode>();
         private int[] m_DeltaX = new int[6] { 0, 1, 1, 0, -1, -1 };
@@ -175,6 +178,8 @@ namespace xnaPanzer
             this.m_BevelRightHook = Content.Load<Texture2D>("GUI/Bevel_Right_Hook");
             this.m_BevelStraightLine = Content.Load<Texture2D>("GUI/Bevel_Straight_Line");
             this.m_DefaultGameScreenMask = Content.Load<Texture2D>("GUI/Default_Game_Screen_Mask");
+
+            this.m_HexGridParts = Content.Load<Texture2D>("Map/Hex_Grid_Parts");
         }
 
         /// <summary>
@@ -312,10 +317,23 @@ namespace xnaPanzer
                             sourceRect,                                     // source rectangle
                             Color.White);                                   // white = don't apply tinting
                     }
+
+                    // draw hex cursor if mouse is within viewport
+                    if (this.m_MouseHexX == x && this.m_MouseHexY == y) {
+                        offset = this.CalculateSpritesheetCoordinates(1);
+                        this.m_spriteBatch.Draw(this.m_HexGridParts,
+                            destRect,                                       // destination rectangle
+                            new Rectangle(offset.X, offset.Y, m_HEXPART_FULL_WIDTH, m_HEXPART_FULL_HEIGHT), // full hex cursor
+                            Color.White);                                   // white = don't apply tinting
+                    }
+
                     ++rowNumber;
                 }
                 ++columnNumber;
             }
+
+            // turn on mouse cursor if mouse is outside viewport; turn it off if within (we've already drawn a hexagon cursor)
+            this.IsMouseVisible = !this.IsMouseWithinViewport();
 
             // mask out viewport border
             this.m_spriteBatch.Draw(this.m_DefaultGameScreenMask, new Rectangle(0, 0, 800, 600), Color.White);
