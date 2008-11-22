@@ -9,9 +9,11 @@
  * is not expected to be used in the actual development of the xnaPanzer game but is merely a proof-of-concept
  * experiment.
  * 
- * Created November 2008 by tscheffel using Visual Studio 2008 Professional and XNA Game Studio 3.0 (beta).
+ * Copyright 2008 by Troy Scheffel (Rockton, Illinois, USA)
  * 
- * All rights not forfeited by the designated license are hereby reserved.
+ * Created using Visual Studio 2008 Professional and XNA Game Studio 3.0 (beta)
+ * 
+ * All rights not forfeited by the designated license are hereby reserved by Troy Scheffel
  * 
  *********************************************************************************************************************/
 using System;
@@ -34,6 +36,8 @@ namespace xnaPanzer
     /// </summary>
     public class Game1 : Microsoft.Xna.Framework.Game
     {
+        #region Member variables
+
         GraphicsDeviceManager m_graphics;
         SpriteBatch m_spriteBatch;
         Texture2D m_MapSpriteSheet;
@@ -48,6 +52,7 @@ namespace xnaPanzer
 
         Texture2D m_HexGridParts;
 
+        List<MapNode> m_OpenList = new List<MapNode>(); 
         List<MapNode> m_ClosedList = new List<MapNode>();
         private int[] m_DeltaX = new int[6] { 0, 1, 1, 0, -1, -1 };
         //private int[] m_DeltaYForEvenColumn = new int[6] { -1, -1, 0, 1, 0, -1 };
@@ -121,6 +126,14 @@ namespace xnaPanzer
         GamePadState gamepadState;
         GamePadState previousGamepadState;
 
+        bool m_IsHexGridDisplayed = true;
+        Rectangle sourceRectangleForPartialHexGrid;
+        Rectangle sourceRectangleForHexGridCursor;
+
+        #endregion Member variables
+
+        #region Constructor & Initialization
+
         public Game1()
         {
             m_graphics = new GraphicsDeviceManager(this);
@@ -159,6 +172,10 @@ namespace xnaPanzer
             base.Initialize();
         }
 
+        #endregion Constructor & Initialization
+
+        #region Content Load/Unload
+
         /// <summary>
         /// LoadContent will be called once per game and is the place to load all game content
         /// </summary>
@@ -180,6 +197,8 @@ namespace xnaPanzer
             this.m_DefaultGameScreenMask = Content.Load<Texture2D>("GUI/Default_Game_Screen_Mask");
 
             this.m_HexGridParts = Content.Load<Texture2D>("Map/Hex_Grid_Parts");
+            this.sourceRectangleForPartialHexGrid = new Rectangle(0, 0, m_HEXPART_FULL_WIDTH, m_HEXPART_FULL_HEIGHT);
+            this.sourceRectangleForHexGridCursor = new Rectangle(61, 0, m_HEXPART_FULL_WIDTH, m_HEXPART_FULL_HEIGHT);
         }
 
         /// <summary>
@@ -189,6 +208,10 @@ namespace xnaPanzer
         {
             // TODO: Unload any non ContentManager content here
         }
+
+        #endregion Content Load/Unload
+
+        #region Update/Draw
 
         /// <summary>
         /// Allows the game to run logic such as updating the world,
@@ -318,12 +341,23 @@ namespace xnaPanzer
                             Color.White);                                   // white = don't apply tinting
                     }
 
-                    // draw hex cursor if mouse is within viewport
-                    if (this.m_MouseHexX == x && this.m_MouseHexY == y) {
-                        offset = this.CalculateSpritesheetCoordinates(1);
+                    // will need hex offsets for drawing hex cursor(s)
+                    offset = this.CalculateSpritesheetCoordinates(1);
+
+                    // draw hex grid if desired
+                    if (this.m_IsHexGridDisplayed) {
                         this.m_spriteBatch.Draw(this.m_HexGridParts,
                             destRect,                                       // destination rectangle
-                            new Rectangle(offset.X, offset.Y, m_HEXPART_FULL_WIDTH, m_HEXPART_FULL_HEIGHT), // full hex cursor
+                            this.sourceRectangleForPartialHexGrid,
+                            Color.White);                                   // white = don't apply tinting
+                    }
+
+                    // draw hex cursor if mouse is within viewport
+                    if (this.m_MouseHexX == x && this.m_MouseHexY == y) {
+                        this.m_spriteBatch.Draw(this.m_HexGridParts,
+                            destRect,                                       // destination rectangle
+                            this.sourceRectangleForHexGridCursor,
+//                            new Rectangle(offset.X, offset.Y, m_HEXPART_FULL_WIDTH, m_HEXPART_FULL_HEIGHT), // full hex cursor
                             Color.White);                                   // white = don't apply tinting
                     }
 
@@ -366,6 +400,10 @@ namespace xnaPanzer
 
             base.Draw(gameTime);
         }
+
+        #endregion Update/Draw
+
+        #region Algorithms
 
         /// <summary>
         /// Calculates x & y coordinate offsets for the upper left corner of the unit or terrain sprite sheet for 
@@ -476,15 +514,120 @@ namespace xnaPanzer
         }
 
         /// <summary>
-        /// Returns true if mouse is currently within the Viewport, false if not
+        /// Pathfinding algorithm that determines which map hexes a unit can move to
         /// </summary>
-        /// <returns>
-        /// Returns true if mouse is currently within the Viewport, false if not
-        /// </returns>
-        private bool IsMouseWithinViewport()
+        /// <remarks>
+        /// Logic Flow:
+        /// 1.  Create an open list and a closed list that are both empty
+        /// 2.  Add the start node (map hex) to the open list
+        /// 3.  Loop until the open list is empty
+        ///     a.  Grab first node on Open list
+        ///     b.  For all 6 movement directions do the following:
+        ///         (1.)  Calculate adjacent map node
+        ///         (2.)  If adjacent map node is within playing area AND isn't on the Closed list THEN calculate movement
+        ///               cost to enter that node
+        ///         (3.)  If cost is less than existing cost, set new cost and add node to Open list (if not already there)
+        /// </remarks>
+        /// <param name="_unit"></param>
+        public void SetAllowableMoves(Unit _unit)
         {
-            return (Mouse.GetState().X >= m_VIEWPORT_MIN_X_COORD_VISIBLE && Mouse.GetState().X <= m_VIEWPORT_MAX_X_COORD_VISIBLE &&
-                Mouse.GetState().Y >= m_VIEWPORT_MIN_Y_COORD_VISIBLE && Mouse.GetState().Y <= m_VIEWPORT_MAX_Y_COORD_VISIBLE);
+            // clear out the array that contains whether the selected unit can move to a given hex
+            for (int x = 0; x <= m_MAP_MAX_X; x++) {
+                for (int y = 0; y <= m_MAP_MAX_Y; y++) {
+                    this.m_AllowableMoves[x, y] = 0;
+                }
+            }
+ 
+            // init lists
+            this.m_OpenList.Clear();
+            this.m_ClosedList.Clear();
+ 
+            // add starting location to open list
+            MapNode nodeStart = new MapNode(_unit.x, _unit.y);
+            nodeStart.cost = 0;
+            this.m_OpenList.Add(nodeStart);
+ 
+            // evaluate open list until empty
+            while (this.m_OpenList.Count > 0) {
+                // pop the top node
+                MapNode nodeCurrent = this.m_OpenList[0];
+                this.m_OpenList.Remove(nodeCurrent);
+                this.m_ClosedList.Add(nodeCurrent);
+ 
+                // evaluate all 6 adjacent nodes
+                for (int dir = 0; dir < 6; dir++) {
+                    // get node for current direction
+                    MapNode nodeDir = this.GetMapNodeForDirection(nodeCurrent, dir);
+ 
+                    // evaluate node if it is valid (within playable portion of the map) AND it is not on the closed list
+                    if (nodeDir.isValid && !this.IsNodeInClosedList(nodeDir.x, nodeDir.y)) { //closedList.Contains(nodeDir)) {
+                        // get total cost to enter adjacent node (i.e. cost to enter current node + cost to enter new node)
+                        int totalCost = nodeCurrent.cost + CalculateCostToEnterNode(nodeDir, dir, MoveType.Land);
+ 
+                        // if unit has enough moves to enter new node AND cost to enter new node by this route is less than
+                        // cost to enter it by other current routes then make current node its parent and add it to open
+                        // list
+                        if (_unit.movementPoints >= totalCost && nodeDir.cost > totalCost) {
+                            nodeDir.cost = totalCost;
+                            this.m_AllowableMoves[nodeDir.x, nodeDir.y] = 1;
+                            if (!this.IsNodeInOpenList(nodeDir.x, nodeDir.y)) {
+                                this.m_OpenList.Add(nodeDir);
+                            }
+                        }
+                    }
+                }
+            }
+ 
+            // write array grid to console window
+            //Console.WriteLine("X = 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26");
+            //for (int y = 0; y <= m_MAP_MAX_Y; y++) {
+            //    Console.Write(y.ToString() + " ");
+            //    for (int x = 0; x <= m_MAP_MAX_X; x++) {
+            //        Console.Write(this.m_AllowableMoves[x, y].ToString() + " ");
+            //    }
+            //    Console.WriteLine();
+            //}
+ 
+        }
+ 
+        /// <summary>
+        /// Calculates how many movement points a unit must expend in order to enter a particular map hex
+        /// (based on unit's movement type, terrain, weather, assisting unit (engineer), roads, etc).
+        /// </summary>
+        /// <param name="_destinationNode"></param>
+        /// <param name="_direction"></param>
+        /// <param name="_moveType"></param>
+        /// <returns>integer containing number of movement points</returns>
+        public int CalculateCostToEnterNode(MapNode _destinationNode, int _direction, MoveType _moveType)
+        {
+            return 1;
+        }
+
+        /// <summary>
+        /// Calculates the map hex entered if you movement from a specific map hex in a given direction
+        /// </summary>
+        /// <param name="_fromNode"></param>
+        /// <param name="_direction"></param>
+        /// <returns></returns>
+        public MapNode GetMapNodeForDirection(MapNode _fromNode, int _direction)
+        {
+            int deltaX = this.m_DeltaX[_direction];
+            int deltaY = IsEvenNumber(_fromNode.x) ? this.m_DeltaYForEvenColumn[_direction] : this.m_DeltaYForOddColumn[_direction];
+            return new MapNode(_fromNode.x + deltaX, _fromNode.y + deltaY);
+        }
+ 
+        #endregion Algorithms
+
+        #region Boolean evaluations
+
+        /// <summary>
+        /// Returns true if integer is an even number, otherwise returns false
+        /// </summary>
+        /// <param name="_number"></param>
+        /// <returns></returns>
+        public bool IsEvenNumber(int _number)
+        {
+            return ((_number & 1) == 0);
         }
 
         /// <summary>
@@ -503,78 +646,18 @@ namespace xnaPanzer
                 Mouse.GetState().Y >= 0 && Mouse.GetState().Y < this.m_graphics.PreferredBackBufferHeight);
         }
 
-
-        /*
-        1. Create an open list and a closed list that are both empty. Put the start node in the open list.
-        2. Loop this until the goal is found or the open list is empty:
-              a. Find the node with the lowest F cost in the open list and place it in the closed list.
-              b. Expand this node and for the adjacent nodes to this node:
-                    i. If they are on the closed list, ignore.
-                    ii. If not on the open list, add to open list, store the current node as the parent for this adjacent node, and calculate the             F,G, H costs of the adjacent node.
-                    iii. If on the open list, compare the G costs of this path to the node and the old path to the node. If the G cost of using the             current node to get to the node is the lower cost, change the parent node of the adjacent node to the current node.             Recalculate F,G,H costs of the node.
-        3. If open list is empty, fail.
-        */
- 
-        public void SetAllowableMoves(Unit _unit)
+        /// <summary>
+        /// Returns true if mouse is currently within the Viewport, false if not
+        /// </summary>
+        /// <returns>
+        /// Returns true if mouse is currently within the Viewport, false if not
+        /// </returns>
+        private bool IsMouseWithinViewport()
         {
-            // clear out the array that contains whether the selected unit can move to a given hex
-            for (int x = 0; x <= m_MAP_MAX_X; x++) {
-                for (int y = 0; y <= m_MAP_MAX_Y; y++) {
-                    this.m_AllowableMoves[x, y] = 0;
-                }
-            }
- 
-            // init lists
-            List<MapNode> openList = new List<MapNode>();
-            //   List<MapNode> closedList = new List<MapNode>();
-            this.m_ClosedList.Clear();
- 
-            // add starting location to open list
-            MapNode nodeStart = new MapNode(_unit.x, _unit.y);
-            nodeStart.cost = 0;
-            openList.Add(nodeStart);
- 
-            // evaluate open list until empty
-            while (openList.Count > 0) {
-                // pop the top node
-                MapNode nodeCurrent = openList[0];
-                openList.Remove(nodeCurrent);
-                this.m_ClosedList.Add(nodeCurrent);
- 
-                // evaluate all 6 adjacent nodes
-                for (int dir = 0; dir < 6; dir++) {
-                    // get node for current direction
-                    MapNode nodeDir = this.GetMapNodeForDirection(nodeCurrent, dir);
- 
-                    // evaluate node if it is valid (within playable portion of the map) AND it is not on the closed list
-                    if (nodeDir.isValid && !this.IsNodeInClosedList(nodeDir.x, nodeDir.y)) { //closedList.Contains(nodeDir)) {
-                        // get total cost to enter adjacent node (i.e. cost to enter current node + cost to enter new node)
-                        int totalCost = nodeCurrent.cost + CalculateCostToEnterNode(nodeDir, dir, MoveType.Land);
- 
-                        // if unit has enough moves to enter new node AND cost to enter new node by this route is less than
-                        // cost to enter it by other current routes then make current node its parent and add it to open
-                        // list
-                        if (_unit.movementPoints >= totalCost && nodeDir.cost > totalCost) {
-                            nodeDir.cost = totalCost;
-                            openList.Add(nodeDir);
-                            this.m_AllowableMoves[nodeDir.x, nodeDir.y] = 1;
-                        }
-                    }
-                }
-            }
- 
-            // write array grid to console window
-            //Console.WriteLine("X = 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26");
-            //for (int y = 0; y <= m_MAP_MAX_Y; y++) {
-            //    Console.Write(y.ToString() + " ");
-            //    for (int x = 0; x <= m_MAP_MAX_X; x++) {
-            //        Console.Write(this.m_AllowableMoves[x, y].ToString() + " ");
-            //    }
-            //    Console.WriteLine();
-            //}
- 
+            return (Mouse.GetState().X >= m_VIEWPORT_MIN_X_COORD_VISIBLE && Mouse.GetState().X <= m_VIEWPORT_MAX_X_COORD_VISIBLE &&
+                Mouse.GetState().Y >= m_VIEWPORT_MIN_Y_COORD_VISIBLE && Mouse.GetState().Y <= m_VIEWPORT_MAX_Y_COORD_VISIBLE);
         }
- 
+
         public bool IsNodeInClosedList(int _x, int _y)
         {
             foreach (MapNode node in this.m_ClosedList) {
@@ -584,40 +667,40 @@ namespace xnaPanzer
             }
             return false;
         }
- 
-        public int CalculateCostToEnterNode(MapNode _destinationNode, int _direction, MoveType _moveType)
+
+        public bool IsNodeInOpenList(int _x, int _y)
         {
-            return 1;
+            foreach (MapNode node in this.m_OpenList) {
+                if (node.x == _x && node.y == _y) {
+                    return true;
+                }
+            }
+            return false;
         }
- 
-        public enum MoveType
-        {
-            Air = 0,
-            Land = 1,
-            Sea = 2
-        }
- 
-        public MapNode GetMapNodeForDirection(MapNode _fromNode, int _direction)
-        {
-            int deltaX = this.m_DeltaX[_direction];
-            int deltaY = IsEvenNumber(_fromNode.x) ? this.m_DeltaYForEvenColumn[_direction] : this.m_DeltaYForOddColumn[_direction];
-            return new MapNode(_fromNode.x + deltaX, _fromNode.y + deltaY);
-        }
- 
-        public bool IsEvenNumber(int _number)
-        {
-            return ((_number & 1) == 0);
-        }
- 
-} // class Game1
+
+        #endregion Boolean evaluations
+
+    } // class Game1
+
+    #region Enums
 
     /// <summary>
-    /// Holds a map hex x,y location.
+    /// Indicates the type of unit movement for pathfinding purposes
     /// </summary>
-    /// <remarks>
-    /// This is essentially a Point structure.  I cloned it to clearly indicate it holds a map hex x,y as opposed to
-    /// mouse cursor x,y coordinates.
-    /// </remarks>
+    public enum MoveType
+    {
+        Air = 0,
+        Land = 1,
+        Sea = 2
+    }
+
+    #endregion Enums
+
+    #region Structures
+
+    /// <summary>
+    /// Holds a map hex x,y location (essentially a Point but renamed to avoid confusion with mouse coordinates)
+    /// </summary>
     public struct MapLocation
     {
         public int x;
@@ -630,6 +713,9 @@ namespace xnaPanzer
         }
     }
 
+    /// <summary>
+    /// Represents a single map hexagon; used in the pathfinding algorithm.
+    /// </summary>
     public struct MapNode
     {
         public int x, y, parentX, parentY, cost;
@@ -653,17 +739,22 @@ namespace xnaPanzer
         }
     }
 
-        public struct Unit
+    /// <summary>
+    /// Super simple representation of a combat unit.
+    /// </summary>
+    public struct Unit
+    {
+        public int x, y;
+        public int movementPoints;
+
+        public Unit(int _x, int _y)
         {
-            public int x, y;
-            public int movementPoints;
- 
-            public Unit(int _x, int _y)
-            {
-                x = _x;
-                y = _y;
-                movementPoints = 2;
-            }
+            x = _x;
+            y = _y;
+            movementPoints = 2;
         }
+    }
+
+    #endregion Structures
 
 } // namespace xnaPanzer
