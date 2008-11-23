@@ -429,6 +429,12 @@ namespace xnaPanzer
 
         #region Algorithms
 
+        /// <summary>
+        /// Calculates the viewport's upper left hex location for a given selected hex to ensure there is a cetain
+        /// number of full hexes visible all around the selected hex (essentially auto-scrolls the map).
+        /// </summary>
+        /// <param name="_selectedHex"></param>
+        /// <returns></returns>
         protected MapLocation CalculateViewportOriginForSelectedHex(MapLocation? _selectedHex)
         {
             MapLocation origin = new MapLocation(this.m_ViewportLeftHexX, this.m_ViewportTopHexY);
@@ -438,7 +444,7 @@ namespace xnaPanzer
                 return origin;
             }
 
-            // first, check if we need to scroll viewport towards upper left
+            // first, check if we need to scroll the viewport left or up
             int adjustmentX = _selectedHex.Value.x - origin.x - m_VIEWPORT_MIN_VISIBLE_RADIUS_FOR_SELECTED_HEX;
             int adjustmentY = _selectedHex.Value.y - origin.y - m_VIEWPORT_MIN_VISIBLE_RADIUS_FOR_SELECTED_HEX;
             if (adjustmentX < 0) {
@@ -448,9 +454,24 @@ namespace xnaPanzer
                 origin.y += adjustmentY;
             }
 
+            // now check if we need to scroll the viewport right or down
+            adjustmentX = this.m_ViewportLeftHexX + m_VIEWPORT_HEX_WIDTH - _selectedHex.Value.x;
+            adjustmentY = this.m_ViewportTopHexY + m_VIEWPORT_HEX_HEIGHT - _selectedHex.Value.y;
+            if (adjustmentX < m_VIEWPORT_MIN_VISIBLE_RADIUS_FOR_SELECTED_HEX) {
+                origin.x += adjustmentX;
+            }
+            if (adjustmentY < m_VIEWPORT_MIN_VISIBLE_RADIUS_FOR_SELECTED_HEX) {
+                origin.y += m_VIEWPORT_MIN_VISIBLE_RADIUS_FOR_SELECTED_HEX - adjustmentY;
+                if (!this.IsEvenNumber(origin.y)) {  // drop down 1 extra hex to compensate for half hexes
+                    ++origin.y;
+                }
+            }
+
             // ensure viewport origin is within suitable boundaries
             origin.x = Math.Max(origin.x, 0);
             origin.y = Math.Max(origin.y, 0);
+            origin.x = Math.Min(origin.x, m_MAP_HEX_WIDTH - m_VIEWPORT_HEX_WIDTH);
+            origin.y = Math.Min(origin.y, m_MAP_HEX_HEIGHT - m_VIEWPORT_HEX_HEIGHT);
 
             return origin;
         }
