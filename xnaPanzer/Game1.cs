@@ -15,6 +15,8 @@
  * 
  * All rights not forfeited by the designated license are hereby reserved by Troy Scheffel
  * 
+ * Error Log Reference #108a56b5-f77f-4ca8-81cc-ea551e823b98 (when trying to add new component to Issue Tracker)
+ * 
  *********************************************************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -97,6 +99,10 @@ namespace xnaPanzer
         const int m_VIEWPORT_MAX_Y_COORD_DRAW = m_VIEWPORT_MIN_Y_COORD_DRAW + (m_VIEWPORT_HEX_HEIGHT * m_HEXPART_FULL_HEIGHT) + m_HEXPART_LENGTH_C;
         const int m_VIEWPORT_MAX_Y_COORD_VISIBLE = m_VIEWPORT_MIN_Y_COORD_DRAW + (m_VIEWPORT_HEX_HEIGHT * m_HEXPART_FULL_HEIGHT) + m_HEXPART_LENGTH_C - 25;
 
+        // this is the minimum number of full hexes that should be visible around a selected hex.  if the number is
+        // less than this then the map should auto-scroll as necessary.  this applies only when a hex/unit is SELECTED.
+        const int m_VIEWPORT_MIN_VISIBLE_RADIUS_FOR_SELECTED_HEX = 3; 
+
         const int m_PreferredBackBufferWidth = 800;
         const int m_PreferredBackBufferHeight = 600;
 
@@ -111,8 +117,10 @@ namespace xnaPanzer
         const int m_MAP_MAX_Y = 19;
 
         bool m_LeftButtonPressed = false;
-        Nullable<MapLocation> m_HexSelected = null;
-        int[,] m_AllowableMoves = new int[m_MAP_MAX_X + 1, m_MAP_MAX_Y + 1];    // to be used for pathfinding algorithm
+        MapLocation m_HexSelected = new MapLocation(-1, -1);
+        bool m_IsHexSelected = false;
+        Pathfinding[,] m_AllowableMoves = new Pathfinding[m_MAP_MAX_X + 1, m_MAP_MAX_Y + 1];    // to be used for pathfinding algorithm
+        Color[] m_HexTintForPathfinding = new Color[3] { Color.White, Color.DarkGray, Color.Gold }; // allowed, prohibited, start hex
 
         int m_ViewportLeftHexX = 0;
         int m_ViewportTopHexY = 0;
@@ -271,14 +279,24 @@ namespace xnaPanzer
             // see if user left clicks a hex to select it--if so, we need to calculate pathfinding
             if (this.IsMouseWithinViewport() && Mouse.GetState().LeftButton == ButtonState.Pressed && !this.m_LeftButtonPressed) {
                 this.m_LeftButtonPressed = true;
+                this.m_IsHexSelected = true;
                 this.m_HexSelected = new MapLocation(this.m_MouseHexX, this.m_MouseHexY);
                 this.SetAllowableMoves(new Unit(this.m_MouseHexX, this.m_MouseHexY));
+
+                // ensure the selected hex has at least the minimum required number of full hexes visible all around it
+                MapLocation origin = this.CalculateViewportOriginForSelectedHex(this.m_HexSelected);
+                if (this.m_ViewportLeftHexX != origin.x || this.m_ViewportTopHexY != origin.y) {
+                    this.m_ViewportLeftHexX = origin.x;
+                    this.m_ViewportTopHexY = origin.y;
+                    Point p = this.ConvertMapLocationToMousePosition(this.m_HexSelected);
+                    Mouse.SetPosition(p.X, p.Y);
+                }
             }
 
             // deselect current hex/unit so allowable moves are no longer displayed
             if (this.m_LeftButtonPressed && Mouse.GetState().RightButton == ButtonState.Pressed) {
                 this.m_LeftButtonPressed = false;
-                this.m_HexSelected = null;
+                this.m_IsHexSelected = false;
             }
 
             // set previous keyboard & gamepad states = to current states so we can detect new keypresses
@@ -329,16 +347,17 @@ namespace xnaPanzer
                         destRect.Y += m_HEXPART_LENGTH_C;
                     }
 
-                    if (this.m_HexSelected != null && this.m_AllowableMoves[x,y] == 0) {
-                        this.m_spriteBatch.Draw(this.m_MapSpriteSheet,
-                            destRect,                                       // destination rectangle
-                            sourceRect,                                     // source rectangle
-                            Color.DarkGray);                                   // white = don't apply tinting
-                    } else {
+                    // draw the hex
+                    if (!this.m_IsHexSelected) {  // is a hex/unit currently selected?  if not, don't apply tinting
                         this.m_spriteBatch.Draw(this.m_MapSpriteSheet,
                             destRect,                                       // destination rectangle
                             sourceRect,                                     // source rectangle
                             Color.White);                                   // white = don't apply tinting
+                    } else { // if so, apply tinting to hex based on whether selected unit can move to this location
+                        this.m_spriteBatch.Draw(this.m_MapSpriteSheet,
+                            destRect,                                       // destination rectangle
+                            sourceRect,                                     // source rectangle
+                            this.m_HexTintForPathfinding[(int)this.m_AllowableMoves[x,y]]);
                     }
 
                     // will need hex offsets for drawing hex cursor(s)
@@ -357,10 +376,8 @@ namespace xnaPanzer
                         this.m_spriteBatch.Draw(this.m_HexGridParts,
                             destRect,                                       // destination rectangle
                             this.sourceRectangleForHexGridCursor,
-//                            new Rectangle(offset.X, offset.Y, m_HEXPART_FULL_WIDTH, m_HEXPART_FULL_HEIGHT), // full hex cursor
                             Color.White);                                   // white = don't apply tinting
                     }
-
                     ++rowNumber;
                 }
                 ++columnNumber;
@@ -381,10 +398,17 @@ namespace xnaPanzer
                 new Vector2(10, 3), Color.White);
 
             if (this.IsMouseWithinViewport()) {
+                string selectedHex = "";
+                if (this.m_IsHexSelected) {
+                    this.m_spriteBatch.DrawString(this.m_font1,
+                        "Selected Hex = " + this.m_HexSelected.x + ", " + this.m_HexSelected.y
+                        , new Vector2(10, 530), Color.White);
+                }
                 this.m_spriteBatch.DrawString(this.m_font1,
                     "m_ViewportLeftHexX = " + this.m_ViewportLeftHexX.ToString() +
                     ", m_ViewportTopHexY = " + this.m_ViewportTopHexY.ToString() +
-                    ", Mouse hex X,Y = " + this.m_MouseHexX.ToString() + ", " + this.m_MouseHexY.ToString()
+                    ", Mouse hex X,Y = " + this.m_MouseHexX.ToString() + ", " + this.m_MouseHexY.ToString() +
+                    selectedHex
                     , new Vector2(10, 550), Color.White);
                 this.m_spriteBatch.DrawString(this.m_font1,
                     "Mouse coord X,Y = " + Mouse.GetState().X.ToString() + ", " + Mouse.GetState().Y.ToString()
@@ -404,6 +428,32 @@ namespace xnaPanzer
         #endregion Update/Draw
 
         #region Algorithms
+
+        protected MapLocation CalculateViewportOriginForSelectedHex(MapLocation? _selectedHex)
+        {
+            MapLocation origin = new MapLocation(this.m_ViewportLeftHexX, this.m_ViewportTopHexY);
+
+            // if there is no selected hex then return current viewport origin
+            if (_selectedHex == null) {
+                return origin;
+            }
+
+            // first, check if we need to scroll viewport towards upper left
+            int adjustmentX = _selectedHex.Value.x - origin.x - m_VIEWPORT_MIN_VISIBLE_RADIUS_FOR_SELECTED_HEX;
+            int adjustmentY = _selectedHex.Value.y - origin.y - m_VIEWPORT_MIN_VISIBLE_RADIUS_FOR_SELECTED_HEX;
+            if (adjustmentX < 0) {
+                origin.x += adjustmentX;
+            }
+            if (adjustmentY < 0) {
+                origin.y += adjustmentY;
+            }
+
+            // ensure viewport origin is within suitable boundaries
+            origin.x = Math.Max(origin.x, 0);
+            origin.y = Math.Max(origin.y, 0);
+
+            return origin;
+        }
 
         /// <summary>
         /// Calculates x & y coordinate offsets for the upper left corner of the unit or terrain sprite sheet for 
@@ -513,6 +563,18 @@ namespace xnaPanzer
             return new MapLocation(hexX, hexY);
         }
 
+        // Calculates mouse x,y coordinates for the center of a given map hex location
+        protected Point ConvertMapLocationToMousePosition(MapLocation _ml)
+        {
+            int xCoord = m_VIEWPORT_MIN_X_COORD_DRAW + 
+                ((_ml.x - this.m_ViewportLeftHexX) * m_HEXPART_LENGTH_BBA) + 
+                (m_HEXPART_FULL_WIDTH / 2);
+            int yCoord = m_VIEWPORT_MIN_Y_COORD_DRAW + 
+                ((_ml.y - this.m_ViewportTopHexY) * m_HEXPART_FULL_HEIGHT) + 
+                (m_HEXPART_LENGTH_C);
+            return new Point(xCoord, yCoord);
+        }
+
         /// <summary>
         /// Pathfinding algorithm that determines which map hexes a unit can move to
         /// </summary>
@@ -534,7 +596,7 @@ namespace xnaPanzer
             // clear out the array that contains whether the selected unit can move to a given hex
             for (int x = 0; x <= m_MAP_MAX_X; x++) {
                 for (int y = 0; y <= m_MAP_MAX_Y; y++) {
-                    this.m_AllowableMoves[x, y] = 0;
+                    this.m_AllowableMoves[x, y] = Pathfinding.Prohibited;
                 }
             }
  
@@ -544,6 +606,7 @@ namespace xnaPanzer
  
             // add starting location to open list
             MapNode nodeStart = new MapNode(_unit.x, _unit.y);
+            this.m_AllowableMoves[_unit.x, _unit.y] = Pathfinding.StartHex;
             nodeStart.cost = 0;
             this.m_OpenList.Add(nodeStart);
  
@@ -569,7 +632,7 @@ namespace xnaPanzer
                         // list
                         if (_unit.movementPoints >= totalCost && nodeDir.cost > totalCost) {
                             nodeDir.cost = totalCost;
-                            this.m_AllowableMoves[nodeDir.x, nodeDir.y] = 1;
+                            this.m_AllowableMoves[nodeDir.x, nodeDir.y] = Pathfinding.Allowed;
                             if (!this.IsNodeInOpenList(nodeDir.x, nodeDir.y)) {
                                 this.m_OpenList.Add(nodeDir);
                             }
@@ -689,9 +752,19 @@ namespace xnaPanzer
     /// </summary>
     public enum MoveType
     {
-        Air = 0,
-        Land = 1,
-        Sea = 2
+        Air,
+        Land,
+        Sea
+    }
+
+    /// <summary>
+    /// Used for pathfinding algorithm plus the drawing routine (so we know what how to tint a hex)
+    /// </summary>
+    public enum Pathfinding
+    {
+        Allowed,
+        Prohibited,
+        StartHex
     }
 
     #endregion Enums
