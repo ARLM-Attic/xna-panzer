@@ -118,7 +118,7 @@ namespace xnaPanzer
 
         bool m_LeftButtonPressed = false;
         MapLocation m_HexSelected = new MapLocation(-1, -1);
-        bool m_IsHexSelected = false;
+        //bool m_IsHexSelected = false;
         Pathfinding[,] m_AllowableMoves = new Pathfinding[m_MAP_MAX_X + 1, m_MAP_MAX_Y + 1];    // to be used for pathfinding algorithm
         Color[] m_HexTintForPathfinding = new Color[3] { Color.White, Color.DarkGray, Color.Gold }; // allowed, prohibited, start hex
 
@@ -137,6 +137,12 @@ namespace xnaPanzer
         bool m_IsHexGridDisplayed = true;
         Rectangle sourceRectangleForPartialHexGrid;
         Rectangle sourceRectangleForHexGridCursor;
+
+        List<Unit> m_Units;
+        int[,] m_MapUnits;
+        Int16 m_CurrentPlayer;
+        bool m_IsUnitSelected = false;
+        int m_SelectedUnitID;
 
         #endregion Member variables
 
@@ -165,9 +171,11 @@ namespace xnaPanzer
             //this.m_map = new int[m_MAP_HEX_WIDTH, m_MAP_HEX_HEIGHT];
             Random random = new Random(unchecked((int) (DateTime.Now.Ticks)));
             this.m_map = new int[m_MAP_HEX_WIDTH, m_MAP_HEX_HEIGHT];
+            this.m_MapUnits = new int[m_MAP_HEX_WIDTH, m_MAP_HEX_HEIGHT];
             for (int x = 0; x < m_MAP_HEX_WIDTH; x++) {
                 for (int y = 0; y < m_MAP_HEX_HEIGHT; y++) {
                     this.m_map[x, y] = random.Next(10);
+                    this.m_MapUnits[x, y] = -1;                         // init map units with no units
                 }
             }
 
@@ -176,6 +184,20 @@ namespace xnaPanzer
             KeyboardState previousKeyboardState = Keyboard.GetState();
             GamePadState gamepadState = GamePad.GetState(PlayerIndex.One);
             GamePadState previousGamepadState = GamePad.GetState(PlayerIndex.One);
+
+            // init curent player
+            this.m_CurrentPlayer = 0;
+
+            // let's init a few test units
+            this.m_Units = new List<Unit>(10);
+            for (int i = 1; i <= 10; i++) {
+                Unit u = new Unit(i - 1, i, i, i, (i % 2), i, (UnitType)(i * 7));
+                this.m_Units.Add(u);
+            }
+
+            foreach (Unit u in this.m_Units) {
+                this.m_MapUnits[u.x, u.y] = u.id;
+            }
 
             base.Initialize();
         }
@@ -277,26 +299,41 @@ namespace xnaPanzer
             this.m_MouseHexY = ml.y;
 
             // see if user left clicks a hex to select it--if so, we need to calculate pathfinding
-            if (this.IsMouseWithinViewport() && Mouse.GetState().LeftButton == ButtonState.Pressed && !this.m_LeftButtonPressed) {
+            if (this.IsMouseWithinViewport() && !this.m_IsUnitSelected &&
+                Mouse.GetState().LeftButton == ButtonState.Pressed && !this.m_LeftButtonPressed) {
                 this.m_LeftButtonPressed = true;
-                this.m_IsHexSelected = true;
-                this.m_HexSelected = new MapLocation(this.m_MouseHexX, this.m_MouseHexY);
-                this.SetAllowableMoves(new Unit(this.m_MouseHexX, this.m_MouseHexY));
+                //this.m_HexSelected = new MapLocation(this.m_MouseHexX, this.m_MouseHexY);
+                int id = this.GetUnitIDAtMapLocation(this.m_MouseHexX, this.m_MouseHexY);
+                if (id > -1) {
+                    Unit unit = this.m_Units[id];
+                    if (this.m_CurrentPlayer == unit.owner) {						// see if the current player is the unit's owner
+                        // if unit has already moved this turn then just display its stats
+                        if (unit.hasMoved) {
+                            // TODO: display unit's extended stats
+                        } else {
+                            this.SelectUnit(id);
+                            this.SetAllowableMoves(id);
 
-                // ensure the selected hex has at least the minimum required number of full hexes visible all around it
-                MapLocation origin = this.CalculateViewportOriginForSelectedHex(this.m_HexSelected);
-                if (this.m_ViewportLeftHexX != origin.x || this.m_ViewportTopHexY != origin.y) {
-                    this.m_ViewportLeftHexX = origin.x;
-                    this.m_ViewportTopHexY = origin.y;
-                    Point p = this.ConvertMapLocationToMousePosition(this.m_HexSelected);
-                    Mouse.SetPosition(p.X, p.Y);
+                            // ensure the selected hex has at least the minimum required number of full hexes visible all around it
+                            MapLocation origin = this.CalculateViewportOriginForSelectedHex(this.m_HexSelected);
+                            if (this.m_ViewportLeftHexX != origin.x || this.m_ViewportTopHexY != origin.y) {
+                                this.m_ViewportLeftHexX = origin.x;
+                                this.m_ViewportTopHexY = origin.y;
+                                Point p = this.ConvertMapLocationToMousePosition(this.m_HexSelected);
+                                Mouse.SetPosition(p.X, p.Y);
+                            }
+                        }
+                    } else {  // player is not the owner
+                        // TODO: display unit's public stats
+                    }
                 }
+
             }
 
             // deselect current hex/unit so allowable moves are no longer displayed
             if (this.m_LeftButtonPressed && Mouse.GetState().RightButton == ButtonState.Pressed) {
                 this.m_LeftButtonPressed = false;
-                this.m_IsHexSelected = false;
+                this.m_IsUnitSelected = false;
             }
 
             // set previous keyboard & gamepad states = to current states so we can detect new keypresses
@@ -348,7 +385,7 @@ namespace xnaPanzer
                     }
 
                     // draw the hex
-                    if (!this.m_IsHexSelected) {  // is a hex/unit currently selected?  if not, don't apply tinting
+                    if (!this.m_IsUnitSelected) {  // is a hex/unit currently selected?  if not, don't apply tinting
                         this.m_spriteBatch.Draw(this.m_MapSpriteSheet,
                             destRect,                                       // destination rectangle
                             sourceRect,                                     // source rectangle
@@ -358,6 +395,19 @@ namespace xnaPanzer
                             destRect,                                       // destination rectangle
                             sourceRect,                                     // source rectangle
                             this.m_HexTintForPathfinding[(int)this.m_AllowableMoves[x,y]]);
+                    }
+
+                    // draw units on map
+                    int id = this.GetUnitIDAtMapLocation(x, y);
+                    if (id >= 0) {
+                        Unit unit = this.m_Units[id];
+                        Point unitOffset = this.CalculateSpritesheetCoordinates((int)unit.type);
+                        sourceRect.X = unitOffset.X;
+                        sourceRect.Y = unitOffset.Y;
+                        this.m_spriteBatch.Draw(this.m_UnitSpriteSheet,
+                            destRect,                                       // destination rectangle
+                            sourceRect,                                     // source rectangle
+                            Color.White);                                   // white = don't apply tinting
                     }
 
                     // will need hex offsets for drawing hex cursor(s)
@@ -399,7 +449,7 @@ namespace xnaPanzer
 
             if (this.IsMouseWithinViewport()) {
                 string selectedHex = "";
-                if (this.m_IsHexSelected) {
+                if (this.m_IsUnitSelected) {
                     this.m_spriteBatch.DrawString(this.m_font1,
                         "Selected Hex = " + this.m_HexSelected.x + ", " + this.m_HexSelected.y
                         , new Vector2(10, 530), Color.White);
@@ -612,8 +662,9 @@ namespace xnaPanzer
         ///         (3.)  If cost is less than existing cost, set new cost and add node to Open list (if not already there)
         /// </remarks>
         /// <param name="_unit"></param>
-        public void SetAllowableMoves(Unit _unit)
+        public void SetAllowableMoves(int _id)
         {
+            Unit unit = this.m_Units[_id];
             // clear out the array that contains whether the selected unit can move to a given hex
             for (int x = 0; x <= m_MAP_MAX_X; x++) {
                 for (int y = 0; y <= m_MAP_MAX_Y; y++) {
@@ -626,8 +677,8 @@ namespace xnaPanzer
             this.m_ClosedList.Clear();
  
             // add starting location to open list
-            MapNode nodeStart = new MapNode(_unit.x, _unit.y);
-            this.m_AllowableMoves[_unit.x, _unit.y] = Pathfinding.StartHex;
+            MapNode nodeStart = new MapNode(unit.x, unit.y);
+            this.m_AllowableMoves[unit.x, unit.y] = Pathfinding.StartHex;
             nodeStart.cost = 0;
             this.m_OpenList.Add(nodeStart);
  
@@ -651,7 +702,7 @@ namespace xnaPanzer
                         // if unit has enough moves to enter new node AND cost to enter new node by this route is less than
                         // cost to enter it by other current routes then make current node its parent and add it to open
                         // list
-                        if (_unit.movementPoints >= totalCost && nodeDir.cost > totalCost) {
+                        if (unit.moves >= totalCost && nodeDir.cost > totalCost) {
                             nodeDir.cost = totalCost;
                             this.m_AllowableMoves[nodeDir.x, nodeDir.y] = Pathfinding.Allowed;
                             if (!this.IsNodeInOpenList(nodeDir.x, nodeDir.y)) {
@@ -699,7 +750,18 @@ namespace xnaPanzer
             int deltaY = IsEvenNumber(_fromNode.x) ? this.m_DeltaYForEvenColumn[_direction] : this.m_DeltaYForOddColumn[_direction];
             return new MapNode(_fromNode.x + deltaX, _fromNode.y + deltaY);
         }
- 
+
+        protected int GetUnitIDAtMapLocation(int _x, int _y)
+        {
+            return this.m_MapUnits[_x, _y];
+        }
+
+        private void SelectUnit(int _id)
+        {
+            this.m_SelectedUnitID = _id;
+            this.m_IsUnitSelected = true;
+        }	
+
         #endregion Algorithms
 
         #region Boolean evaluations
@@ -788,6 +850,15 @@ namespace xnaPanzer
         StartHex
     }
 
+    public enum UnitType
+    {
+        Towed,
+        Infantry,
+        Tracked,
+        Truck,
+        Wheeled
+    }
+
     #endregion Enums
 
     #region Structures
@@ -838,14 +909,35 @@ namespace xnaPanzer
     /// </summary>
     public struct Unit
     {
+        public int id;
         public int x, y;
-        public int movementPoints;
+        public int moves;
+        public int owner;
+        public int strength;
+        public bool hasMoved;
+        public UnitType type;
 
-        public Unit(int _x, int _y)
+        //public Unit(int _x, int _y) // : base(_x, _y, 3, 0, 10, UnitType.Infantry)
+        //{
+        //    x = _x;
+        //    y = _y;
+        //    moves = 2;
+        //    owner = 0;
+        //    strength = 10;
+        //    hasMoved = false;
+        //    type = UnitType.Infantry;
+        //}
+
+        public Unit(int _id, int _x, int _y, int _moves, int _owner, int _strength, UnitType _type)
         {
+            id = _id;
             x = _x;
             y = _y;
-            movementPoints = 2;
+            moves = _moves;
+            owner = _owner;
+            strength = _strength;
+            type = _type;
+            hasMoved = false;
         }
     }
 
