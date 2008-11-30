@@ -21,16 +21,9 @@
  *********************************************************************************************************************/
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
-using Microsoft.Xna.Framework.Net;
-using Microsoft.Xna.Framework.Storage;
 
 namespace xnaPanzer
 {
@@ -481,19 +474,15 @@ namespace xnaPanzer
         #region Algorithms
 
         /// <summary>
-        /// Calculates the viewport's upper left hex location for a given selected hex to ensure there is a cetain
-        /// number of full hexes visible all around the selected hex (essentially auto-scrolls the map).
+        /// Calculates the viewport's upper left hex location for a given selected unit to ensure there is a cetain
+        /// number of full hexes visible all around the selected unit (essentially auto-scrolls the map).
         /// </summary>
-        /// <param name="_selectedHex"></param>
-        /// <returns></returns>
-        protected MapLocation CalculateViewportOriginForSelectedUnit(int _x, int _y) //MapLocation? _selectedHex)
+        /// <param name="_x">Selected unit's X map location</param>
+        /// <param name="_y">Selected unit's Y map location</param>
+        /// <returns>MapLocation indicating the viewport's new upper-left origin</returns>
+        protected MapLocation CalculateViewportOriginForSelectedUnit(int _x, int _y)
         {
             MapLocation origin = new MapLocation(this.m_ViewportLeftHexX, this.m_ViewportTopHexY);
-
-            //// if there is no selected hex then return current viewport origin
-            //if (_selectedHex == null) {
-            //    return origin;
-            //}
 
             // first, check if we need to scroll the viewport left or up
             int adjustmentX = _x - origin.x - m_VIEWPORT_MIN_VISIBLE_RADIUS_FOR_SELECTED_HEX;
