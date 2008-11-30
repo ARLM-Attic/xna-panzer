@@ -1,7 +1,8 @@
 /**********************************************************************************************************************
  * 
  * DISCLAIMER: this file contains PROTOTYPE code to be used for proof-of-concept development only.  It is in no way
- * representative of the proper way to do ANYTHING.
+ * representative of the proper way to do ANYTHING.  REPEAT: this is merely proof-of-concept code--it's ugly, it's a
+ * HACK, don't use anything like it in the real world!
  * 
  * Game1.cs
  * 
@@ -117,8 +118,7 @@ namespace xnaPanzer
         const int m_MAP_MAX_Y = 19;
 
         bool m_LeftButtonPressed = false;
-        MapLocation m_HexSelected = new MapLocation(-1, -1);
-        //bool m_IsHexSelected = false;
+        //MapLocation m_HexSelected = new MapLocation(-1, -1);
         Pathfinding[,] m_AllowableMoves = new Pathfinding[m_MAP_MAX_X + 1, m_MAP_MAX_Y + 1];    // to be used for pathfinding algorithm
         Color[] m_HexTintForPathfinding = new Color[3] { Color.White, Color.DarkGray, Color.Gold }; // allowed, prohibited, start hex
 
@@ -191,7 +191,7 @@ namespace xnaPanzer
             // let's init a few test units
             this.m_Units = new List<Unit>(10);
             for (int i = 1; i <= 10; i++) {
-                Unit u = new Unit(i - 1, i, i, i, (i % 2), i, (UnitType)(i * 7));
+                Unit u = new Unit(i - 1, i, i, i, this.m_CurrentPlayer, i, (UnitType)(i * 7));
                 this.m_Units.Add(u);
             }
 
@@ -315,11 +315,12 @@ namespace xnaPanzer
                             this.SetAllowableMoves(id);
 
                             // ensure the selected hex has at least the minimum required number of full hexes visible all around it
-                            MapLocation origin = this.CalculateViewportOriginForSelectedHex(this.m_HexSelected);
+                            MapLocation origin = this.CalculateViewportOriginForSelectedUnit(unit.x, unit.y);
                             if (this.m_ViewportLeftHexX != origin.x || this.m_ViewportTopHexY != origin.y) {
                                 this.m_ViewportLeftHexX = origin.x;
                                 this.m_ViewportTopHexY = origin.y;
-                                Point p = this.ConvertMapLocationToMousePosition(this.m_HexSelected);
+                                MapLocation unitMapLocation = new MapLocation(unit.x, unit.y);
+                                Point p = this.ConvertMapLocationToMousePosition(unitMapLocation);
                                 Mouse.SetPosition(p.X, p.Y);
                             }
                         }
@@ -451,7 +452,7 @@ namespace xnaPanzer
                 string selectedHex = "";
                 if (this.m_IsUnitSelected) {
                     this.m_spriteBatch.DrawString(this.m_font1,
-                        "Selected Hex = " + this.m_HexSelected.x + ", " + this.m_HexSelected.y
+                        "Selected Unit's Hex = " + this.m_Units[this.m_SelectedUnitID].x + ", " + this.m_Units[this.m_SelectedUnitID].y
                         , new Vector2(10, 530), Color.White);
                 }
                 this.m_spriteBatch.DrawString(this.m_font1,
@@ -485,18 +486,18 @@ namespace xnaPanzer
         /// </summary>
         /// <param name="_selectedHex"></param>
         /// <returns></returns>
-        protected MapLocation CalculateViewportOriginForSelectedHex(MapLocation? _selectedHex)
+        protected MapLocation CalculateViewportOriginForSelectedUnit(int _x, int _y) //MapLocation? _selectedHex)
         {
             MapLocation origin = new MapLocation(this.m_ViewportLeftHexX, this.m_ViewportTopHexY);
 
-            // if there is no selected hex then return current viewport origin
-            if (_selectedHex == null) {
-                return origin;
-            }
+            //// if there is no selected hex then return current viewport origin
+            //if (_selectedHex == null) {
+            //    return origin;
+            //}
 
             // first, check if we need to scroll the viewport left or up
-            int adjustmentX = _selectedHex.Value.x - origin.x - m_VIEWPORT_MIN_VISIBLE_RADIUS_FOR_SELECTED_HEX;
-            int adjustmentY = _selectedHex.Value.y - origin.y - m_VIEWPORT_MIN_VISIBLE_RADIUS_FOR_SELECTED_HEX;
+            int adjustmentX = _x - origin.x - m_VIEWPORT_MIN_VISIBLE_RADIUS_FOR_SELECTED_HEX;
+            int adjustmentY = _y - origin.y - m_VIEWPORT_MIN_VISIBLE_RADIUS_FOR_SELECTED_HEX;
             if (adjustmentX < 0) {
                 origin.x += adjustmentX;
             }
@@ -505,8 +506,8 @@ namespace xnaPanzer
             }
 
             // now check if we need to scroll the viewport right or down
-            adjustmentX = this.m_ViewportLeftHexX + m_VIEWPORT_HEX_WIDTH - _selectedHex.Value.x;
-            adjustmentY = this.m_ViewportTopHexY + m_VIEWPORT_HEX_HEIGHT - _selectedHex.Value.y;
+            adjustmentX = this.m_ViewportLeftHexX + m_VIEWPORT_HEX_WIDTH - _x;
+            adjustmentY = this.m_ViewportTopHexY + m_VIEWPORT_HEX_HEIGHT - _y;
             if (adjustmentX < m_VIEWPORT_MIN_VISIBLE_RADIUS_FOR_SELECTED_HEX) {
                 origin.x += adjustmentX;
             }
