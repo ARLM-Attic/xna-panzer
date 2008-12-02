@@ -97,8 +97,8 @@ namespace xnaPanzer
         // less than this then the map should auto-scroll as necessary.  this applies only when a hex/unit is SELECTED.
         const int m_VIEWPORT_MIN_VISIBLE_RADIUS_FOR_SELECTED_HEX = 3; 
 
-        const int m_PreferredBackBufferWidth = 800;
-        const int m_PreferredBackBufferHeight = 600;
+        const int m_PreferredBackBufferWidth = 1024; //800;
+        const int m_PreferredBackBufferHeight = 768; //600;
 
         const int m_MOUSE_SCROLL_MIN_X = 5;
         const int m_MOUSE_SCROLL_MAX_X = m_PreferredBackBufferWidth - 5;
@@ -137,6 +137,9 @@ namespace xnaPanzer
         bool m_IsUnitSelected = false;
         int m_SelectedUnitID;
 
+        const bool m_IS_FULL_SCREEN = false;
+        readonly Color m_BACKGROUND_COLOR = new Color(128, 128, 0);     // cannot be const
+
         #endregion Member variables
 
         #region Constructor & Initialization
@@ -157,7 +160,7 @@ namespace xnaPanzer
         {
             this.m_graphics.PreferredBackBufferWidth = m_PreferredBackBufferWidth;
             this.m_graphics.PreferredBackBufferHeight = m_PreferredBackBufferHeight;
-            //this.m_graphics.IsFullScreen = true;
+            this.m_graphics.IsFullScreen = m_IS_FULL_SCREEN;
             this.m_graphics.ApplyChanges();
             this.IsMouseVisible = true;
 
@@ -343,7 +346,7 @@ namespace xnaPanzer
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            m_graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
+            this.m_graphics.GraphicsDevice.Clear(m_BACKGROUND_COLOR);
 
             this.m_spriteBatch.Begin();
 
