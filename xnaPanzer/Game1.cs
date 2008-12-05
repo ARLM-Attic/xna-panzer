@@ -40,6 +40,7 @@ namespace xnaPanzer
         Texture2D m_UnitSpriteSheet;
         Texture2D m_DeltaTextures;
         SpriteFont m_font1;
+        SpriteFont m_UnispaceFont;
 
         Texture2D m_BevelLeftHook;
         Texture2D m_BevelRightHook;
@@ -187,7 +188,7 @@ namespace xnaPanzer
             // let's init a few test units
             this.m_Units = new List<Unit>(10);
             for (int i = 1; i <= 10; i++) {
-                Unit u = new Unit(i - 1, i, i, i, this.m_CurrentPlayer, i, (UnitType)(i * 7));
+                Unit u = new Unit(i - 1, i, i, i, this.m_CurrentPlayer, i, (UnitType)(i % 5));
                 this.m_Units.Add(u);
             }
 
@@ -216,6 +217,7 @@ namespace xnaPanzer
             this.m_UnitSpriteSheet = this.Content.Load<Texture2D>("tacicons_start_at_0");
 
             this.m_font1 = Content.Load<SpriteFont>("Fonts/SpriteFont1");
+            this.m_UnispaceFont = Content.Load<SpriteFont>("Fonts/Unispace");
 
             this.m_BevelLeftHook = Content.Load<Texture2D>("GUI/Bevel_Left_Hook");
             this.m_BevelRightHook = Content.Load<Texture2D>("GUI/Bevel_Right_Hook");
@@ -460,6 +462,24 @@ namespace xnaPanzer
                 this.m_spriteBatch.DrawString(this.m_font1,
                     "Mouse coord X,Y = " + Mouse.GetState().X.ToString() + ", " + Mouse.GetState().Y.ToString()
                     , new Vector2(10, 570), Color.White);
+                int id = this.GetUnitIDAtMapLocation(this.m_MouseHexX, this.m_MouseHexY);
+                if (id >= 0) {
+                    string numberSuffix = "th";
+                    try {
+                        numberSuffix = "stndrd".Substring(id * 2, 2);
+                    } catch {
+                    }
+                    Unit unit = this.m_Units[id];
+                    this.m_spriteBatch.DrawString(this.m_font1,
+                        (id + 1).ToString() + numberSuffix + " " + unit.type.ToString() + "      Str: " + unit.strength.ToString()
+                        , new Vector2(550, 720), Color.White);
+                    this.m_spriteBatch.DrawString(this.m_font1,
+                        unit.type.ToString() + "            Ent: 0"
+                        , new Vector2(550, 735), Color.White);
+                    this.m_spriteBatch.DrawString(this.m_font1,
+                        "Ammo: 7     Fuel: 41   (obviously spoofed text but you get the idea)"
+                        , new Vector2(550, 750), Color.White);
+                }
             } else {
                 MouseState ms = new MouseState();
                 ms = Mouse.GetState();
@@ -843,13 +863,30 @@ namespace xnaPanzer
         StartHex
     }
 
+    /// <summary>
+    /// Unit classification, e.g. infanty, Tiger II
+    /// </summary>
     public enum UnitType
     {
+        Pioneere,
+        PzIIIJ,
+        PSW2338r,
+        Hummel,
+        FW190a,
+        Pz38t
+    }
+
+    /// <summary>
+    /// Type of movement across terrain (note: static cannot move by any means)
+    /// </summary>
+    public enum MovementClass
+    {
+        Static = 0,
         Towed,
-        Infantry,
-        Tracked,
+        Leg,
         Truck,
-        Wheeled
+        Wheeled,
+        Tracked
     }
 
     #endregion Enums
@@ -909,6 +946,7 @@ namespace xnaPanzer
         public int strength;
         public bool hasMoved;
         public UnitType type;
+        public string typeName;
 
         //public Unit(int _x, int _y) // : base(_x, _y, 3, 0, 10, UnitType.Infantry)
         //{
@@ -930,6 +968,8 @@ namespace xnaPanzer
             owner = _owner;
             strength = _strength;
             type = _type;
+            typeName = Enum.GetName(typeof(UnitType), type);
+            // TEST: string s = UnitType.Infantry.ToString();
             hasMoved = false;
         }
     }
