@@ -193,7 +193,7 @@ namespace xnaPanzer
             }
 
             foreach (Unit u in this.m_Units) {
-                this.m_MapUnits[u.x, u.y] = u.id;
+                this.m_MapUnits[u.X, u.Y] = u.ID;
             }
 
             base.Initialize();
@@ -304,20 +304,20 @@ namespace xnaPanzer
                 int id = this.GetUnitIDAtMapLocation(this.m_MouseHexX, this.m_MouseHexY);
                 if (id > -1) {
                     Unit unit = this.m_Units[id];
-                    if (this.m_CurrentPlayer == unit.owner) {						// see if the current player is the unit's owner
+                    if (this.m_CurrentPlayer == unit.Owner) {						// see if the current player is the unit's owner
                         // if unit has already moved this turn then just display its stats
-                        if (unit.hasMoved) {
+                        if (unit.HasMoved) {
                             // TODO: display unit's extended stats
                         } else {
                             this.SelectUnit(id);
                             this.SetAllowableMoves(id);
 
                             // ensure the selected hex has at least the minimum required number of full hexes visible all around it
-                            MapLocation origin = this.CalculateViewportOriginForSelectedUnit(unit.x, unit.y);
+                            MapLocation origin = this.CalculateViewportOriginForSelectedUnit(unit.X, unit.Y);
                             if (this.m_ViewportLeftHexX != origin.x || this.m_ViewportTopHexY != origin.y) {
                                 this.m_ViewportLeftHexX = origin.x;
                                 this.m_ViewportTopHexY = origin.y;
-                                MapLocation unitMapLocation = new MapLocation(unit.x, unit.y);
+                                MapLocation unitMapLocation = new MapLocation(unit.X, unit.Y);
                                 Point p = this.ConvertMapLocationToMousePosition(unitMapLocation);
                                 Mouse.SetPosition(p.X, p.Y);
                             }
@@ -400,7 +400,7 @@ namespace xnaPanzer
                     int id = this.GetUnitIDAtMapLocation(x, y);
                     if (id >= 0) {
                         Unit unit = this.m_Units[id];
-                        Point unitOffset = this.CalculateSpritesheetCoordinates((int)unit.type);
+                        Point unitOffset = this.CalculateSpritesheetCoordinates((int)unit.UnitType);
                         sourceRect.X = unitOffset.X;
                         sourceRect.Y = unitOffset.Y;
                         this.m_spriteBatch.Draw(this.m_UnitSpriteSheet,
@@ -450,7 +450,7 @@ namespace xnaPanzer
                 string selectedHex = "";
                 if (this.m_IsUnitSelected) {
                     this.m_spriteBatch.DrawString(this.m_font1,
-                        "Selected Unit's Hex = " + this.m_Units[this.m_SelectedUnitID].x + ", " + this.m_Units[this.m_SelectedUnitID].y
+                        "Selected Unit's Hex = " + this.m_Units[this.m_SelectedUnitID].X + ", " + this.m_Units[this.m_SelectedUnitID].Y
                         , new Vector2(10, 530), Color.White);
                 }
                 this.m_spriteBatch.DrawString(this.m_font1,
@@ -471,10 +471,10 @@ namespace xnaPanzer
                     }
                     Unit unit = this.m_Units[id];
                     this.m_spriteBatch.DrawString(this.m_font1,
-                        (id + 1).ToString() + numberSuffix + " " + unit.type.ToString() + "      Str: " + unit.strength.ToString()
+                        (id + 1).ToString() + numberSuffix + " " + unit.UnitType.ToString() + "      Str: " + unit.Strength.ToString()
                         , new Vector2(550, 720), Color.White);
                     this.m_spriteBatch.DrawString(this.m_font1,
-                        unit.type.ToString() + "            Ent: 0"
+                        unit.UnitType.ToString() + "            Ent: 0"
                         , new Vector2(550, 735), Color.White);
                     this.m_spriteBatch.DrawString(this.m_font1,
                         "Ammo: 7     Fuel: 41   (obviously spoofed text but you get the idea)"
@@ -690,8 +690,8 @@ namespace xnaPanzer
             this.m_ClosedList.Clear();
  
             // add starting location to open list
-            MapNode nodeStart = new MapNode(unit.x, unit.y);
-            this.m_AllowableMoves[unit.x, unit.y] = Pathfinding.StartHex;
+            MapNode nodeStart = new MapNode(unit.X, unit.Y);
+            this.m_AllowableMoves[unit.X, unit.Y] = Pathfinding.StartHex;
             nodeStart.cost = 0;
             this.m_OpenList.Add(nodeStart);
  
@@ -715,7 +715,7 @@ namespace xnaPanzer
                         // if unit has enough moves to enter new node AND cost to enter new node by this route is less than
                         // cost to enter it by other current routes then make current node its parent and add it to open
                         // list
-                        if (unit.moves >= totalCost && nodeDir.cost > totalCost) {
+                        if (unit.Moves >= totalCost && nodeDir.cost > totalCost) {
                             nodeDir.cost = totalCost;
                             this.m_AllowableMoves[nodeDir.x, nodeDir.y] = Pathfinding.Allowed;
                             if (!this.IsNodeInOpenList(nodeDir.x, nodeDir.y)) {
@@ -876,18 +876,18 @@ namespace xnaPanzer
         Pz38t
     }
 
-    /// <summary>
-    /// Type of movement across terrain (note: static cannot move by any means)
-    /// </summary>
-    public enum MovementClass
-    {
-        Static = 0,
-        Towed,
-        Leg,
-        Truck,
-        Wheeled,
-        Tracked
-    }
+    ///// <summary>
+    ///// Type of movement across terrain (note: static cannot move by any means)
+    ///// </summary>
+    //public enum MovementClass
+    //{
+    //    Static = 0,
+    //    Towed,
+    //    Leg,
+    //    Truck,
+    //    Wheeled,
+    //    Tracked
+    //}
 
     #endregion Enums
 
@@ -934,45 +934,45 @@ namespace xnaPanzer
         }
     }
 
-    /// <summary>
-    /// Super simple representation of a combat unit.
-    /// </summary>
-    public struct Unit
-    {
-        public int id;
-        public int x, y;
-        public int moves;
-        public int owner;
-        public int strength;
-        public bool hasMoved;
-        public UnitType type;
-        public string typeName;
+    ///// <summary>
+    ///// Super simple representation of a combat unit.
+    ///// </summary>
+    //public struct Unit
+    //{
+    //    public int id;
+    //    public int x, y;
+    //    public int moves;
+    //    public int owner;
+    //    public int strength;
+    //    public bool hasMoved;
+    //    public UnitType type;
+    //    public string typeName;
 
-        //public Unit(int _x, int _y) // : base(_x, _y, 3, 0, 10, UnitType.Infantry)
-        //{
-        //    x = _x;
-        //    y = _y;
-        //    moves = 2;
-        //    owner = 0;
-        //    strength = 10;
-        //    hasMoved = false;
-        //    type = UnitType.Infantry;
-        //}
+    //    //public Unit(int _x, int _y) // : base(_x, _y, 3, 0, 10, UnitType.Infantry)
+    //    //{
+    //    //    x = _x;
+    //    //    y = _y;
+    //    //    moves = 2;
+    //    //    owner = 0;
+    //    //    strength = 10;
+    //    //    hasMoved = false;
+    //    //    type = UnitType.Infantry;
+    //    //}
 
-        public Unit(int _id, int _x, int _y, int _moves, int _owner, int _strength, UnitType _type)
-        {
-            id = _id;
-            x = _x;
-            y = _y;
-            moves = _moves;
-            owner = _owner;
-            strength = _strength;
-            type = _type;
-            typeName = Enum.GetName(typeof(UnitType), type);
-            // TEST: string s = UnitType.Infantry.ToString();
-            hasMoved = false;
-        }
-    }
+    //    public Unit(int _id, int _x, int _y, int _moves, int _owner, int _strength, UnitType _type)
+    //    {
+    //        id = _id;
+    //        x = _x;
+    //        y = _y;
+    //        moves = _moves;
+    //        owner = _owner;
+    //        strength = _strength;
+    //        type = _type;
+    //        typeName = Enum.GetName(typeof(UnitType), type);
+    //        // TEST: string s = UnitType.Infantry.ToString();
+    //        hasMoved = false;
+    //    }
+    //}
 
     #endregion Structures
 
