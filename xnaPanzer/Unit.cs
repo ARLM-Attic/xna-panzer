@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace xnaPanzer
 {
@@ -11,84 +13,160 @@ namespace xnaPanzer
 /// </summary>
 public class Unit
 {
-    #region Variables
+    #region Static Variables
 
-    private int m_id;
+    public static int PixelWidth
+    {
+        get { return Unit.pixelWidth; }
+        set { Unit.pixelWidth = value; }
+    }
+    private static int pixelWidth;
+
+    public static int PixelHeight
+    {
+        get { return Unit.pixelHeight; }
+        set { Unit.pixelHeight = value; }
+    }
+    private static int pixelHeight;
+
+    public static SpriteBatch SpriteBatch
+    {
+        get { return Unit.spriteBatch; }
+        set { Unit.spriteBatch = value; }
+    }
+    private static SpriteBatch spriteBatch;
+
+    public static Texture2D SpriteSheet
+    {
+        get { return Unit.spriteSheet; }
+        set { Unit.spriteSheet = value; }
+    }
+    private static Texture2D spriteSheet;
+
+    #endregion Static Variables
+
+    #region Instance Variables (non-boolean)
+
+    /// <summary>
+    /// Unit's unique ID (used for array index)
+    /// </summary>
     public int ID
     {
-        get { return this.m_id; }
-        set { this.m_id = value; }
+        get { return this.m_ID; }
+        set { this.m_ID = value; }
     }
+    private int m_ID;
 
-    private int m_x;
-    public int X
+    /// <summary>
+    /// Area from the spritesheet that contains this unit's icon
+    /// </summary>
+    public Rectangle SpriteRectangle
     {
-        get { return m_x; }
-        set { m_x = value; }
+        get { return this.m_SpriteRectangle; }
+        set { this.m_SpriteRectangle = value; }
     }
+    private Rectangle m_SpriteRectangle;
 
-    private int m_y;
-    public int Y
-    {
-        get { return m_y; }
-        set { m_y = value; }
-    }
-
-    private int m_moves;
     public int Moves
     {
-        get { return m_moves; }
-        set { m_moves = value; }
+        get { return this.m_Moves; }
+        set { this.m_Moves = value; }
     }
-
-    private int m_owner;
+    private int m_Moves;
 
     public int Owner
     {
-        get { return m_owner; }
-        set { m_owner = value; }
+        get { return this.m_Owner; }
+        set { this.m_Owner = value; }
     }
+    private int m_Owner;
 
-    private int m_strength;
+    public int StartingX
+    {
+        get { return m_StartingX; }
+        set { m_StartingX = value; }
+    }
+    private int m_StartingX;
+
+    public int StartingY
+    {
+        get { return m_StartingY; }
+        set { m_StartingY = value; }
+    }
+    private int m_StartingY;
+
     public int Strength
     {
-        get { return m_strength; }
-        set { m_strength = value; }
+        get { return this.m_Strength; }
+        set { this.m_Strength = value; }
     }
+    private int m_Strength;
 
-    private bool m_hasMoved;
-    public bool HasMoved
-    {
-        get { return m_hasMoved; }
-        set { m_hasMoved = value; }
-    }
-
-    private UnitType m_unitType;
     public UnitType UnitType
     {
-        get { return m_unitType; }
-        set { m_unitType = value; }
+        get { return this.m_UnitType; }
+        set { this.m_UnitType = value; }
     }
+    private UnitType m_UnitType;
 
-    private string m_typeName;
     public string TypeName
     {
-        get { return m_typeName; }
-        set { m_typeName = value; }
+        get { return this.m_TypeName; }
+        set { this.m_TypeName = value; }
+    }
+    private string m_TypeName;
+
+    public int X
+    {
+        get { return this.m_X; }
+        set { this.m_X = value; }
+    }
+    private int m_X;
+
+    public int Y
+    {
+        get { return this.m_Y; }
+        set { this.m_Y = value; }
+    }
+    private int m_Y;
+
+    #endregion Instance Variables (non-boolean)
+
+    #region Boolean Instance Variables
+
+    public bool HasMoved
+    {
+        get { return this.m_HasMoved; }
+        set { this.m_HasMoved = value; }
+    }
+    private bool m_HasMoved;
+
+    public bool IsVisible
+    {
+        get { return this.m_IsVisible; }
+        set { this.m_IsVisible = value; }
+    }
+    private bool m_IsVisible;
+
+    #endregion Boolean Instance Variables
+
+    /// <summary>
+    /// Default constructor (be sure to initialize the Unit via properties).
+    /// </summary>
+    public Unit() : this(-1, -1, -1, -1, -1, -1, UnitType.Pioneere)
+    {
     }
 
-    #endregion Variables
-    //public Unit(int _x, int _y) // : base(_x, _y, 3, 0, 10, UnitType.Infantry)
-    //{
-    //    x = _x;
-    //    y = _y;
-    //    moves = 2;
-    //    owner = 0;
-    //    strength = 10;
-    //    hasMoved = false;
-    //    type = UnitType.Infantry;
-    //}
-
+    /// <summary>
+    /// Primary constructor.
+    /// </summary>
+    /// <param name="_id">unique ID number</param>
+    /// <param name="_x">Current map X location (hexagon)</param>
+    /// <param name="_y">Current map Y location (hexagon)</param>
+    /// <param name="_moves">Number of movement points each turn</param>
+    /// <param name="_owner">Controlling player number</param>
+    /// <param name="_strength">Current strength points</param>
+    /// <param name="_type">Unit's type</param>
     public Unit(int _id, int _x, int _y, int _moves, int _owner, int _strength, UnitType _type)
     {
         this.ID = _id;
@@ -101,7 +179,43 @@ public class Unit
         this.TypeName = Enum.GetName(typeof(UnitType), _type);
         // TEST: string s = UnitType.Infantry.ToString();
         this.HasMoved = false;
+        Point offset = Util.CalculateSpritesheetCoordinates((int)this.UnitType);
+        this.SpriteRectangle = new Rectangle(offset.X, offset.Y, Unit.PixelWidth, Unit.PixelHeight);
     }
+
+    public void Update()
+    {
+        this.StartingX = this.X;
+        this.StartingY = this.Y;
+    }
+
+    public void Move(int _x, int _y)
+    {
+        this.X = _x;
+        this.Y = _y;
+        this.HasMoved = true;
+    }
+
+    public void UndoMove()
+    {
+        this.X = this.StartingX;
+        this.Y = this.StartingY;
+        this.HasMoved = false;
+    }
+
+    public void Draw(SpriteBatch _spriteBatch, int _screenLocationX, int _screenLocationY)
+    {
+        // TODO: need a way to calculate new destination rectangle OR do we use DrawLocation()??? use GameServices??
+        if (!this.IsVisible) {
+            Rectangle destinationRectangle = new Rectangle(_screenLocationX, _screenLocationY, Unit.PixelWidth, Unit.PixelHeight);
+            _spriteBatch.Draw(Unit.SpriteSheet,						// source bitmap image
+                            destinationRectangle,                       // where to draw the unit on the screen
+                            this.SpriteRectangle,                       // what portion of the source image to draw
+                            Color.White);                               // White = magenta color will be transparent
+        }
+    }
+
+
 }
 
 public enum MovementClass
