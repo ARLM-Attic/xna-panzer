@@ -183,12 +183,6 @@ public class Unit
         this.SpriteRectangle = new Rectangle(offset.X, offset.Y, Unit.PixelWidth, Unit.PixelHeight);
     }
 
-    public void Update()
-    {
-        this.StartingX = this.X;
-        this.StartingY = this.Y;
-    }
-
     public void Move(int _x, int _y)
     {
         this.X = _x;
@@ -201,6 +195,12 @@ public class Unit
         this.X = this.StartingX;
         this.Y = this.StartingY;
         this.HasMoved = false;
+    }
+
+    public void EndMove()
+    {
+        this.StartingX = this.X;
+        this.StartingY = this.Y;
     }
 
     public void Draw(SpriteBatch _spriteBatch, int _screenLocationX, int _screenLocationY)

@@ -305,8 +305,8 @@ namespace xnaPanzer
 
             // see if user left clicks a hex to select it--if so, we need to calculate pathfinding
             if (this.IsMouseWithinViewport() && !this.m_IsUnitSelected &&
-                Mouse.GetState().LeftButton == ButtonState.Pressed && !this.m_LeftButtonPressed) {
-                this.m_LeftButtonPressed = true;
+                Mouse.GetState().LeftButton == ButtonState.Pressed && !this.m_LeftButtonPressed &&
+                this.GetUnitIDAtMapLocation(this.m_MouseHexX, this.m_MouseHexY) >= 0) {
                 //this.m_HexSelected = new MapLocation(this.m_MouseHexX, this.m_MouseHexY);
                 int id = this.GetUnitIDAtMapLocation(this.m_MouseHexX, this.m_MouseHexY);
                 if (id > -1) {
@@ -336,10 +336,21 @@ namespace xnaPanzer
 
             }
 
-            // deselect current hex/unit so allowable moves are no longer displayed
-            if (this.m_LeftButtonPressed && Mouse.GetState().RightButton == ButtonState.Pressed) {
-                this.m_LeftButtonPressed = false;
+            // see if user wants to deselect current unit
+            if (this.m_SelectedUnitID != -1 && Mouse.GetState().RightButton == ButtonState.Pressed) {
+                this.m_Units[this.m_SelectedUnitID].EndMove();
+                this.m_SelectedUnitID = -1;
                 this.m_IsUnitSelected = false;
+            }
+
+            // see if user wants to move the currently-selected unit
+            if (this.IsMouseWithinViewport() && this.m_IsUnitSelected &&
+                Mouse.GetState().LeftButton == ButtonState.Pressed && !this.m_LeftButtonPressed &&
+                this.GetUnitIDAtMapLocation(this.m_MouseHexX, this.m_MouseHexY) == -1 &&
+                this.m_AllowableMoves[this.m_MouseHexX, this.m_MouseHexY] == Pathfinding.Allowed) {
+                this.m_MapUnits[this.m_Units[this.m_SelectedUnitID].X, this.m_Units[this.m_SelectedUnitID].Y] = -1;
+                this.m_Units[this.m_SelectedUnitID].Move(this.m_MouseHexX, this.m_MouseHexY);
+                this.m_MapUnits[this.m_MouseHexX, this.m_MouseHexY] = this.m_SelectedUnitID;
             }
 
             // set previous keyboard & gamepad states = to current states so we can detect new keypresses
@@ -774,8 +785,9 @@ namespace xnaPanzer
         /// </returns>
         private bool IsMouseWithinViewport()
         {
-            return (Mouse.GetState().X >= m_VIEWPORT_MIN_X_COORD_VISIBLE && Mouse.GetState().X <= m_VIEWPORT_MAX_X_COORD_VISIBLE &&
-                Mouse.GetState().Y >= m_VIEWPORT_MIN_Y_COORD_VISIBLE && Mouse.GetState().Y <= m_VIEWPORT_MAX_Y_COORD_VISIBLE);
+            return (this.m_MouseHexX != -1 && this.m_MouseHexY != -1);
+            //return (Mouse.GetState().X >= m_VIEWPORT_MIN_X_COORD_VISIBLE && Mouse.GetState().X <= m_VIEWPORT_MAX_X_COORD_VISIBLE &&
+            //    Mouse.GetState().Y >= m_VIEWPORT_MIN_Y_COORD_VISIBLE && Mouse.GetState().Y <= m_VIEWPORT_MAX_Y_COORD_VISIBLE);
         }
 
         public bool IsNodeInClosedList(int _x, int _y)

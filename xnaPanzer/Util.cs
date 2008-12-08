@@ -50,16 +50,13 @@ namespace xnaPanzer
         public static string GetOrdinalSuffix(int _number)
         {
             _number = _number % 10;                                     // we only care about the digit in the one's column
-            string ordinalSuffix;                                       // holds return value
 
             if (_number >= 1 && _number <= 3) {
                 int startIndex = (_number - 1) * 2;                     // calc index into string, 1=0, 2=2, 3=4
-                ordinalSuffix = "stndrd".Substring(startIndex, 2);
+                return "stndrd".Substring(startIndex, 2);
             } else {
-                ordinalSuffix = "th";                                   // 0 and 4..9 will return "th"
+                return "th";                                            // 0 and 4..9 will return "th"
             }
-
-            return ordinalSuffix;
         }
 
 } // class util
