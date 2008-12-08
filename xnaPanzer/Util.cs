@@ -42,6 +42,26 @@ namespace xnaPanzer
             return offset;
         }
 
-    } // class util
+        /// <summary>
+        /// Returns the 2-letter ordinal suffix for a given number, e.g. "st" for 1, "nd" for 2, "rd" for 3, "th" for 4
+        /// </summary>
+        /// <param name="_number">integer for determing the suffix</param>
+        /// <returns>string containing 2-letter suffix</returns>
+        public static string GetOrdinalSuffix(int _number)
+        {
+            _number = _number % 10;                                     // we only care about the digit in the one's column
+            string ordinalSuffix;                                       // holds return value
+
+            if (_number >= 1 && _number <= 3) {
+                int startIndex = (_number - 1) * 2;                     // calc index into string, 1=0, 2=2, 3=4
+                ordinalSuffix = "stndrd".Substring(startIndex, 2);
+            } else {
+                ordinalSuffix = "th";                                   // 0 and 4..9 will return "th"
+            }
+
+            return ordinalSuffix;
+        }
+
+} // class util
 
 } // namespace

@@ -464,14 +464,9 @@ namespace xnaPanzer
                     , new Vector2(10, 570), Color.White);
                 int id = this.GetUnitIDAtMapLocation(this.m_MouseHexX, this.m_MouseHexY);
                 if (id >= 0) {
-                    string numberSuffix = "th";
-                    try {
-                        numberSuffix = "stndrd".Substring(id * 2, 2);
-                    } catch {
-                    }
                     Unit unit = this.m_Units[id];
                     this.m_spriteBatch.DrawString(this.m_font1,
-                        (id + 1).ToString() + numberSuffix + " " + unit.UnitType.ToString() + "      Str: " + unit.Strength.ToString()
+                        (id + 1).ToString() + Util.GetOrdinalSuffix(id + 1) + " " + unit.UnitType.ToString() + "      Str: " + unit.Strength.ToString()
                         , new Vector2(550, 720), Color.White);
                     this.m_spriteBatch.DrawString(this.m_font1,
                         unit.UnitType.ToString() + "            Ent: 0"
