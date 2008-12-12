@@ -143,7 +143,6 @@ namespace xnaPanzer
 
         #endregion Member variables
 
-        
         #region Constructor & Initialization
 
         public Game1()

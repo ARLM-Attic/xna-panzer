@@ -218,6 +218,7 @@ public class Unit
 
 }
 
+// using the following hack for now...need to figure out what we really need
 public enum MovementClass
 {
     Static, Towed, Leg, Truck, Wheeled, Tracked
