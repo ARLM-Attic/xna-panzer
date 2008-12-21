@@ -17,7 +17,8 @@
  * All rights not forfeited by the designated license are hereby reserved by Troy Scheffel
  * 
  * Error Log Reference #108a56b5-f77f-4ca8-81cc-ea551e823b98 (when trying to add new component to Issue Tracker)
- * 
+ *
+ * xmas: Zuzu's hand-painted beer/wine glasses; W.S. pro. multichopper, xmas cookie cutters, spa
  *********************************************************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -133,6 +134,7 @@ namespace xnaPanzer
         Rectangle sourceRectangleForHexGridCursor;
 
         List<Unit> m_Units;
+        List<UnitType> m_UnitTypes;
         int[,] m_MapUnits;
         Int16 m_CurrentPlayer;
         bool m_IsUnitSelected = false;
@@ -193,10 +195,29 @@ namespace xnaPanzer
             // init curent player
             this.m_CurrentPlayer = 0;
 
+            // init a few unit types
+            this.m_UnitTypes = new List<UnitType>(5);
+            for (int i = 0; i <= 10; i++) {
+                UnitType ut = new UnitType();
+                ut.Ammo = 10;
+                ut.CombatRange = 1;
+                ut.Fuel = 50;
+                ut.HardAttack = 6;
+                ut.MovementClass = GroundMovementClass.Tracked;
+                ut.Moves = 5;
+                ut.Name = "Pz IIIJ";
+                ut.Nationality = "German";
+                ut.ServiceBranch = ServiceBranch.Army;
+                ut.SoftAttack = 4;
+                ut.SpottingRange = 2;
+                ut.SpritesheetX = 0;
+                ut.SpritesheetY = 0;
+            }
+
             // let's init a few test units
-            this.m_Units = new List<Unit>(10);
+            this.m_Units = new List<Unit>(50);
             for (int i = 1; i <= 10; i++) {
-                Unit u = new Unit(i - 1, i, i, i, this.m_CurrentPlayer, i, ((UnitType)(i % 5) + 1));
+                Unit u = new Unit(i - 1, i, i, i, this.m_CurrentPlayer, i,  ((UnitType)(i % 5) + 1));
                 this.m_Units.Add(u);
             }
 
@@ -835,18 +856,18 @@ namespace xnaPanzer
         StartHex
     }
 
-    /// <summary>
-    /// Unit classification, e.g. infanty, Tiger II
-    /// </summary>
-    public enum UnitType
-    {
-        Pioneere,
-        PzIIIJ,
-        PSW2338r,
-        Hummel,
-        FW190a,
-        Pz38t
-    }
+    ///// <summary>
+    ///// Unit classification, e.g. infanty, Tiger II
+    ///// </summary>
+    //public enum UnitType
+    //{
+    //    Pioneere,
+    //    PzIIIJ,
+    //    PSW2338r,
+    //    Hummel,
+    //    FW190a,
+    //    Pz38t
+    //}
 
     ///// <summary>
     ///// Type of movement across terrain (note: static cannot move by any means)
