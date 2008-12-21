@@ -2,62 +2,119 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 namespace xnaPanzer
 {
+    #region enums
+
+    /// <summary>
+    /// Contains all the movement types for ground units.
+    /// </summary>
     public enum GroundMovementClass
     {
-        Static, Towed, Leg, Truck, Wheeled, Tracked
+        Static = 0, Towed, Leg, Truck, Wheeled, HalfTracked, Tracked
     }
 
-    public enum ServiceBranch
+    /// <summary>
+    /// Contains attributes denoting characteristics, special abilities and restrictions for unit types.
+    /// </summary>
+    public enum UnitTypeCharacteristics : ulong 
     {
-        Army, Navy, AirForce
-    }
-
-    public enum UnitCharacteristics : ulong 
-    {
-        // basic types (1..16)
-        IsAirTransport = 1L << 1,
-        IsAircraft = 1L << 2,
-        IsArtillery = 1L << 3,                                          // defensive fire for adjacent units
-        IsInfantry = 1L << 4,                                           // soft target
+        // basic types (bit positions 1..16)
+        IsAircraftType = 1L << 1,                                       // can fly like a bird
+        IsArtillery = 1L << 2,                                          // defensive fire for adjacent units
+        IsGroundType = 1L << 3,                                         // landlubber
+        IsHardTarget = 1L << 4,                                         // armored ground init
+        IsNavalType = 1L << 5,                                          // can walk on water
+        IsSoftTarget = 1L << 6,                                         // susceptible to small arms fire
 
         // special abilities (17..48)
-        CanBridgeRivers = 1L << 17,
-        CanProtectBombers = 1L << 18,
+        CanBridgeRivers = 1L << 17,                                     // bridge engineers can span rivers
+        CanProtectBombers = 1L << 18,                                   // fighters can protect adjacent bombers
         CanTransportGroundUnits = 1L << 19,
-        CanUtilizeInterceptors = 1L << 20,
-        CausesTurnSuppression = 1L << 21,
-        IgnoresEnrenchment = 1L << 22,
-        IsAirtransportable = 1L << 23,                                  // can be transported from/to an airport
-        IsParatrooper = 1L << 24,                                       // can drop on any ground (not just airport)
+        CanUtilizeInterceptors = 1L << 20,                              // bombers can utilize friendly adjacent fighters
+        CausesTurnSuppression = 1L << 21,                               // level bombers
+        IgnoresEnrenchment = 1L << 22,                                  // engineers are close-combat specialists
+        IsAirTransport = 1L << 23,                                      // cargo aircraft : can transport infantry
+        IsAirTransportable = 1L << 24,                                  // can embark/debark at an airport
+        IsGroundTransport = 1L << 25,                                   // truck/half-track : can transport infantry and tow guns
+        IsGroundTransportable = 1L << 26,                               // can be transported by ground transport
+        IsParatrooper = 1L << 27,                                       // can debark anywhere (not just at an airport)
 
-        // restrictions (49.64)
-        MustAttackBeforeMoving = 1L << 49
+        // restrictions (49..64)
+        MustAttackBeforeMoving = 1L << 49                               // some units lose ability to attack after moving
     };
 
+    #endregion enums
+
+    /// <summary>
+    /// Contains info for each type of air/land/sea unit available in the game.
+    /// </summary>
     public class UnitType
     {
+        #region Static Variables
+
+        private static int s_IMAGE_PIXEL_HEIGHT;
+        private static int s_IMAGE_PIXEL_WIDTH;
+        private static SpriteBatch s_SPRITE_BATCH;
+        private static Texture2D s_SPRITE_SHEET;
+
+        #endregion Static Variables
+
+        #region Static Properties
+
+        public static int ImageHeight
+        {
+            get { return UnitType.s_IMAGE_PIXEL_HEIGHT; }
+            set { UnitType.s_IMAGE_PIXEL_HEIGHT = value; }
+        }
+
+        public static int ImageWidth
+        {
+            get { return UnitType.s_IMAGE_PIXEL_WIDTH; }
+            set { UnitType.s_IMAGE_PIXEL_WIDTH = value; }
+        }
+
+        public static SpriteBatch SpriteBatch
+        {
+            get { return UnitType.s_SPRITE_BATCH; }
+            set { UnitType.s_SPRITE_BATCH = value; }
+        }
+
+        public static Texture2D SpriteSheet
+        {
+            get { return UnitType.s_SPRITE_SHEET; }
+            set { UnitType.s_SPRITE_SHEET = value; }
+        }
+
+        #endregion Static Properties
+
         #region Member Variables
 
-        private int m_AirAttack;
-        private int m_AirDefense;
-        private int m_Ammo;
-        private int m_CloseDefense;
-        private int m_CombatRange; // 1 for most units
-        private int m_Fuel;
-        private int m_HardAttack;
-        private GroundMovementClass m_MovementClass;  // Wheeled
-        private ServiceBranch m_ServiceBranch; // Army (ground unit)
-        private int m_Moves;
-        private string m_Name;  // Psw 233-8r
-        private long m_UnitCharacteristics;                             // e.g. Bridging, air transportable
-        private int m_Nationality; // 1 = Italian
-        private int m_SoftAttack;
-        private int m_SpottingRange; // 1-5
-        private int m_SpritesheetX;
-        private int m_SpritesheetY;
+        private int m_AirAttack;                                        // anti-aircraft combat strength
+        private int m_AirDefense;                                       // combat strength vs attacking aircraft
+        private int m_Ammo;                                             // ammo supply points
+        private DateTime m_AvailabilityEnd;                             // last availability date
+        private DateTime m_AvailabilityStart;                           // first availability date
+        private ulong m_Characteristics;                                // e.g. Bridging, air transportable
+        private int m_CloseDefense;                                     // close-combat strength vs. infantry
+        private int m_CombatRange;                                      // 1 for most units
+        private int m_Cost;                                             // prestige cost to buy
+        private int m_EntrenchmentRate;                                 // e.g. inf types are better at entrenching than tanks
+        private int m_Fuel;                                             // fuel supply points
+        private int m_GroundDefense;                                    // defense rating
+        private int m_HardAttack;                                       // combat strength vs. armored ground units
+        private int m_ID;                                               // unique ID number
+        private int m_Initiative;                                       // first to shoot, wins
+        private GroundMovementClass m_MovementClass;                    // e.g. Wheeled, Tracked
+        private int m_Moves;                                            // no. movement points
+        private string m_Name;                                          // e.g. Psw 233-8r
+        private int m_Nationality;                                      // 0=German, 1=Italian, etc
+        private int m_SoftAttack;                                       // combat strength vs unarmoed ground units
+        private int m_SpottingRange;                                    // hex range for spotting enemy units
+        private int m_SpritesheetX;                                     // leftmost coordinate
+        private int m_SpritesheetY;                                     // topmost coordinate
 
         #endregion Member Variables
 
@@ -81,6 +138,24 @@ namespace xnaPanzer
             set { m_Ammo = value; }
         }
 
+        public DateTime AvailabilityEnd
+        {
+            get { return m_AvailabilityEnd; }
+            set { m_AvailabilityEnd = value; }
+        }
+
+        public DateTime AvailabilityStart
+        {
+            get { return m_AvailabilityStart; }
+            set { m_AvailabilityStart = value; }
+        }
+
+        public ulong Characteristics
+        {
+            get { return m_Characteristics; }
+            set { m_Characteristics = value; }
+        }
+
         public int CloseDefense
         {
             get { return m_CloseDefense; }
@@ -93,16 +168,46 @@ namespace xnaPanzer
             set { m_CombatRange = value; }
         }
 
+        public int Cost
+        {
+            get { return m_Cost; }
+            set { m_Cost = value; }
+        }
+
+        public int EntrenchmentRate
+        {
+            get { return m_EntrenchmentRate; }
+            set { m_EntrenchmentRate = value; }
+        }
+
         public int Fuel
         {
             get { return m_Fuel; }
             set { m_Fuel = value; }
         }
 
+        public int GroundDefense
+        {
+            get { return m_GroundDefense; }
+            set { m_GroundDefense = value; }
+        }
+
         public int HardAttack
         {
             get { return m_HardAttack; }
             set { m_HardAttack = value; }
+        }
+
+        public int ID
+        {
+            get { return m_ID; }
+            set { m_ID = value; }
+        }
+
+        public int Initiative
+        {
+            get { return m_Initiative; }
+            set { m_Initiative = value; }
         }
 
         public GroundMovementClass MovementClass
@@ -127,12 +232,6 @@ namespace xnaPanzer
         {
             get { return m_Nationality; }
             set { m_Nationality = value; }
-        }
-
-        public ServiceBranch ServiceBranch
-        {
-            get { return m_ServiceBranch; }
-            set { m_ServiceBranch = value; }
         }
 
         public int SoftAttack
@@ -163,26 +262,77 @@ namespace xnaPanzer
 
         #region Constructors()
 
+        static UnitType()
+        {
+            UnitType.ImageHeight = 0;
+            UnitType.ImageWidth = 0;
+            UnitType.SpriteBatch = null;
+            UnitType.SpriteSheet = null;
+        }
+
+        /// <summary>
+        /// Default constructor to create a new unit type, e.g. PZ IIIJ, Spitfire II.  Properties must be initialized individually.
+        /// </summary>
         public UnitType()
         {
         }
 
-        public UnitType(int _airAttack, int _airDefense, int _ammo, int _closeDefense, int _combatRange, int _fuel,
-            int _hardAttack, GroundMovementClass _movementClass, ServiceBranch _serviceBranch, int _moves, 
-            string _name, int _nationality, int _softAttack, int _spottingRange, int _spritesheetX, int _spritesheetY)
+        /// <summary>
+        /// Primary constructor to create a new unit type, e.g. PZ IIIJ, Spitfire II.
+        /// </summary>
+        /// <param name="_airAttack"></param>
+        /// <param name="_airDefense"></param>
+        /// <param name="_ammo"></param>
+        /// <param name="_availabilityStart"></param>
+        /// <param name="_availabilityEnd"></param>
+        /// <param name="_characteristics"></param>
+        /// <param name="_closeDefense"></param>
+        /// <param name="_combatRange"></param>
+        /// <param name="_cost"></param>
+        /// <param name="_entrenchmentRate"></param>
+        /// <param name="_fuel"></param>
+        /// <param name="_groundDefense"></param>
+        /// <param name="_hardAttack"></param>
+        /// <param name="_id"></param>
+        /// <param name="_initiative"></param>
+        /// <param name="_movementClass"></param>
+        /// <param name="_moves"></param>
+        /// <param name="_name"></param>
+        /// <param name="_nationality"></param>
+        /// <param name="_softAttack"></param>
+        /// <param name="_spottingRange"></param>
+        /// <param name="_spritesheetX"></param>
+        /// <param name="_spritesheetY"></param>
+        public UnitType(int _airAttack, int _airDefense, int _ammo, 
+            DateTime _availabilityStart, DateTime _availabilityEnd,
+            ulong _characteristics, int _closeDefense, int _combatRange, int _cost,
+            int _entrenchmentRate,
+            int _fuel,
+            int _groundDefense,
+            int _hardAttack, int _id, int _initiative,
+            GroundMovementClass _movementClass, int _moves, 
+            string _name, int _nationality, 
+            int _softAttack, int _spottingRange, int _spritesheetX, int _spritesheetY)
         {
             this.AirAttack = _airAttack;
             this.AirDefense = _airDefense;
             this.Ammo = _ammo;
+            this.AvailabilityStart = _availabilityStart;
+            this.AvailabilityEnd = _availabilityEnd;
+            this.Characteristics = _characteristics;
             this.CloseDefense = _closeDefense;
             this.CombatRange = _combatRange;
+            this.Cost = _cost;
+            this.EntrenchmentRate = _entrenchmentRate;
             this.Fuel = _fuel;
+            this.GroundDefense = _groundDefense;
             this.HardAttack = _hardAttack;
+            this.ID = _id;
+            this.Initiative = _initiative;
             this.MovementClass = _movementClass;
             this.Moves = _moves;
             this.Name = _name;
             this.Nationality = _nationality;
-            this.ServiceBranch = _serviceBranch;
             this.SoftAttack = _softAttack;
             this.SpottingRange = _spottingRange;
             this.SpritesheetX = _spritesheetX;

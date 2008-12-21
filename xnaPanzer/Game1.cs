@@ -206,7 +206,7 @@ namespace xnaPanzer
                 ut.MovementClass = GroundMovementClass.Tracked;
                 ut.Moves = 5;
                 ut.Name = "Pz IIIJ";
-                ut.Nationality = "German";
+                ut.Nationality = 0;  // 0 = german???
                 ut.ServiceBranch = ServiceBranch.Army;
                 ut.SoftAttack = 4;
                 ut.SpottingRange = 2;
@@ -266,7 +266,7 @@ namespace xnaPanzer
 
         #endregion Content Load/Unload
 
-        #region Update/Draw
+        #region Update
 
         /// <summary>
         /// Allows the game to run logic such as updating the world,
@@ -379,6 +379,10 @@ namespace xnaPanzer
 
             base.Update(gameTime);
         }
+
+        #endregion Update
+
+        #region Draw
 
         /// <summary>
         /// This is called when the game should draw itself.
@@ -518,7 +522,7 @@ namespace xnaPanzer
             base.Draw(gameTime);
         }
 
-        #endregion Update/Draw
+        #endregion Draw
 
         #region Algorithms
 
