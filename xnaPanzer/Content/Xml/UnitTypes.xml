@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- New document created with EditiX at Sun Dec 21 15:48:56 CST 2008 -->
+
+
+<UnitType>
+				<ID>0</ID>
+				<Name>Pz IIIJ</Name>
+				<AirAttack>0</AirAttack>
+				<AirDefense>0</AirDefense>
+				<Ammo>123</Ammo>
+				<AvailabilityStart>9/1/1939</AvailabilityStart>
+				<AvailabilityEnd>6/1/1945</AvailabilityEnd>
+				<Characteristics>0</Characteristics>
+				<CloseDefense>0</CloseDefense>
+				<CombatRange>1</CombatRange>
+				<Cost>200</Cost>
+				<EntrenchmentRate>1</EntrenchmentRate>
+				<Fuel>35</Fuel>
+				<GroundDefense></GroundDefense>
+				<HardAttack></HardAttack>
+				<Initiative></Initiative>
+				<MovementClass></MovementClass>
+				<Moves></Moves>
+				<Nationality>0</Nationality>
+				<SoftAttack></SoftAttack>
+				<SpottingRange></SpottingRange>
+				<SpritesheetX></SpritesheetX>
+				<SpritesheetY></SpritesheetY>
+</UnitType>
