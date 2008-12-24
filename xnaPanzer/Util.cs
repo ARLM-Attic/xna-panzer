@@ -59,6 +59,10 @@ namespace xnaPanzer
             }
         }
 
+        public class SpriteContentReader : ContentTypeReader<Sprite>
+        {
+        }
+
 } // class util
 
 } // namespace

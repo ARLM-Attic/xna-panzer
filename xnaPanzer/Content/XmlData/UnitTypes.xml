@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<XnaContent>
+    <Asset Type="xnaPanzer.UnitType">
+        <ID>0</ID>
+	    <Name>Pz IIIJ</Name>
+	    <AirAttack>0</AirAttack>
+	    <AirDefense>0</AirDefense>
+	    <Ammo>123</Ammo>
+	    <AvailabilityStart>9/1/1939</AvailabilityStart>
+	    <AvailabilityEnd>6/1/1945</AvailabilityEnd>
+	    <Characteristics>0</Characteristics>
+	    <CloseDefense>0</CloseDefense>
+	    <CombatRange>1</CombatRange>
+	    <Cost>200</Cost>
+	    <EntrenchmentRate>1</EntrenchmentRate>
+	    <Fuel>35</Fuel>
+	    <GroundDefense></GroundDefense>
+	    <HardAttack></HardAttack>
+	    <Initiative></Initiative>
+	    <MovementClass></MovementClass>
+	    <Moves></Moves>
+	    <Nationality>0</Nationality>
+	    <SoftAttack></SoftAttack>
+	    <SpottingRange></SpottingRange>
+	    <SpritesheetX></SpritesheetX>
+	    <SpritesheetY></SpritesheetY>
+    </Asset>
+</XnaContent>
+
+<!--
+<?xml version=”1.0″ encoding=”utf-8″ ?>
+<FontManager>
+    <numFonts>8</numFonts>
+
+    <FontObj>
+        <fontType>0</fontType>
+        <fontName>BmpFontDefault</fontName>
+    </FontObj>
+    <FontObj>
+        <fontType>0</fontType>
+        <fontName>BmpFontBankGothicB18</fontName>
+    </FontObj>
+    <FontObj>
+        <fontType>0</fontType>
+        <fontName>BmpFontEarthR16</fontName>
+    </FontObj>
+    <FontObj>
+        <fontType>0</fontType>
+        <fontName>BmpFontEddieR20</fontName>
+    </FontObj>
+    <FontObj>
+        <fontType>0</fontType>
+        <fontName>BmpFontEurostarR20</fontName>
+    </FontObj>
+    <FontObj>
+        <fontType>0</fontType>
+        <fontName>BmpFontGriffonShadowR20</fontName>
+    </FontObj>
+    <FontObj>
+        <fontType>0</fontType>
+        <fontName>BmpFontGunmetalR20</fontName>
+    </FontObj>
+    <FontObj>
+        <fontType>0</fontType>
+        <fontName>BmpFontTech001</fontName>
+    </FontObj>
+
+</FontManager>
+-->

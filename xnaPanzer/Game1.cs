@@ -207,7 +207,6 @@ namespace xnaPanzer
                 ut.Moves = 5;
                 ut.Name = "Pz IIIJ";
                 ut.Nationality = 0;  // 0 = german???
-                ut.ServiceBranch = ServiceBranch.Army;
                 ut.SoftAttack = 4;
                 ut.SpottingRange = 2;
                 ut.SpritesheetX = 0;

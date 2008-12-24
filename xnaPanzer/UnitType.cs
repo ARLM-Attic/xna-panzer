@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+
 namespace xnaPanzer
 {
     #region enums
@@ -51,6 +53,7 @@ namespace xnaPanzer
     /// <summary>
     /// Contains info for each type of air/land/sea unit available in the game.
     /// </summary>
+    [Serializable]
     public class UnitType
     {
         #region Static Variables
@@ -340,5 +343,54 @@ namespace xnaPanzer
         }
 
         #endregion Constructors()
+
+        public void Load(ContentManager content)
+        {
+            //texture = content.Load<Texture2D>(textureAsset);
+        }
+
+        /// <summary>
+        /// This class will be instantiated by the XNA Framework Content
+        /// Pipeline to read the specified data type from binary .xnb format.
+        /// 
+        /// Unlike the other Content Pipeline support classes, this should
+        /// be a part of your main game project, and not the Content Pipeline
+        /// Extension Library project.
+        /// </summary>
+        public class UnitTypeContentTypeReader : ContentTypeReader<UnitType>
+        {
+            protected override UnitType Read(ContentReader _input, UnitType _unitType)
+            {
+                UnitType unitType = new UnitType();
+
+                unitType.AirAttack = _input.ReadInt32();
+                unitType.AirDefense = _input.ReadInt32();
+                unitType.Ammo = _input.ReadInt32();
+                unitType.AvailabilityEnd = _input.ReadObject<DateTime>();
+                unitType.AvailabilityStart = _input.ReadObject<DateTime>();
+                unitType.Characteristics = _input.ReadUInt64();
+                unitType.CloseDefense = _input.ReadInt32();
+                unitType.CombatRange = _input.ReadInt32();
+                unitType.Cost = _input.ReadInt32();
+                unitType.EntrenchmentRate = _input.ReadInt32();
+                unitType.Fuel = _input.ReadInt32();
+                unitType.GroundDefense = _input.ReadInt32();
+                unitType.HardAttack = _input.ReadInt32();
+                unitType.ID = _input.ReadInt32();
+                unitType.Initiative = _input.ReadInt32();
+                unitType.MovementClass = _input.ReadObject<GroundMovementClass>();
+                unitType.Moves = _input.ReadInt32();
+                unitType.Name = _input.ReadString();
+                unitType.Nationality = _input.ReadInt32();
+                unitType.SoftAttack = _input.ReadInt32();
+                unitType.SpottingRange = _input.ReadInt32();
+                unitType.SpritesheetX = _input.ReadInt32();
+                unitType.SpritesheetY = _input.ReadInt32();
+
+                unitType.Load(_input.ContentManager);
+
+                return unitType;
+            }
+        }
     }
 }
