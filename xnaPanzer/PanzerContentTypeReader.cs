@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 // TODO: replace this with the type you want to read.
-using TRead = xnaPanzer.UnitType;
+using TRead = XmlContentShared.UnitType;
 
 namespace xnaPanzer
 {

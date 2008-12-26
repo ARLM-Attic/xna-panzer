@@ -19,12 +19,23 @@
  * Error Log Reference #108a56b5-f77f-4ca8-81cc-ea551e823b98 (when trying to add new component to Issue Tracker)
  *
  * xmas: Zuzu's hand-painted beer/wine glasses; W.S. pro. multichopper, xmas cookie cutters, spa
+ * Tutorials:
+ * http://www.ziggyware.com/readarticle.php?article_id=160
+ * http://msdn.microsoft.com/en-us/library/bb203924(MSDN.9).aspx
+ * http://blogs.msdn.com/shawnhar/archive/2008/08/12/teaching-a-man-to-fish.aspx
+ * http://jamesewelch.wordpress.com/2008/04/17/how-to-use-xnacontent-xml-files/
+ * http://www.ziggyware.com/readarticle.php?article_id=150 (Sprite, 2.0)
+ * http://www.rrstar.com/homepage/x1091751971 (sledding)
+ * 
  *********************************************************************************************************************/
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using XmlContentShared;
+using Microsoft.Xna.Framework.Content;
+using System.Xml;
 
 namespace xnaPanzer
 {
@@ -205,7 +216,7 @@ namespace xnaPanzer
                 ut.HardAttack = 6;
                 ut.MovementClass = GroundMovementClass.Tracked;
                 ut.Moves = 5;
-                ut.Name = "Pz IIIJ";
+                ut.Name = "Pz IIIJ" + "-" + i.ToString();
                 ut.Nationality = 0;  // 0 = german???
                 ut.SoftAttack = 4;
                 ut.SpottingRange = 2;
@@ -213,11 +224,18 @@ namespace xnaPanzer
                 ut.SpritesheetY = 0;
             }
 
+            XmlWriterSettings xmlSettings = new XmlWriterSettings();
+            xmlSettings.Indent = true;
+
+            using (XmlWriter xmlWriter = XmlWriter.Create("testunittype.xml", xmlSettings)) {
+                    ////IntermediateSerializer.Serialize(xmlWriter, this.m_UnitTypes[0], null);
+            }            
+
             // let's init a few test units
             this.m_Units = new List<Unit>(50);
             for (int i = 1; i <= 10; i++) {
-                Unit u = new Unit(i - 1, i, i, i, this.m_CurrentPlayer, i,  ((UnitType)(i % 5) + 1));
-                this.m_Units.Add(u);
+                ////Unit u = new Unit(i - 1, i, i, i, this.m_CurrentPlayer, i,  ((UnitType)(i % 5) + 1));
+                ////this.m_Units.Add(u);
             }
 
             foreach (Unit u in this.m_Units) {

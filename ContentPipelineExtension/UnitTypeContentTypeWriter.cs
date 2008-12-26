@@ -25,8 +25,8 @@ namespace ContentPipelineExtension
             _output.Write(_value.AirAttack);
             _output.Write(_value.AirDefense);
             _output.Write(_value.Ammo);
-            _output.Write(_value.AvailabilityEnd);
-            _output.Write(_value.AvailabilityStart);
+            _output.WriteObject<DateTime>(_value.AvailabilityEnd);
+            _output.WriteObject<DateTime>(_value.AvailabilityStart);
             _output.Write(_value.Characteristics);
             _output.Write(_value.CloseDefense);
             _output.Write(_value.CombatRange);
@@ -37,7 +37,7 @@ namespace ContentPipelineExtension
             _output.Write(_value.HardAttack);
             _output.Write(_value.ID);
             _output.Write(_value.Initiative);
-            _output.Write(_value.MovementClass);
+            _output.WriteObject<XmlContentShared.GroundMovementClass>(_value.MovementClass);
             _output.Write(_value.Moves);
             _output.Write(_value.Name);
             _output.Write(_value.Nationality);

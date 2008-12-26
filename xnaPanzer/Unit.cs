@@ -5,6 +5,8 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
+using XmlContentShared;
+
 namespace xnaPanzer
 {
     /// <summary>
@@ -152,7 +154,7 @@ namespace xnaPanzer
         /// <summary>
         /// Default constructor (be sure to initialize the Unit via properties).
         /// </summary>
-        public Unit() : this(-1, -1, -1, -1, -1, -1, UnitType.Pioneere)
+        public Unit() : this(-1, -1, -1, -1, -1, -1, new UnitType()) //// UnitType.Pioneere)
         {
         }
 
@@ -178,7 +180,7 @@ namespace xnaPanzer
             this.TypeName = Enum.GetName(typeof(UnitType), _type);
             // TEST: string s = UnitType.Infantry.ToString();
             this.HasMoved = false;
-            Point offset = Util.CalculateSpritesheetCoordinates((int)this.UnitType);
+            Point offset = Util.CalculateSpritesheetCoordinates(0); ////_type.(int)this.UnitType);
             this.SpriteRectangle = new Rectangle(offset.X, offset.Y, Unit.PixelWidth, Unit.PixelHeight);
         }
 

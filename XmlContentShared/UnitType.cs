@@ -366,8 +366,8 @@ namespace XmlContentShared
                 unitType.AirAttack = _input.ReadInt32();
                 unitType.AirDefense = _input.ReadInt32();
                 unitType.Ammo = _input.ReadInt32();
-                unitType.AvailabilityEnd = _input.ReadObject<DateTime>();
-                unitType.AvailabilityStart = _input.ReadObject<DateTime>();
+                unitType.AvailabilityEnd = _input.ReadObject<System.DateTime>();
+                unitType.AvailabilityStart = _input.ReadObject<System.DateTime>();
                 unitType.Characteristics = _input.ReadUInt64();
                 unitType.CloseDefense = _input.ReadInt32();
                 unitType.CombatRange = _input.ReadInt32();
