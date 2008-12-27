@@ -206,39 +206,13 @@ namespace xnaPanzer
             // init curent player
             this.m_CurrentPlayer = 0;
 
-            // init a few unit types
-            this.m_UnitTypes = new List<UnitType>(5);
-            for (int i = 0; i <= 10; i++) {
-                UnitType ut = new UnitType();
-                ut.Ammo = 10;
-                ut.CombatRange = 1;
-                ut.Fuel = 50;
-                ut.HardAttack = 6;
-                ut.MovementClass = GroundMovementClass.Tracked;
-                ut.Moves = 5;
-                ut.Name = "Pz IIIJ" + "-" + i.ToString();
-                ut.Nationality = 0;  // 0 = german???
-                ut.SoftAttack = 4;
-                ut.SpottingRange = 2;
-                ut.SpritesheetX = 0;
-                ut.SpritesheetY = 0;
-            }
-
+            // load UnitTypes from XML file
+            this.m_UnitTypes = new List<UnitType>();
             this.m_UnitTypes = Content.Load<List<UnitType>>(@"UnitTypeList");
 
-            XmlWriterSettings xmlSettings = new XmlWriterSettings();
-            xmlSettings.Indent = true;
-
-            using (XmlWriter xmlWriter = XmlWriter.Create("testunittype.xml", xmlSettings)) {
-                    ////IntermediateSerializer.Serialize(xmlWriter, this.m_UnitTypes[0], null);
-            }            
-
             // let's init a few test units
-            this.m_Units = new List<Unit>(50);
-            for (int i = 1; i <= 10; i++) {
-                ////Unit u = new Unit(i - 1, i, i, i, this.m_CurrentPlayer, i,  ((UnitType)(i % 5) + 1));
-                ////this.m_Units.Add(u);
-            }
+            this.m_Units = new List<Unit>();
+            this.m_Units = Content.Load<List<Unit>>(@"UnitList");
 
             foreach (Unit u in this.m_Units) {
                 this.m_MapUnits[u.X, u.Y] = u.ID;
