@@ -172,8 +172,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="UnitType.xml">
-      <Name>UnitType</Name>
+    <Compile Include="UnitTypeList.xml">
+      <Name>UnitTypeList</Name>
       <Importer>XmlImporter</Importer>
       <Processor>PassThroughProcessor</Processor>
     </Compile>

@@ -224,6 +224,8 @@ namespace xnaPanzer
                 ut.SpritesheetY = 0;
             }
 
+            this.m_UnitTypes = Content.Load<List<UnitType>>(@"UnitTypeList");
+
             XmlWriterSettings xmlSettings = new XmlWriterSettings();
             xmlSettings.Indent = true;
 
