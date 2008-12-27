@@ -242,15 +242,15 @@ namespace xnaPanzer
             // load UnitTypes from XML file
             this.m_UnitTypes = new List<UnitType>();
             this.m_UnitTypes = Content.Load<List<UnitType>>(@"UnitTypeList");
-            foreach (UnitType ut in this.m_UnitTypes) {
-                Point p = Util.CalculateSpritesheetCoordinates(1);
-                if (p != null) {
-                    this.m_UnitTypes.Texture = UnitType.SpriteSheet.GetData<
-            }
+            //foreach (UnitType ut in this.m_UnitTypes) {
+            //    Point p = Util.CalculateSpritesheetCoordinates(1);
+            //    if (p != null) {
+            //        this.m_UnitTypes.Texture = UnitType.SpriteSheet.GetData<
+            //}
 
             // let's init a few test units
             this.m_Units = new List<Unit>();
-            this.m_Units = Content.Load<List<Unit>>(@"UnitList");
+            //this.m_Units = Content.Load<List<Unit>>(@"UnitList");
 
             foreach (Unit u in this.m_Units) {
                 this.m_MapUnits[u.X, u.Y] = u.ID;

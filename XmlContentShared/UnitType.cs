@@ -116,8 +116,7 @@ namespace XmlContentShared
         private int m_Nationality;                                      // 0=German, 1=Italian, etc
         private int m_SoftAttack;                                       // combat strength vs unarmoed ground units
         private int m_SpottingRange;                                    // hex range for spotting enemy units
-        private int m_SpritesheetX;                                     // leftmost coordinate
-        private int m_SpritesheetY;                                     // topmost coordinate
+        private int m_SpritesheetIconNumber;                            // icon index within spritesheet
 
         #endregion Member Variables
 
@@ -249,16 +248,10 @@ namespace XmlContentShared
             set { m_SpottingRange = value; }
         }
 
-        public int SpritesheetX
+        public int SpritesheetIconNumber
         {
-            get { return m_SpritesheetX; }
-            set { m_SpritesheetX = value; }
-        }
-
-        public int SpritesheetY
-        {
-            get { return m_SpritesheetY; }
-            set { m_SpritesheetY = value; }
+            get { return m_SpritesheetIconNumber; }
+            set { m_SpritesheetIconNumber = value; }
         }
 
         #endregion Properties
@@ -304,8 +297,7 @@ namespace XmlContentShared
         /// <param name="_nationality"></param>
         /// <param name="_softAttack"></param>
         /// <param name="_spottingRange"></param>
-        /// <param name="_spritesheetX"></param>
-        /// <param name="_spritesheetY"></param>
+        /// <param name="_spritesheetIconNumber"></param>
         public UnitType(int _airAttack, int _airDefense, int _ammo, 
             DateTime _availabilityStart, DateTime _availabilityEnd,
             ulong _characteristics, int _closeDefense, int _combatRange, int _cost,
@@ -315,7 +307,7 @@ namespace XmlContentShared
             int _hardAttack, int _id, int _initiative,
             GroundMovementClass _movementClass, int _moves, 
             string _name, int _nationality, 
-            int _softAttack, int _spottingRange, int _spritesheetX, int _spritesheetY)
+            int _softAttack, int _spottingRange, int _spritesheetIconNumber)
         {
             this.AirAttack = _airAttack;
             this.AirDefense = _airDefense;
@@ -338,8 +330,7 @@ namespace XmlContentShared
             this.Nationality = _nationality;
             this.SoftAttack = _softAttack;
             this.SpottingRange = _spottingRange;
-            this.SpritesheetX = _spritesheetX;
-            this.SpritesheetY = _spritesheetY;
+            this.SpritesheetIconNumber = _spritesheetIconNumber;
         }
 
         #endregion Constructors()
@@ -384,8 +375,7 @@ namespace XmlContentShared
                 unitType.Nationality = _input.ReadInt32();
                 unitType.SoftAttack = _input.ReadInt32();
                 unitType.SpottingRange = _input.ReadInt32();
-                unitType.SpritesheetX = _input.ReadInt32();
-                unitType.SpritesheetY = _input.ReadInt32();
+                unitType.SpritesheetIconNumber = _input.ReadInt32();
 
                 unitType.Load(_input.ContentManager);
 
