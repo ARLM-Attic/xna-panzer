@@ -206,18 +206,6 @@ namespace xnaPanzer
             // init curent player
             this.m_CurrentPlayer = 0;
 
-            // load UnitTypes from XML file
-            this.m_UnitTypes = new List<UnitType>();
-            this.m_UnitTypes = Content.Load<List<UnitType>>(@"UnitTypeList");
-
-            // let's init a few test units
-            this.m_Units = new List<Unit>();
-            this.m_Units = Content.Load<List<Unit>>(@"UnitList");
-
-            foreach (Unit u in this.m_Units) {
-                this.m_MapUnits[u.X, u.Y] = u.ID;
-            }
-
             base.Initialize();
         }
 
@@ -247,6 +235,27 @@ namespace xnaPanzer
             this.m_HexGridParts = Content.Load<Texture2D>("Map/Hex_Grid_Parts");
             this.sourceRectangleForPartialHexGrid = new Rectangle(0, 0, m_HEXPART_FULL_WIDTH, m_HEXPART_FULL_HEIGHT);
             this.sourceRectangleForHexGridCursor = new Rectangle(61, 0, m_HEXPART_FULL_WIDTH, m_HEXPART_FULL_HEIGHT);
+
+            // load sprite sheet of unit icons (needed to initialize individual UnitType textures)
+            UnitType.SpriteSheet = this.Content.Load<Texture2D>("tacicons_start_at_0");
+
+            // load UnitTypes from XML file
+            this.m_UnitTypes = new List<UnitType>();
+            this.m_UnitTypes = Content.Load<List<UnitType>>(@"UnitTypeList");
+            foreach (UnitType ut in this.m_UnitTypes) {
+                Point p = Util.CalculateSpritesheetCoordinates(1);
+                if (p != null) {
+                    this.m_UnitTypes.Texture = UnitType.SpriteSheet.GetData<
+            }
+
+            // let's init a few test units
+            this.m_Units = new List<Unit>();
+            this.m_Units = Content.Load<List<Unit>>(@"UnitList");
+
+            foreach (Unit u in this.m_Units) {
+                this.m_MapUnits[u.X, u.Y] = u.ID;
+            }
+
         }
 
         /// <summary>
