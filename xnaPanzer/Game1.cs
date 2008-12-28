@@ -249,8 +249,8 @@ namespace xnaPanzer
             //}
 
             //// let's init a few test units
-            //this.m_Units = new List<Unit>();
-            //this.m_Units = Content.Load<List<Unit>>(@"UnitList");
+            this.m_Units = new List<Unit>();
+            this.m_Units = Content.Load<List<Unit>>(@"UnitList");
 
             //foreach (Unit u in this.m_Units) {
             //    this.m_MapUnits[u.X, u.Y] = u.ID;
