@@ -186,6 +186,8 @@ namespace xnaPanzer
             this.m_graphics.ApplyChanges();
             this.IsMouseVisible = true;
 
+            UnitType.SpriteBatch = this.m_spriteBatch;
+
             //this.m_map = new int[m_MAP_HEX_WIDTH, m_MAP_HEX_HEIGHT];
             Random random = new Random(unchecked((int) (DateTime.Now.Ticks)));
             this.m_map = new int[m_MAP_HEX_WIDTH, m_MAP_HEX_HEIGHT];
@@ -519,6 +521,10 @@ namespace xnaPanzer
                     "Mouse coord X,Y = " + ms.X.ToString() + ", " + ms.Y.ToString()
                     , new Vector2(10, 550), Color.White);
             }
+
+            // TEST DRAW ONLY
+            this.m_UnitTypes[1].Draw(new Point(100, 100));
+
             this.m_spriteBatch.End();
 
             base.Draw(gameTime);

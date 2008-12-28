@@ -19,12 +19,12 @@
             <Initiative>5</Initiative>
             <MovementClass>0</MovementClass>
             <Moves>5</Moves>
-            <Name>Pz IIIJ</Name>
+            <Name>Tiger</Name>
             <Nationality>0</Nationality>
             <SoftAttack>5</SoftAttack>
             <SpottingRange>5</SpottingRange>
-            <SpritesheetX>60</SpritesheetX>
-            <SpritesheetY>0</SpritesheetY>
+            <SpritesheetX>305</SpritesheetX>
+            <SpritesheetY>153</SpritesheetY>
         </Item>
 
         <Item>
@@ -45,12 +45,12 @@
             <Initiative>5</Initiative>
             <MovementClass>0</MovementClass>
             <Moves>5</Moves>
-            <Name>Pz IIIL</Name>
+            <Name>Tiger II</Name>
             <Nationality>0</Nationality>
             <SoftAttack>5</SoftAttack>
             <SpottingRange>5</SpottingRange>
-            <SpritesheetX>120</SpritesheetX>
-            <SpritesheetY>0</SpritesheetY>
+            <SpritesheetX>366</SpritesheetX>
+            <SpritesheetY>153</SpritesheetY>
         </Item>
 
     </Asset>
