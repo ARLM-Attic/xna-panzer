@@ -24,19 +24,19 @@ namespace ContentPipelineExtension
         {
             _output.Write(_value.ID);
             _output.Write(_value.Experience);
-            _output.Write(_value.HasMoved);
+            //_output.WriteObject<Boolean>(_value.HasMoved);
             _output.Write(_value.Moves);
             _output.Write(_value.Name);
             _output.Write(_value.Owner);
             _output.Write(_value.StartingX);
             _output.Write(_value.StartingY);
             _output.Write(_value.Strength);
-            _output.Write(_value.UnitTypeID);
+            //_output.Write(_value.UnitTypeID);
         }
 
         public override string GetRuntimeReader(TargetPlatform targetPlatform)
         {
-            return typeof(XmlContentShared.Unit.UnitTypeContentTypeReader).AssemblyQualifiedName;
+            return typeof(XmlContentShared.UnitContentTypeReader).AssemblyQualifiedName;
         }
     }
 }

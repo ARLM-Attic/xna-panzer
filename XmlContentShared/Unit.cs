@@ -220,6 +220,11 @@ namespace XmlContentShared
             }
         }
 
+        public void Load(ContentManager content)
+        {
+            //texture = content.Load<Texture2D>(textureAsset);
+        }
+
     } // class Unit
 
     /// <summary>
@@ -238,12 +243,12 @@ namespace XmlContentShared
 
             unit.ID = _input.ReadInt32();
             unit.Experience = _input.ReadInt32();
-            unit.HasMoved = _input.ReadBoolean();
+            //unit.HasMoved = _input.ReadBoolean();
             unit.Moves = _input.ReadInt32();
             unit.Owner = _input.ReadInt32();
             unit.StartingX = _input.ReadInt32();
             unit.StartingY = _input.ReadInt32();
-            unit.UnitTypeID = _input.ReadInt32();
+            //unit.UnitTypeID = _input.ReadInt32();
 
             unit.Load(_input.ContentManager);
 

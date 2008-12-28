@@ -49,7 +49,7 @@ namespace ContentPipelineExtension
 
         public override string GetRuntimeReader(TargetPlatform targetPlatform)
         {
-            return typeof(XmlContentShared.UnitType.UnitTypeContentTypeReader).AssemblyQualifiedName;
+            return typeof(XmlContentShared.UnitTypeContentTypeReader).AssemblyQualifiedName;
         }
     }
 }
