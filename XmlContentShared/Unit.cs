@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace XmlContentShared
@@ -10,37 +11,10 @@ namespace XmlContentShared
     /// <summary>
     /// Super simple representation of a combat unit.
     /// </summary>
+    /// [Serializable]
     public class Unit
     {
         #region Static Variables
-
-        public static int PixelWidth
-        {
-            get { return Unit.pixelWidth; }
-            set { Unit.pixelWidth = value; }
-        }
-        private static int pixelWidth;
-
-        public static int PixelHeight
-        {
-            get { return Unit.pixelHeight; }
-            set { Unit.pixelHeight = value; }
-        }
-        private static int pixelHeight;
-
-        public static SpriteBatch SpriteBatch
-        {
-            get { return Unit.spriteBatch; }
-            set { Unit.spriteBatch = value; }
-        }
-        private static SpriteBatch spriteBatch;
-
-        public static Texture2D SpriteSheet
-        {
-            get { return Unit.spriteSheet; }
-            set { Unit.spriteSheet = value; }
-        }
-        private static Texture2D spriteSheet;
 
         #endregion Static Variables
 
@@ -56,15 +30,12 @@ namespace XmlContentShared
         }
         private int m_ID;
 
-        /// <summary>
-        /// Area from the spritesheet that contains this unit's icon
-        /// </summary>
-        public Rectangle SpriteRectangle
+        public int Experience
         {
-            get { return this.m_SpriteRectangle; }
-            set { this.m_SpriteRectangle = value; }
+            get { return this.m_Experience; }
+            set { this.m_Experience = value; }
         }
-        private Rectangle m_SpriteRectangle;
+        private int m_Experience;
 
         public int Moves
         {
@@ -72,6 +43,16 @@ namespace XmlContentShared
             set { this.m_Moves = value; }
         }
         private int m_Moves;
+
+        /// <summary>
+        /// Unit's unique name, e.g. 27th Manstein's Tiger II.  Defaults to unit ID + UnitType name, e.g. 27th Tiger II
+        /// </summary>
+        public string Name
+        {
+            get { return this.m_Name; }
+            set { this.m_Name = value; }
+        }
+        private string m_Name;
 
         public int Owner
         {
@@ -108,12 +89,12 @@ namespace XmlContentShared
         }
         private UnitType m_UnitType;
 
-        public string TypeName
+        public int UnitTypeID
         {
-            get { return this.m_TypeName; }
-            set { this.m_TypeName = value; }
+            get { return this.m_UnitTypeID; }
+            set { this.m_UnitTypeID = value; }
         }
-        private string m_TypeName;
+        private int m_UnitTypeID;
 
         public int X
         {
@@ -133,6 +114,19 @@ namespace XmlContentShared
 
         #region Boolean Instance Variables
 
+        /// <summary>
+        /// True if unit has attacked this turn, false if not.
+        /// </summary>
+        public bool HasAttacked
+        {
+            get { return this.m_HasAttacked; }
+            set { this.m_HasAttacked = value; }
+        }
+        private bool m_HasAttacked;
+
+        /// <summary>
+        /// True if unit has physically moved this turn, false if not.
+        /// </summary>
         public bool HasMoved
         {
             get { return this.m_HasMoved; }
@@ -140,6 +134,9 @@ namespace XmlContentShared
         }
         private bool m_HasMoved;
 
+        /// <summary>
+        /// True if unit is visible to the enemy and therefore should be drawn on the map, false if not.
+        /// </summary>
         public bool IsVisible
         {
             get { return this.m_IsVisible; }
@@ -153,7 +150,6 @@ namespace XmlContentShared
         /// Default constructor (be sure to initialize the Unit via properties).
         /// </summary>
         public Unit()
-            : this(-1, -1, -1, -1, -1, -1, new UnitType()) //// UnitType.Pioneere)
         {
         }
 
@@ -161,26 +157,30 @@ namespace XmlContentShared
         /// Primary constructor.
         /// </summary>
         /// <param name="_id">unique ID number</param>
-        /// <param name="_x">Current map X location (hexagon)</param>
-        /// <param name="_y">Current map Y location (hexagon)</param>
         /// <param name="_moves">Number of movement points each turn</param>
+        /// <param name="_name">Unit's unique name, e.g. 27th Manstein's Tiger II</param>
         /// <param name="_owner">Controlling player number</param>
         /// <param name="_strength">Current strength points</param>
         /// <param name="_type">Unit's type</param>
-        public Unit(int _id, int _x, int _y, int _moves, int _owner, int _strength, UnitType _type)
+        /// <param name="_x">Current map X location (hexagon)</param>
+        /// <param name="_y">Current map Y location (hexagon)</param>
+        public Unit(int _id, int _moves, string _name, int _owner, int _strength, UnitType _type, int _x, int _y)
         {
             this.ID = _id;
-            this.X = _x;
-            this.Y = _y;
             this.Moves = _moves;
+            this.Name = _name;
             this.Owner = _owner;
             this.Strength = _strength;
             this.UnitType = _type;
-            this.TypeName = Enum.GetName(typeof(UnitType), _type);
+            this.X = _x;
+            this.Y = _y;
+            this.StartingX = _x;
+            this.StartingY = _y;
+
+            //this.TypeName = Enum.GetName(typeof(UnitType), _type);
             // TEST: string s = UnitType.Infantry.ToString();
+
             this.HasMoved = false;
-            Point offset = Util.CalculateSpritesheetCoordinates(0); ////_type.(int)this.UnitType);
-            this.SpriteRectangle = new Rectangle(offset.X, offset.Y, Unit.PixelWidth, Unit.PixelHeight);
         }
 
         public void Move(int _x, int _y)
@@ -197,24 +197,58 @@ namespace XmlContentShared
             this.HasMoved = false;
         }
 
+        /// <summary>
+        /// Ends a unit's move by setting starting x,y to current x,y.  If unit has not actually moved from the 
+        /// starting location then HasMoved will = false and the unit will be able to move later during the turn.
+        /// </summary>
         public void EndMove()
         {
             this.StartingX = this.X;
             this.StartingY = this.Y;
         }
 
-        public void Draw(SpriteBatch _spriteBatch, int _screenLocationX, int _screenLocationY)
+        public void Draw(Point _point)
         {
             // TODO: need a way to calculate new destination rectangle OR do we use DrawLocation()??? use GameServices??
-            if (!this.IsVisible) {
-                Rectangle destinationRectangle = new Rectangle(_screenLocationX, _screenLocationY, Unit.PixelWidth, Unit.PixelHeight);
-                _spriteBatch.Draw(Unit.SpriteSheet,						// source bitmap image
-                                destinationRectangle,                       // where to draw the unit on the screen
-                                this.SpriteRectangle,                       // what portion of the source image to draw
-                                Color.White);                               // White = magenta color will be transparent
+            if (this.IsVisible) {
+                this.UnitType.Draw(_point);
+                //Rectangle destinationRectangle = new Rectangle(_screenLocationX, _screenLocationY, Unit.PixelWidth, Unit.PixelHeight);
+                //_spriteBatch.Draw(Unit.SpriteSheet,						// source bitmap image
+                //                destinationRectangle,                       // where to draw the unit on the screen
+                //                this.SpriteRectangle,                       // what portion of the source image to draw
+                //                Color.White);                               // White = magenta color will be transparent
             }
         }
 
     } // class Unit
+
+    /// <summary>
+    /// This class will be instantiated by the XNA Framework Content
+    /// Pipeline to read the specified data type from binary .xnb format.
+    /// 
+    /// Unlike the other Content Pipeline support classes, this should
+    /// be a part of your main game project, and not the Content Pipeline
+    /// Extension Library project.
+    /// </summary>
+    public class UnitContentTypeReader : ContentTypeReader<Unit>
+    {
+        protected override Unit Read(ContentReader _input, Unit _unit)
+        {
+            Unit unit = new Unit();
+
+            unit.ID = _input.ReadInt32();
+            unit.Experience = _input.ReadInt32();
+            unit.HasMoved = _input.ReadBoolean();
+            unit.Moves = _input.ReadInt32();
+            unit.Owner = _input.ReadInt32();
+            unit.StartingX = _input.ReadInt32();
+            unit.StartingY = _input.ReadInt32();
+            unit.UnitTypeID = _input.ReadInt32();
+
+            unit.Load(_input.ContentManager);
+
+            return unit;
+        }
+    } // UnitContentTypeReader class
 
 } // namespace
