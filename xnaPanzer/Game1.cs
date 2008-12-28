@@ -223,8 +223,6 @@ namespace xnaPanzer
             //Load the images for map terrain and combat units from bitmap files
             this.m_MapSpriteSheet = this.Content.Load<Texture2D>("tacmap_terrain_xnaPanzer");
             this.m_DeltaTextures = this.Content.Load<Texture2D>("DeltaTextures");
-            //this.m_UnitSpriteSheet = this.Content.Load<Texture2D>("tacicons_start_at_0");
-            Unit.SpriteSheet = this.Content.Load<Texture2D>("tacicons_start_at_0");
 
             this.m_font1 = Content.Load<SpriteFont>("Fonts/SpriteFont1");
             this.m_UnispaceFont = Content.Load<SpriteFont>("Fonts/Unispace");
@@ -252,7 +250,7 @@ namespace xnaPanzer
 
             // let's init a few test units
             this.m_Units = new List<Unit>();
-            //this.m_Units = Content.Load<List<Unit>>(@"UnitList");
+            this.m_Units = Content.Load<List<Unit>>(@"UnitList");
 
             foreach (Unit u in this.m_Units) {
                 this.m_MapUnits[u.X, u.Y] = u.ID;

@@ -21,7 +21,7 @@ namespace XmlContentShared
     /// <summary>
     /// Contains attributes denoting characteristics, special abilities and restrictions for unit types.
     /// </summary>
-    public enum UnitTypeCharacteristics : ulong 
+    public enum UnitTypeCharacteristics : ulong
     {
         // basic types (bit positions 1..16)
         IsAircraftType = 1L << 1,                                       // can fly like a bird
@@ -314,16 +314,16 @@ namespace XmlContentShared
         /// <param name="_spottingRange"></param>
         /// <param name="_spritesheetX"></param>
         /// <param name="_spritesheetY"></param>
-        public UnitType(int _airAttack, int _airDefense, int _ammo, 
+        public UnitType(int _airAttack, int _airDefense, int _ammo,
             DateTime _availabilityStart, DateTime _availabilityEnd,
             ulong _characteristics, int _closeDefense, int _combatRange, int _cost,
             int _entrenchmentRate,
             int _fuel,
             int _groundDefense,
             int _hardAttack, int _id, int _initiative,
-            GroundMovementClass _movementClass, int _moves, 
-            string _name, int _nationality, 
-            int _softAttack, int _spottingRange, 
+            GroundMovementClass _movementClass, int _moves,
+            string _name, int _nationality,
+            int _softAttack, int _spottingRange,
             int _spritesheetX, int _spritesheetY)
         {
             this.AirAttack = _airAttack;
@@ -369,7 +369,7 @@ namespace XmlContentShared
         /// <param name="_dest">Rectangle structure containing pixel x,y destination and width/height.</param>
         public void Draw(Rectangle _dest)
         {
-            UnitType.SpriteBatch.Draw(UnitType.SpriteSheet, _dest, 
+            UnitType.SpriteBatch.Draw(UnitType.SpriteSheet, _dest,
                 new Rectangle(this.SpritesheetX, this.SpritesheetY, UnitType.ImageWidth, UnitType.ImageHeight), Color.White);
         }
 
@@ -377,49 +377,50 @@ namespace XmlContentShared
         {
             //texture = content.Load<Texture2D>(textureAsset);
         }
+    } // UnitType class
 
-        /// <summary>
-        /// This class will be instantiated by the XNA Framework Content
-        /// Pipeline to read the specified data type from binary .xnb format.
-        /// 
-        /// Unlike the other Content Pipeline support classes, this should
-        /// be a part of your main game project, and not the Content Pipeline
-        /// Extension Library project.
-        /// </summary>
-        public class UnitTypeContentTypeReader : ContentTypeReader<UnitType>
+    /// <summary>
+    /// This class will be instantiated by the XNA Framework Content
+    /// Pipeline to read the specified data type from binary .xnb format.
+    /// 
+    /// Unlike the other Content Pipeline support classes, this should
+    /// be a part of your main game project, and not the Content Pipeline
+    /// Extension Library project.
+    /// </summary>
+    public class UnitTypeContentTypeReader : ContentTypeReader<UnitType>
+    {
+        protected override UnitType Read(ContentReader _input, UnitType _unitType)
         {
-            protected override UnitType Read(ContentReader _input, UnitType _unitType)
-            {
-                UnitType unitType = new UnitType();
+            UnitType unitType = new UnitType();
 
-                unitType.AirAttack = _input.ReadInt32();
-                unitType.AirDefense = _input.ReadInt32();
-                unitType.Ammo = _input.ReadInt32();
-                unitType.AvailabilityEnd = _input.ReadObject<System.DateTime>();
-                unitType.AvailabilityStart = _input.ReadObject<System.DateTime>();
-                unitType.Characteristics = _input.ReadUInt64();
-                unitType.CloseDefense = _input.ReadInt32();
-                unitType.CombatRange = _input.ReadInt32();
-                unitType.Cost = _input.ReadInt32();
-                unitType.EntrenchmentRate = _input.ReadInt32();
-                unitType.Fuel = _input.ReadInt32();
-                unitType.GroundDefense = _input.ReadInt32();
-                unitType.HardAttack = _input.ReadInt32();
-                unitType.ID = _input.ReadInt32();
-                unitType.Initiative = _input.ReadInt32();
-                unitType.MovementClass = _input.ReadObject<GroundMovementClass>();
-                unitType.Moves = _input.ReadInt32();
-                unitType.Name = _input.ReadString();
-                unitType.Nationality = _input.ReadInt32();
-                unitType.SoftAttack = _input.ReadInt32();
-                unitType.SpottingRange = _input.ReadInt32();
-                unitType.SpritesheetX = _input.ReadInt32();
-                unitType.SpritesheetY = _input.ReadInt32();
+            unitType.AirAttack = _input.ReadInt32();
+            unitType.AirDefense = _input.ReadInt32();
+            unitType.Ammo = _input.ReadInt32();
+            unitType.AvailabilityEnd = _input.ReadObject<System.DateTime>();
+            unitType.AvailabilityStart = _input.ReadObject<System.DateTime>();
+            unitType.Characteristics = _input.ReadUInt64();
+            unitType.CloseDefense = _input.ReadInt32();
+            unitType.CombatRange = _input.ReadInt32();
+            unitType.Cost = _input.ReadInt32();
+            unitType.EntrenchmentRate = _input.ReadInt32();
+            unitType.Fuel = _input.ReadInt32();
+            unitType.GroundDefense = _input.ReadInt32();
+            unitType.HardAttack = _input.ReadInt32();
+            unitType.ID = _input.ReadInt32();
+            unitType.Initiative = _input.ReadInt32();
+            unitType.MovementClass = _input.ReadObject<GroundMovementClass>();
+            unitType.Moves = _input.ReadInt32();
+            unitType.Name = _input.ReadString();
+            unitType.Nationality = _input.ReadInt32();
+            unitType.SoftAttack = _input.ReadInt32();
+            unitType.SpottingRange = _input.ReadInt32();
+            unitType.SpritesheetX = _input.ReadInt32();
+            unitType.SpritesheetY = _input.ReadInt32();
 
-                unitType.Load(_input.ContentManager);
+            unitType.Load(_input.ContentManager);
 
-                return unitType;
-            }
+            return unitType;
         }
-    }
-}
+    } // UnitTypeContentTypeReader class
+
+} // XmlContentShared namespace
