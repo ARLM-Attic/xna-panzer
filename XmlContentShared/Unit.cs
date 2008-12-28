@@ -248,7 +248,7 @@ namespace XmlContentShared
             unit.Owner = _input.ReadInt32();
             unit.StartingX = _input.ReadInt32();
             unit.StartingY = _input.ReadInt32();
-            //unit.UnitTypeID = _input.ReadInt32();
+            unit.UnitTypeID = _input.ReadInt32();
 
             unit.Load(_input.ContentManager);
 

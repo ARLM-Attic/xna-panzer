@@ -135,8 +135,10 @@
   <ItemGroup>
     <Folder Include="Content\Audio\" />
     <Folder Include="Content\bin\x86\Debug\" />
+    <Folder Include="Content\Fonts\" />
     <Folder Include="Content\Gui\" />
     <Folder Include="Content\Maps\" />
+    <Folder Include="Content\Sprites\" />
     <Folder Include="Content\Xml\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

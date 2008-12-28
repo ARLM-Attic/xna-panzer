@@ -227,9 +227,9 @@ namespace xnaPanzer
             this.m_font1 = Content.Load<SpriteFont>("Fonts/SpriteFont1");
             this.m_UnispaceFont = Content.Load<SpriteFont>("Fonts/Unispace");
 
-            this.m_BevelLeftHook = Content.Load<Texture2D>("GUI/Bevel_Left_Hook");
-            this.m_BevelRightHook = Content.Load<Texture2D>("GUI/Bevel_Right_Hook");
-            this.m_BevelStraightLine = Content.Load<Texture2D>("GUI/Bevel_Straight_Line");
+            //this.m_BevelLeftHook = Content.Load<Texture2D>("GUI/Bevel_Left_Hook");
+            //this.m_BevelRightHook = Content.Load<Texture2D>("GUI/Bevel_Right_Hook");
+            //this.m_BevelStraightLine = Content.Load<Texture2D>("GUI/Bevel_Straight_Line");
             this.m_DefaultGameScreenMask = Content.Load<Texture2D>("GUI/Default_Game_Screen_Mask");
 
             this.m_HexGridParts = Content.Load<Texture2D>("Map/Hex_Grid_Parts");
