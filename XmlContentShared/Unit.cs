@@ -5,9 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-using XmlContentShared;
-
-namespace xnaPanzer
+namespace XmlContentShared
 {
     /// <summary>
     /// Super simple representation of a combat unit.
@@ -154,7 +152,8 @@ namespace xnaPanzer
         /// <summary>
         /// Default constructor (be sure to initialize the Unit via properties).
         /// </summary>
-        public Unit() : this(-1, -1, -1, -1, -1, -1, new UnitType()) //// UnitType.Pioneere)
+        public Unit()
+            : this(-1, -1, -1, -1, -1, -1, new UnitType()) //// UnitType.Pioneere)
         {
         }
 
