@@ -60,6 +60,7 @@ namespace XmlContentShared
 
         private static int s_IMAGE_PIXEL_HEIGHT;
         private static int s_IMAGE_PIXEL_WIDTH;
+        private static int s_SPRITES_PER_ROW;
         private static SpriteBatch s_SPRITE_BATCH;
         private static Texture2D s_SPRITE_SHEET;
 
@@ -83,6 +84,12 @@ namespace XmlContentShared
         {
             get { return UnitType.s_SPRITE_BATCH; }
             set { UnitType.s_SPRITE_BATCH = value; }
+        }
+
+        public static int SpritesPerRow
+        {
+            get { return UnitType.s_SPRITES_PER_ROW; }
+            set { UnitType.s_SPRITES_PER_ROW = value; }
         }
 
         public static Texture2D SpriteSheet
@@ -116,7 +123,8 @@ namespace XmlContentShared
         private int m_Nationality;                                      // 0=German, 1=Italian, etc
         private int m_SoftAttack;                                       // combat strength vs unarmoed ground units
         private int m_SpottingRange;                                    // hex range for spotting enemy units
-        private int m_SpritesheetIconNumber;                            // icon index within spritesheet
+        private int m_SpritesheetX;                                     // pixel X index within spritesheet
+        private int m_SpritesheetY;                                     // pixel Y index within spritesheet
 
         #endregion Member Variables
 
@@ -248,10 +256,16 @@ namespace XmlContentShared
             set { m_SpottingRange = value; }
         }
 
-        public int SpritesheetIconNumber
+        public int SpritesheetX
         {
-            get { return m_SpritesheetIconNumber; }
-            set { m_SpritesheetIconNumber = value; }
+            get { return m_SpritesheetX; }
+            set { m_SpritesheetX = value; }
+        }
+
+        public int SpritesheetY
+        {
+            get { return m_SpritesheetY; }
+            set { m_SpritesheetY = value; }
         }
 
         #endregion Properties
@@ -260,9 +274,10 @@ namespace XmlContentShared
 
         static UnitType()
         {
-            UnitType.ImageHeight = 0;
-            UnitType.ImageWidth = 0;
+            UnitType.ImageHeight = 50;
+            UnitType.ImageWidth = 60;
             UnitType.SpriteBatch = null;
+            UnitType.SpritesPerRow = 10;
             UnitType.SpriteSheet = null;
         }
 
@@ -297,7 +312,8 @@ namespace XmlContentShared
         /// <param name="_nationality"></param>
         /// <param name="_softAttack"></param>
         /// <param name="_spottingRange"></param>
-        /// <param name="_spritesheetIconNumber"></param>
+        /// <param name="_spritesheetX"></param>
+        /// <param name="_spritesheetY"></param>
         public UnitType(int _airAttack, int _airDefense, int _ammo, 
             DateTime _availabilityStart, DateTime _availabilityEnd,
             ulong _characteristics, int _closeDefense, int _combatRange, int _cost,
@@ -307,7 +323,8 @@ namespace XmlContentShared
             int _hardAttack, int _id, int _initiative,
             GroundMovementClass _movementClass, int _moves, 
             string _name, int _nationality, 
-            int _softAttack, int _spottingRange, int _spritesheetIconNumber)
+            int _softAttack, int _spottingRange, 
+            int _spritesheetX, int _spritesheetY)
         {
             this.AirAttack = _airAttack;
             this.AirDefense = _airDefense;
@@ -330,7 +347,8 @@ namespace XmlContentShared
             this.Nationality = _nationality;
             this.SoftAttack = _softAttack;
             this.SpottingRange = _spottingRange;
-            this.SpritesheetIconNumber = _spritesheetIconNumber;
+            this.SpritesheetX = _spritesheetX;
+            this.SpritesheetY = _spritesheetY;
         }
 
         #endregion Constructors()
@@ -338,6 +356,40 @@ namespace XmlContentShared
         public void Load(ContentManager content)
         {
             //texture = content.Load<Texture2D>(textureAsset);
+        }
+
+        /// <summary>
+        /// Calculates x & y coordinate offsets for the upper left corner of the unit or terrain sprite sheet for 
+        /// the specified sprite number.
+        /// </summary>
+        /// <remarks>
+        /// Sample X, Y offsets into the unit sprite sheet for a given unit number:
+        /// Unit  0 offsets = 0,   0    Unit 01 offsets = 61,   0   Unit 02 offsets = 122,   0
+        /// Unit 10 offsets = 0,  51    Unit 11 offsets = 61,  51   Unit 12 offsets = 122,  51
+        /// Unit 20 offsets = 0, 102    Unit 21 offsets = 61, 102   Unit 22 offsets = 122, 102
+        /// Bottom line: each unit measures 60W x 50H plus a 1W x 1H border, thus each unit block is 61x51 pixels
+        /// 
+        /// Warning: no boundary checking is done for the sprite number or size of sprite sheet
+        /// </remarks>
+        /// <param name="_spriteNumber">Sprite number within the sprite sheet, 0..# of sprites</param>
+        /// <returns>Point structure containing the x,y coordinates.</returns>
+        public static Point CalculateSpritesheetCoordinates(int _spriteNumber)
+        {
+            // formula for calculating a unit's x,y coords within the source SHP bitmap:
+            // e.g. sprite number = 125 --> tens = 12, ones = 5.  e.g. sprite number 9 --> tens = 0, ones = 9.
+            // offset x = (ones * unit_bitmap_width) + (ones * unit_border_width)
+            // offset y = (tens * unit_bitmap_height) + (tens * unit_border_height)
+
+            int tens = _spriteNumber / 10;                              // calc which sprite row (0 == top row)
+            int ones = _spriteNumber - (tens * 10);                     // calc which column in that row
+
+            // now calc coords within the sprite sheet for the row/column combo
+            // note: initializing Point structure here vs. in the return statement for debugging purposes
+            Point offset = new Point();
+            offset.X = (ones * 60) + (ones * 1);
+            offset.Y = (tens * 50) + (tens * 1);
+
+            return offset;
         }
 
         /// <summary>
@@ -375,7 +427,8 @@ namespace XmlContentShared
                 unitType.Nationality = _input.ReadInt32();
                 unitType.SoftAttack = _input.ReadInt32();
                 unitType.SpottingRange = _input.ReadInt32();
-                unitType.SpritesheetIconNumber = _input.ReadInt32();
+                unitType.SpritesheetX = _input.ReadInt32();
+                unitType.SpritesheetY = _input.ReadInt32();
 
                 unitType.Load(_input.ContentManager);
 

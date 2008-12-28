@@ -43,7 +43,8 @@ namespace ContentPipelineExtension
             _output.Write(_value.Nationality);
             _output.Write(_value.SoftAttack);
             _output.Write(_value.SpottingRange);
-            _output.Write(_value.SpritesheetIconNumber);
+            _output.Write(_value.SpritesheetX);
+            _output.Write(_value.SpritesheetY);
         }
 
         public override string GetRuntimeReader(TargetPlatform targetPlatform)

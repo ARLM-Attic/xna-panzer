@@ -23,7 +23,8 @@
             <Nationality>0</Nationality>
             <SoftAttack>5</SoftAttack>
             <SpottingRange>5</SpottingRange>
-            <SpritesheetIconNumber>1</SpritesheetIconNumber>
+            <SpritesheetX>60</SpritesheetX>
+            <SpritesheetY>0</SpritesheetY>
         </Item>
 
         <Item>
@@ -48,7 +49,8 @@
             <Nationality>0</Nationality>
             <SoftAttack>5</SoftAttack>
             <SpottingRange>5</SpottingRange>
-            <SpritesheetIconNumber>2</SpritesheetIconNumber>
+            <SpritesheetX>120</SpritesheetX>
+            <SpritesheetY>0</SpritesheetY>
         </Item>
 
     </Asset>
