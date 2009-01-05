@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<XnaContent>
+    <Asset Type="System.Collections.Generic.List[GameEngine1.UnitType]">
+        <Item>
+            <AirAttack>0</AirAttack>
+            <AirDefense>0</AirDefense>
+            <Ammo>123</Ammo>
+            <AvailabilityEnd>1945-06-01</AvailabilityEnd>
+            <AvailabilityStart>1939-05-01</AvailabilityStart>
+            <Characteristics>0</Characteristics>
+            <CloseDefense>0</CloseDefense>
+            <CombatRange>1</CombatRange>
+            <Cost>200</Cost>
+            <EntrenchmentRate>1</EntrenchmentRate>
+            <Fuel>35</Fuel>
+            <GroundDefense>5</GroundDefense>
+            <HardAttack>5</HardAttack>
+            <ID>0</ID>
+            <Initiative>5</Initiative>
+            <MovementClass>0</MovementClass>
+            <Moves>5</Moves>
+            <Name>Tiger</Name>
+            <Nationality>0</Nationality>
+            <SoftAttack>5</SoftAttack>
+            <SpottingRange>5</SpottingRange>
+            <SpritesheetX>305</SpritesheetX>
+            <SpritesheetY>153</SpritesheetY>
+        </Item>
+
+        <Item>
+            <AirAttack>0</AirAttack>
+            <AirDefense>0</AirDefense>
+            <Ammo>123</Ammo>
+            <AvailabilityEnd>1945-06-01</AvailabilityEnd>
+            <AvailabilityStart>1939-05-01</AvailabilityStart>
+            <Characteristics>0</Characteristics>
+            <CloseDefense>0</CloseDefense>
+            <CombatRange>1</CombatRange>
+            <Cost>200</Cost>
+            <EntrenchmentRate>1</EntrenchmentRate>
+            <Fuel>35</Fuel>
+            <GroundDefense>5</GroundDefense>
+            <HardAttack>5</HardAttack>
+            <ID>0</ID>
+            <Initiative>5</Initiative>
+            <MovementClass>0</MovementClass>
+            <Moves>5</Moves>
+            <Name>Tiger II</Name>
+            <Nationality>0</Nationality>
+            <SoftAttack>5</SoftAttack>
+            <SpottingRange>5</SpottingRange>
+            <SpritesheetX>366</SpritesheetX>
+            <SpritesheetY>153</SpritesheetY>
+        </Item>
+
+    </Asset>
+</XnaContent>

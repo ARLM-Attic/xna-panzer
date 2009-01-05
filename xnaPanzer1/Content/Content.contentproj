@@ -78,6 +78,23 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Xml\UnitTypeList.xml">
+      <Name>UnitTypeList</Name>
+      <Importer>XmlImporter</Importer>
+      <Processor>PassThroughProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\ContentPipelineExtension1\ContentPipelineExtension1.csproj">
+      <Project>{C4D5CB3E-FB3D-4165-8915-BD34DFA6A70B}</Project>
+      <Name>ContentPipelineExtension1</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\GameEngine1\GameEngine1.csproj">
+      <Project>{3AF554E5-A586-4932-8DA0-C486CDD09492}</Project>
+      <Name>GameEngine1</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
     <Folder Include="Audio\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\v3.0\Microsoft.Xna.GameStudio.ContentPipeline.targets" />

@@ -239,7 +239,7 @@ namespace xnaPanzer1
 
             // load UnitTypes from XML file
             this.m_UnitTypes = new List<UnitType>();
-            //this.m_UnitTypes = Content.Load<List<UnitType>>(@"Xml/UnitTypeList");
+            this.m_UnitTypes = Content.Load<List<UnitType>>(@"Xml/UnitTypeList");
             //foreach (UnitType ut in this.m_UnitTypes) {
             //    Point p = Util.CalculateSpritesheetCoordinates(1);
             //    if (p != null) {
