@@ -23,7 +23,7 @@ namespace xnaPanzer1
 
         public Game1()
         {
-            graphics = new GraphicsDeviceManager(this);
+            graphics = new GraphicsDeviceManager(this); 
             Content.RootDirectory = "Content";
         }
 
