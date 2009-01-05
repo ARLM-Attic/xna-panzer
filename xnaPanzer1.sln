@@ -1,0 +1,67 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xnaPanzer1", "xnaPanzer1\xnaPanzer1.csproj", "{7C7FD60B-86F1-4A76-8022-C6B0BFEDD33D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameEngine1", "GameEngine1\GameEngine1.csproj", "{3AF554E5-A586-4932-8DA0-C486CDD09492}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContentPipelineExtension1", "ContentPipelineExtension1\ContentPipelineExtension1.csproj", "{C4D5CB3E-FB3D-4165-8915-BD34DFA6A70B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Debug|Xbox 360 = Debug|Xbox 360
+		Debug|Zune = Debug|Zune
+		Release|x86 = Release|x86
+		Release|Xbox 360 = Release|Xbox 360
+		Release|Zune = Release|Zune
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7C7FD60B-86F1-4A76-8022-C6B0BFEDD33D}.Debug|x86.ActiveCfg = Debug|x86
+		{7C7FD60B-86F1-4A76-8022-C6B0BFEDD33D}.Debug|x86.Build.0 = Debug|x86
+		{7C7FD60B-86F1-4A76-8022-C6B0BFEDD33D}.Debug|Xbox 360.ActiveCfg = Debug|x86
+		{7C7FD60B-86F1-4A76-8022-C6B0BFEDD33D}.Debug|Zune.ActiveCfg = Debug|x86
+		{7C7FD60B-86F1-4A76-8022-C6B0BFEDD33D}.Release|x86.ActiveCfg = Release|x86
+		{7C7FD60B-86F1-4A76-8022-C6B0BFEDD33D}.Release|x86.Build.0 = Release|x86
+		{7C7FD60B-86F1-4A76-8022-C6B0BFEDD33D}.Release|Xbox 360.ActiveCfg = Release|x86
+		{7C7FD60B-86F1-4A76-8022-C6B0BFEDD33D}.Release|Zune.ActiveCfg = Release|x86
+		{BCFE30D6-EDC0-48C9-8F31-CB24B7852824}.Debug|x86.ActiveCfg = Debug|x86
+		{BCFE30D6-EDC0-48C9-8F31-CB24B7852824}.Debug|Xbox 360.ActiveCfg = Debug|x86
+		{BCFE30D6-EDC0-48C9-8F31-CB24B7852824}.Debug|Zune.ActiveCfg = Debug|x86
+		{BCFE30D6-EDC0-48C9-8F31-CB24B7852824}.Release|x86.ActiveCfg = Release|x86
+		{BCFE30D6-EDC0-48C9-8F31-CB24B7852824}.Release|Xbox 360.ActiveCfg = Release|x86
+		{BCFE30D6-EDC0-48C9-8F31-CB24B7852824}.Release|Zune.ActiveCfg = Release|x86
+		{3AF554E5-A586-4932-8DA0-C486CDD09492}.Debug|x86.ActiveCfg = Debug|x86
+		{3AF554E5-A586-4932-8DA0-C486CDD09492}.Debug|x86.Build.0 = Debug|x86
+		{3AF554E5-A586-4932-8DA0-C486CDD09492}.Debug|Xbox 360.ActiveCfg = Debug|x86
+		{3AF554E5-A586-4932-8DA0-C486CDD09492}.Debug|Zune.ActiveCfg = Debug|x86
+		{3AF554E5-A586-4932-8DA0-C486CDD09492}.Release|x86.ActiveCfg = Release|x86
+		{3AF554E5-A586-4932-8DA0-C486CDD09492}.Release|x86.Build.0 = Release|x86
+		{3AF554E5-A586-4932-8DA0-C486CDD09492}.Release|Xbox 360.ActiveCfg = Release|x86
+		{3AF554E5-A586-4932-8DA0-C486CDD09492}.Release|Zune.ActiveCfg = Release|x86
+		{DD7E0237-9B27-4C27-AD42-1931E4AD59EB}.Debug|x86.ActiveCfg = Debug|x86
+		{DD7E0237-9B27-4C27-AD42-1931E4AD59EB}.Debug|Xbox 360.ActiveCfg = Debug|x86
+		{DD7E0237-9B27-4C27-AD42-1931E4AD59EB}.Debug|Zune.ActiveCfg = Debug|x86
+		{DD7E0237-9B27-4C27-AD42-1931E4AD59EB}.Release|x86.ActiveCfg = Release|x86
+		{DD7E0237-9B27-4C27-AD42-1931E4AD59EB}.Release|Xbox 360.ActiveCfg = Release|x86
+		{DD7E0237-9B27-4C27-AD42-1931E4AD59EB}.Release|Zune.ActiveCfg = Release|x86
+		{C4D5CB3E-FB3D-4165-8915-BD34DFA6A70B}.Debug|x86.ActiveCfg = Debug|x86
+		{C4D5CB3E-FB3D-4165-8915-BD34DFA6A70B}.Debug|x86.Build.0 = Debug|x86
+		{C4D5CB3E-FB3D-4165-8915-BD34DFA6A70B}.Debug|Xbox 360.ActiveCfg = Debug|Xbox 360
+		{C4D5CB3E-FB3D-4165-8915-BD34DFA6A70B}.Debug|Xbox 360.Build.0 = Debug|Xbox 360
+		{C4D5CB3E-FB3D-4165-8915-BD34DFA6A70B}.Debug|Zune.ActiveCfg = Debug|Zune
+		{C4D5CB3E-FB3D-4165-8915-BD34DFA6A70B}.Debug|Zune.Build.0 = Debug|Zune
+		{C4D5CB3E-FB3D-4165-8915-BD34DFA6A70B}.Release|x86.ActiveCfg = Release|x86
+		{C4D5CB3E-FB3D-4165-8915-BD34DFA6A70B}.Release|x86.Build.0 = Release|x86
+		{C4D5CB3E-FB3D-4165-8915-BD34DFA6A70B}.Release|Xbox 360.ActiveCfg = Release|Xbox 360
+		{C4D5CB3E-FB3D-4165-8915-BD34DFA6A70B}.Release|Xbox 360.Build.0 = Release|Xbox 360
+		{C4D5CB3E-FB3D-4165-8915-BD34DFA6A70B}.Release|Zune.ActiveCfg = Release|Zune
+		{C4D5CB3E-FB3D-4165-8915-BD34DFA6A70B}.Release|Zune.Build.0 = Release|Zune
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		VisualSVNWorkingCopyRoot = 
+	EndGlobalSection
+EndGlobal
