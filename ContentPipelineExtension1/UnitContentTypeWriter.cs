@@ -7,9 +7,9 @@ using Microsoft.Xna.Framework.Content.Pipeline;
 using Microsoft.Xna.Framework.Content.Pipeline.Graphics;
 using Microsoft.Xna.Framework.Content.Pipeline.Processors;
 using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Compiler;
-using XmlContentShared;
+using GameEngine1;
 
-namespace ContentPipelineExtension
+namespace ContentPipelineExtension1
 {
     /// <summary>
     /// This class will be instantiated by the XNA Framework Content Pipeline
@@ -18,9 +18,9 @@ namespace ContentPipelineExtension
     /// This should be part of a Content Pipeline Extension Library project.
     /// </summary>
     [ContentTypeWriter]
-    public class UnitContentTypeWriter : ContentTypeWriter<XmlContentShared.Unit>
+    public class UnitContentTypeWriter : ContentTypeWriter<GameEngine1.Unit>
     {
-        protected override void Write(ContentWriter _output, XmlContentShared.Unit _value)
+        protected override void Write(ContentWriter _output, GameEngine1.Unit _value)
         {
             _output.Write(_value.ID);
             _output.Write(_value.Experience);
@@ -36,7 +36,7 @@ namespace ContentPipelineExtension
 
         public override string GetRuntimeReader(TargetPlatform targetPlatform)
         {
-            return typeof(XmlContentShared.UnitContentTypeReader).AssemblyQualifiedName;
+            return typeof(GameEngine1.UnitContentTypeReader).AssemblyQualifiedName;
         }
     }
 }

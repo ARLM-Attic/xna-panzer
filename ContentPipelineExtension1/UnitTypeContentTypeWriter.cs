@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Content.Pipeline;
 using Microsoft.Xna.Framework.Content.Pipeline.Graphics;
 using Microsoft.Xna.Framework.Content.Pipeline.Processors;
 using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Compiler;
-using XmlContentShared;
+using GameEngine1;
 
 namespace ContentPipelineExtension
 {
@@ -18,9 +18,9 @@ namespace ContentPipelineExtension
     /// This should be part of a Content Pipeline Extension Library project.
     /// </summary>
     [ContentTypeWriter]
-    public class UnitTypeContentTypeWriter : ContentTypeWriter<XmlContentShared.UnitType>
+    public class UnitTypeContentTypeWriter : ContentTypeWriter<GameEngine1.UnitType>
     {
-        protected override void Write(ContentWriter _output, XmlContentShared.UnitType _value)
+        protected override void Write(ContentWriter _output, GameEngine1.UnitType _value)
         {
             _output.Write(_value.AirAttack);
             _output.Write(_value.AirDefense);
@@ -37,7 +37,7 @@ namespace ContentPipelineExtension
             _output.Write(_value.HardAttack);
             _output.Write(_value.ID);
             _output.Write(_value.Initiative);
-            _output.WriteObject<XmlContentShared.GroundMovementClass>(_value.MovementClass);
+            _output.WriteObject<GameEngine1.GroundMovementClass>(_value.MovementClass);
             _output.Write(_value.Moves);
             _output.Write(_value.Name);
             _output.Write(_value.Nationality);
@@ -49,7 +49,7 @@ namespace ContentPipelineExtension
 
         public override string GetRuntimeReader(TargetPlatform targetPlatform)
         {
-            return typeof(XmlContentShared.UnitTypeContentTypeReader).AssemblyQualifiedName;
+            return typeof(GameEngine1.UnitTypeContentTypeReader).AssemblyQualifiedName;
         }
     }
 }
