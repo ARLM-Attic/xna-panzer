@@ -31,7 +31,7 @@ namespace ContentPipelineExtension1
             _output.Write(_value.StartingX);
             _output.Write(_value.StartingY);
             _output.Write(_value.Strength);
-            _output.Write(_value.UnitTypeID);
+            //_output.Write(_value.UnitTypeID);
         }
 
         public override string GetRuntimeReader(TargetPlatform targetPlatform)
