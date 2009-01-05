@@ -1,1 +1,0 @@
-C:\Shared\Projects\XNA\xnaPanzer\xnaPanzer\Content\obj\x86\Debug\ResolveAssemblyReference.cache
