@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<XnaContent>
+  <Asset Type="System.Collections.Generic.List[GameEngine1.Map]">
+      <Item>
+          <Name>TestMap</Name>
+      </Item>
+  </Asset>
+</XnaContent>

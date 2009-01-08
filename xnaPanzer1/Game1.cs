@@ -154,6 +154,8 @@ namespace xnaPanzer1
         const bool m_IS_FULL_SCREEN = false;
         readonly Color m_BACKGROUND_COLOR = new Color(128, 128, 0);     // cannot be const
 
+        List<Map> map;
+
         #endregion Member variables
 
         #region Constructor & Initialization
@@ -240,6 +242,7 @@ namespace xnaPanzer1
             // load UnitTypes from XML file
             this.m_UnitTypes = new List<UnitType>();
             this.m_UnitTypes = Content.Load<List<UnitType>>(@"Xml/UnitTypeList");
+            this.map = Content.Load<List<Map>>(@"Xml/MapList");
             //foreach (UnitType ut in this.m_UnitTypes) {
             //    Point p = Util.CalculateSpritesheetCoordinates(1);
             //    if (p != null) {
@@ -514,7 +517,7 @@ namespace xnaPanzer1
                 MouseState ms = new MouseState();
                 ms = Mouse.GetState();
                 this.m_spriteBatch.DrawString(this.m_font1,
-                    "Mouse coord X,Y = " + ms.X.ToString() + ", " + ms.Y.ToString()
+                    "Mouse coord X,Y = " + ms.X.ToString() + ", " + ms.Y.ToString() + ", Map = " + this.map[0].Name
                     , new Vector2(10, 550), Color.White);
             }
 

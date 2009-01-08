@@ -95,8 +95,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Xml\UnitList.xml">
-      <Name>UnitList</Name>
+    <Compile Include="Xml\MapList.xml">
+      <Name>MapList</Name>
       <Importer>XmlImporter</Importer>
       <Processor>PassThroughProcessor</Processor>
     </Compile>
