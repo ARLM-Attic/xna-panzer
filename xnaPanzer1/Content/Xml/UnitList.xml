@@ -1,19 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <XnaContent>
     <Asset Type="System.Collections.Generic.List[GameEngine1.Unit]">
-    
         <Item>
-            <ID>0</ID>
-            <Experience>0</Experience>
-            <!-- <HasMoved>1</HasMoved> -->
-            <Moves>5</Moves>
-            <Name>1st Pz 38(t)</Name>
-            <Owner>0</Owner>
-            <StartingX>6</StartingX>
-            <StartingY>5</StartingY>
-            <Strength>10</Strength>
-            <!-- <UnitTypeID>0</UnitTypeID>  -->
+            <Name>TestMap</Name>
         </Item>
-
     </Asset>
 </XnaContent>

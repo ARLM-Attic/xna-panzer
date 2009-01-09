@@ -36,15 +36,15 @@ namespace GameEngine1
     /// be a part of your main game project, and not the Content Pipeline
     /// Extension Library project.
     /// </summary>
-    public class MapContentTypeReader : ContentTypeReader<Unit>
+    public class UnitContentTypeReader : ContentTypeReader<Unit>
     {
-        protected override Unit Read(ContentReader _input, Unit _map)
+        protected override Unit Read(ContentReader _input, Unit _unit)
         {
-            Unit map = new Unit();
+            Unit unit = new Unit();
 
-            map.Name = _input.ReadString();
+            unit.Name = _input.ReadString();
 
-            return map;
+            return unit;
         }
     } // UnitContentTypeReader class
 
