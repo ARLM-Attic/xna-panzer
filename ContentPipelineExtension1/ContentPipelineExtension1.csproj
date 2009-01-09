@@ -104,9 +104,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MapContentTypeWriter.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnitContentTypeWriter.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnitTypeContentTypeWriter.cs" />
   </ItemGroup>
   <ItemGroup>

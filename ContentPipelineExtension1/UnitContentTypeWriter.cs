@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -9,6 +9,8 @@ using Microsoft.Xna.Framework.Content.Pipeline.Processors;
 using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Compiler;
 using GameEngine1;
 
+using TWrite = GameEngine1.Unit;
+
 namespace ContentPipelineExtension1
 {
     /// <summary>
@@ -18,20 +20,11 @@ namespace ContentPipelineExtension1
     /// This should be part of a Content Pipeline Extension Library project.
     /// </summary>
     [ContentTypeWriter]
-    public class UnitContentTypeWriter : ContentTypeWriter<GameEngine1.Unit>
+    public class UnitContentTypeWriter : ContentTypeWriter<TWrite>
     {
-        protected override void Write(ContentWriter _output, GameEngine1.Unit _value)
+        protected override void Write(ContentWriter _output, TWrite _value)
         {
-            _output.Write(_value.ID);
-            _output.Write(_value.Experience);
-            //_output.WriteObject<Boolean>(_value.HasMoved);
-            _output.Write(_value.Moves);
             _output.Write(_value.Name);
-            _output.Write(_value.Owner);
-            _output.Write(_value.StartingX);
-            _output.Write(_value.StartingY);
-            _output.Write(_value.Strength);
-            //_output.Write(_value.UnitTypeID);
         }
 
         public override string GetRuntimeReader(TargetPlatform targetPlatform)
