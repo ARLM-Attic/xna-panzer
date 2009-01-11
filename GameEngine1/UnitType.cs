@@ -58,215 +58,96 @@ namespace GameEngine1
     {
         #region Static Variables
 
-        private static int s_IMAGE_PIXEL_HEIGHT;
-        private static int s_IMAGE_PIXEL_WIDTH;
-        private static int s_SPRITES_PER_ROW;
-        private static SpriteBatch s_SPRITE_BATCH;
-        private static Texture2D s_SPRITE_SHEET;
-
         #endregion Static Variables
 
         #region Static Properties
 
-        public static int ImageHeight
-        {
-            get { return UnitType.s_IMAGE_PIXEL_HEIGHT; }
-            set { UnitType.s_IMAGE_PIXEL_HEIGHT = value; }
-        }
+        public static int ImageHeight { get; set; }
 
-        public static int ImageWidth
-        {
-            get { return UnitType.s_IMAGE_PIXEL_WIDTH; }
-            set { UnitType.s_IMAGE_PIXEL_WIDTH = value; }
-        }
+        public static int ImageWidth { get; set; }
 
-        public static SpriteBatch SpriteBatch
-        {
-            get { return UnitType.s_SPRITE_BATCH; }
-            set { UnitType.s_SPRITE_BATCH = value; }
-        }
+        public static SpriteBatch SpriteBatch { get; set; }
 
-        public static int SpritesPerRow
-        {
-            get { return UnitType.s_SPRITES_PER_ROW; }
-            set { UnitType.s_SPRITES_PER_ROW = value; }
-        }
+        public static int SpritesPerRow { get; set; }
 
-        public static Texture2D SpriteSheet
-        {
-            get { return UnitType.s_SPRITE_SHEET; }
-            set { UnitType.s_SPRITE_SHEET = value; }
-        }
+        public static Texture2D SpriteSheet { get; set; }
 
         #endregion Static Properties
 
         #region Member Variables
-
-        private int m_AirAttack;                                        // anti-aircraft combat strength
-        private int m_AirDefense;                                       // combat strength vs attacking aircraft
-        private int m_Ammo;                                             // ammo supply points
-        private DateTime m_AvailabilityEnd;                             // last availability date
-        private DateTime m_AvailabilityStart;                           // first availability date
-        private ulong m_Characteristics;                                // e.g. Bridging, air transportable
-        private int m_CloseDefense;                                     // close-combat strength vs. infantry
-        private int m_CombatRange;                                      // 1 for most units
-        private int m_Cost;                                             // prestige cost to buy
-        private int m_EntrenchmentRate;                                 // e.g. inf types are better at entrenching than tanks
-        private int m_Fuel;                                             // fuel supply points
-        private int m_GroundDefense;                                    // defense rating
-        private int m_HardAttack;                                       // combat strength vs. armored ground units
-        private int m_ID;                                               // unique ID number
-        private int m_Initiative;                                       // first to shoot, wins
-        private GroundMovementClass m_MovementClass;                    // e.g. Wheeled, Tracked
-        private int m_Moves;                                            // no. movement points
-        private string m_Name;                                          // e.g. Psw 233-8r
-        private int m_Nationality;                                      // 0=German, 1=Italian, etc
-        private int m_SoftAttack;                                       // combat strength vs unarmoed ground units
-        private int m_SpottingRange;                                    // hex range for spotting enemy units
-        private int m_SpritesheetX;                                     // pixel X index within spritesheet
-        private int m_SpritesheetY;                                     // pixel Y index within spritesheet
+// anti-aircraft combat strength
+// combat strength vs attacking aircraft
+// ammo supply points
+// last availability date
+// first availability date
+// e.g. Bridging, air transportable
+// close-combat strength vs. infantry
+// 1 for most units
+// prestige cost to buy
+// e.g. inf types are better at entrenching than tanks
+// fuel supply points
+// defense rating
+// combat strength vs. armored ground units
+// unique ID number
+// first to shoot, wins
+// e.g. Wheeled, Tracked
+// no. movement points
+// e.g. Psw 233-8r
+// 0=German, 1=Italian, etc
+// combat strength vs unarmoed ground units
+// hex range for spotting enemy units
+// pixel X index within spritesheet
+// pixel Y index within spritesheet
 
         #endregion Member Variables
 
-        #region Properties
+        #region Auto Properties
 
-        public int AirAttack
-        {
-            get { return m_AirAttack; }
-            set { m_AirAttack = value; }
-        }
+        public int AirAttack { get; set; }
 
-        public int AirDefense
-        {
-            get { return m_AirDefense; }
-            set { m_AirDefense = value; }
-        }
+        public int AirDefense { get; set; }
 
-        public int Ammo
-        {
-            get { return m_Ammo; }
-            set { m_Ammo = value; }
-        }
+        public int Ammo { get; set; }
 
-        public DateTime AvailabilityEnd
-        {
-            get { return m_AvailabilityEnd; }
-            set { m_AvailabilityEnd = value; }
-        }
+        public DateTime AvailabilityEnd { get; set; }
 
-        public DateTime AvailabilityStart
-        {
-            get { return m_AvailabilityStart; }
-            set { m_AvailabilityStart = value; }
-        }
+        public DateTime AvailabilityStart { get; set; }
 
-        public ulong Characteristics
-        {
-            get { return m_Characteristics; }
-            set { m_Characteristics = value; }
-        }
+        public ulong Characteristics { get; set; }
 
-        public int CloseDefense
-        {
-            get { return m_CloseDefense; }
-            set { m_CloseDefense = value; }
-        }
+        public int CloseDefense { get; set; }
 
-        public int CombatRange
-        {
-            get { return m_CombatRange; }
-            set { m_CombatRange = value; }
-        }
+        public int CombatRange { get; set; }
 
-        public int Cost
-        {
-            get { return m_Cost; }
-            set { m_Cost = value; }
-        }
+        public int Cost { get; set; }
 
-        public int EntrenchmentRate
-        {
-            get { return m_EntrenchmentRate; }
-            set { m_EntrenchmentRate = value; }
-        }
+        public int EntrenchmentRate { get; set; }
 
-        public int Fuel
-        {
-            get { return m_Fuel; }
-            set { m_Fuel = value; }
-        }
+        public int Fuel { get; set; }
 
-        public int GroundDefense
-        {
-            get { return m_GroundDefense; }
-            set { m_GroundDefense = value; }
-        }
+        public int GroundDefense { get; set; }
 
-        public int HardAttack
-        {
-            get { return m_HardAttack; }
-            set { m_HardAttack = value; }
-        }
+        public int HardAttack { get; set; }
 
-        public int ID
-        {
-            get { return m_ID; }
-            set { m_ID = value; }
-        }
+        public int ID { get; set; }
 
-        public int Initiative
-        {
-            get { return m_Initiative; }
-            set { m_Initiative = value; }
-        }
+        public int Initiative { get; set; }
 
-        public GroundMovementClass MovementClass
-        {
-            get { return m_MovementClass; }
-            set { m_MovementClass = value; }
-        }
+        public GroundMovementClass MovementClass { get; set; }
 
-        public int Moves
-        {
-            get { return m_Moves; }
-            set { m_Moves = value; }
-        }
+        public int Moves { get; set; }
 
-        public string Name
-        {
-            get { return m_Name; }
-            set { m_Name = value; }
-        }
+        public string Name { get; set; }
 
-        public int Nationality
-        {
-            get { return m_Nationality; }
-            set { m_Nationality = value; }
-        }
+        public int Nationality { get; set; }
 
-        public int SoftAttack
-        {
-            get { return m_SoftAttack; }
-            set { m_SoftAttack = value; }
-        }
+        public int SoftAttack { get; set; }
 
-        public int SpottingRange
-        {
-            get { return m_SpottingRange; }
-            set { m_SpottingRange = value; }
-        }
+        public int SpottingRange { get; set; }
 
-        public int SpritesheetX
-        {
-            get { return m_SpritesheetX; }
-            set { m_SpritesheetX = value; }
-        }
+        public int SpritesheetX { get; set; }
 
-        public int SpritesheetY
-        {
-            get { return m_SpritesheetY; }
-            set { m_SpritesheetY = value; }
-        }
+        public int SpritesheetY { get; set; }
 
         #endregion Properties
 

@@ -16,24 +16,14 @@ namespace GameEngine1
         /// Otherwise, you'll get an error similar to the following: XML element "Experience" not found ... (in) UnitList.xml
         /// </summary>
 
-        #region Instance Variables (non-boolean)
+        #region Auto Properties (non-boolean)
 
-        public int Experience
-        {
-            get { return this.m_Experience; }
-            set { this.m_Experience = value; }
-        }
-        private int m_Experience;
+        public int Experience { get; set; }
 
         /// <summary>
         /// Unit's unique ID (used for array index)
         /// </summary>
-        public int ID
-        {
-            get { return this.m_ID; }
-            set { this.m_ID = value; }
-        }
-        private int m_ID;
+        public int ID { get; set; }
 
         //[XmlIgnore()]
         //public int Moves
@@ -46,40 +36,15 @@ namespace GameEngine1
         /// <summary>
         /// Unit's unique name, e.g. 27th Manstein's Tiger II.  Defaults to unit ID + UnitType name, e.g. 27th Tiger II
         /// </summary>
-        public string Name
-        {
-            get { return this.m_Name; }
-            set { this.m_Name = value; }
-        }
-        private string m_Name;
+        public string Name { get; set; }
 
-        public int Owner
-        {
-            get { return this.m_Owner; }
-            set { this.m_Owner = value; }
-        }
-        private int m_Owner;
+        public int Owner { get; set; }
 
-        public int StartingX
-        {
-            get { return m_StartingX; }
-            set { m_StartingX = value; }
-        }
-        private int m_StartingX;
+        public int StartingX { get; set; }
 
-        public int StartingY
-        {
-            get { return m_StartingY; }
-            set { m_StartingY = value; }
-        }
-        private int m_StartingY;
+        public int StartingY { get; set; }
 
-        public int Strength
-        {
-            get { return this.m_Strength; }
-            set { this.m_Strength = value; }
-        }
-        private int m_Strength;
+        public int Strength { get; set; }
 
         //public UnitType UnitType
         //{
