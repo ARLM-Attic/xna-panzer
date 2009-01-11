@@ -24,7 +24,12 @@ namespace ContentPipelineExtension1
     {
         protected override void Write(ContentWriter _output, TWrite _value)
         {
+            _output.Write(_value.ID);
             _output.Write(_value.Name);
+            _output.Write(_value.Owner);
+            _output.Write(_value.StartingX);
+            _output.Write(_value.StartingY);
+            _output.Write(_value.Strength);
         }
 
         public override string GetRuntimeReader(TargetPlatform targetPlatform)

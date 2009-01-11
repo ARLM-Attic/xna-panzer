@@ -2,7 +2,12 @@
 <XnaContent>
     <Asset Type="System.Collections.Generic.List[GameEngine1.Unit]">
         <Item>
+            <ID>1</ID>
             <Name>TestMap</Name>
+            <Owner>0</Owner>
+            <StartingX>2</StartingX>
+            <StartingY>2</StartingY>
+            <Strength>9</Strength>
         </Item>
     </Asset>
 </XnaContent>
