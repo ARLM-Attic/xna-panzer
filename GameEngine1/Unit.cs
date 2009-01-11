@@ -5,12 +5,25 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using System.Xml.Serialization;
 
 namespace GameEngine1
 {
     public class Unit
     {
+        /// <summary>
+        /// IMPORTANT: the order of the properties below MUST EXACTLY MATCH the order of the related properties in the XML file!!
+        /// Otherwise, you'll get an error similar to the following: XML element "Experience" not found ... (in) UnitList.xml
+        /// </summary>
+
         #region Instance Variables (non-boolean)
+
+        public int Experience
+        {
+            get { return this.m_Experience; }
+            set { this.m_Experience = value; }
+        }
+        private int m_Experience;
 
         /// <summary>
         /// Unit's unique ID (used for array index)
@@ -22,19 +35,13 @@ namespace GameEngine1
         }
         private int m_ID;
 
-        //public int Experience
-        //{
-        //    get { return this.m_Experience; }
-        //    set { this.m_Experience = value; }
-        //}
-        //private int m_Experience;
-
+        //[XmlIgnore()]
         //public int Moves
         //{
         //    get { return this.m_Moves; }
         //    set { this.m_Moves = value; }
         //}
-        //private int m_Moves;
+        private int m_Moves;
 
         /// <summary>
         /// Unit's unique name, e.g. 27th Manstein's Tiger II.  Defaults to unit ID + UnitType name, e.g. 27th Tiger II
@@ -162,8 +169,8 @@ namespace GameEngine1
         {
             Unit unit = new Unit();
 
+            unit.Experience = _input.ReadInt32();
             unit.ID = _input.ReadInt32();
-//            unit.Experience = _input.ReadInt32();
             //unit.HasMoved = _input.ReadBoolean();
 
   //          unit.Moves = _input.ReadInt32();

@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Content.Pipeline.Graphics;
 using Microsoft.Xna.Framework.Content.Pipeline.Processors;
 using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Compiler;
 using GameEngine1;
+using System.Xml;
 
 using TWrite = GameEngine1.Unit;
 
@@ -24,9 +25,13 @@ namespace ContentPipelineExtension1
     {
         protected override void Write(ContentWriter _output, TWrite _value)
         {
+            _output.Write(_value.Experience);
+  //          _output.Write(_value.HasMoved);
             _output.Write(_value.ID);
+    //        _output.Write(_value.Moves);
             _output.Write(_value.Name);
             _output.Write(_value.Owner);
+
             _output.Write(_value.StartingX);
             _output.Write(_value.StartingY);
             _output.Write(_value.Strength);
