@@ -1,18 +1,37 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <XnaContent>
     <Asset Type="System.Collections.Generic.List[GameEngine1.Unit]">
-        <Item>
-            <!--
+        <!--
              IMPORTANT: the order of the properties below MUST EXACTLY MATCH the order of the related properties in the class file!!
              Otherwise, you'll get an error similar to the following: XML element "Experience" not found ... (in) UnitList.xml
-            -->
-            <Experience>96</Experience>
-            <ID>1</ID>
-            <Name>TestMap</Name>
+        -->
+        <Item>
+            <Ammo>15</Ammo>
+            <Entrenchment>0</Entrenchment>
+            <Experience>425</Experience>
+            <Fuel>30</Fuel>
+            <ID>0</ID>
+            <Name>SS Tiger</Name>
             <Owner>0</Owner>
             <StartingX>2</StartingX>
             <StartingY>2</StartingY>
             <Strength>9</Strength>
+            <UnitTypeID>0</UnitTypeID>
         </Item>
+
+        <Item>
+            <Ammo>10</Ammo>
+            <Entrenchment>0</Entrenchment>
+            <Experience>96</Experience>
+            <Fuel>22</Fuel>
+            <ID>1</ID>
+            <Name>Tiger II</Name>
+            <Owner>0</Owner>
+            <StartingX>4</StartingX>
+            <StartingY>4</StartingY>
+            <Strength>10</Strength>
+            <UnitTypeID>1</UnitTypeID>
+        </Item>
+
     </Asset>
 </XnaContent>

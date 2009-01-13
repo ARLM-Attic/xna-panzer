@@ -41,7 +41,7 @@
             <Fuel>35</Fuel>
             <GroundDefense>5</GroundDefense>
             <HardAttack>5</HardAttack>
-            <ID>0</ID>
+            <ID>1</ID>
             <Initiative>5</Initiative>
             <MovementClass>0</MovementClass>
             <Moves>5</Moves>

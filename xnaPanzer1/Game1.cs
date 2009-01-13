@@ -253,9 +253,10 @@ namespace xnaPanzer1
             this.m_Units = new List<Unit>();
             this.m_Units = Content.Load<List<Unit>>(@"Xml/UnitList");
 
-            //foreach (Unit u in this.m_Units) {
-            //    this.m_MapUnits[u.X, u.Y] = u.ID;
-            //}
+            foreach (Unit u in this.m_Units) {
+                u.UnitType = this.m_UnitTypes[u.UnitTypeID];    // HACK !!!
+                this.m_MapUnits[u.StartingX, u.StartingY] = u.ID;
+            }
 
         }
 
@@ -327,54 +328,54 @@ namespace xnaPanzer1
             this.m_MouseHexY = ml.y;
 
             // see if user left clicks a hex to select it--if so, we need to calculate pathfinding
-            //if (this.IsMouseWithinViewport() && !this.m_IsUnitSelected &&
-            //    Mouse.GetState().LeftButton == ButtonState.Pressed && !this.m_LeftButtonPressed &&
-            //    this.GetUnitIDAtMapLocation(this.m_MouseHexX, this.m_MouseHexY) >= 0) {
-            //    //this.m_HexSelected = new MapLocation(this.m_MouseHexX, this.m_MouseHexY);
-            //    int id = this.GetUnitIDAtMapLocation(this.m_MouseHexX, this.m_MouseHexY);
-            //    if (id > -1) {
-            //        Unit unit = this.m_Units[id];
-            //        if (this.m_CurrentPlayer == unit.Owner) {						// see if the current player is the unit's owner
-            //            // if unit has already moved this turn then just display its stats
-            //            if (unit.HasMoved) {
-            //                // TODO: display unit's extended stats
-            //            } else {
-            //                this.SelectUnit(id);
-            //                this.SetAllowableMoves(id);
+            if (this.IsMouseWithinViewport() && !this.m_IsUnitSelected &&
+                Mouse.GetState().LeftButton == ButtonState.Pressed && !this.m_LeftButtonPressed &&
+                this.GetUnitIDAtMapLocation(this.m_MouseHexX, this.m_MouseHexY) >= 0) {
+                //this.m_HexSelected = new MapLocation(this.m_MouseHexX, this.m_MouseHexY);
+                int id = this.GetUnitIDAtMapLocation(this.m_MouseHexX, this.m_MouseHexY);
+                if (id > -1) {
+                    Unit unit = this.m_Units[id];
+                    if (this.m_CurrentPlayer == unit.Owner) {						// see if the current player is the unit's owner
+                        // if unit has already moved this turn then just display its stats
+                        if (unit.HasMoved) {
+                            // TODO: display unit's extended stats
+                        } else {
+                            this.SelectUnit(id);
+                            this.SetAllowableMoves(id);
 
-            //                // ensure the selected hex has at least the minimum required number of full hexes visible all around it
-            //                MapLocation origin = this.CalculateViewportOriginForSelectedUnit(unit.X, unit.Y);
-            //                if (this.m_ViewportLeftHexX != origin.x || this.m_ViewportTopHexY != origin.y) {
-            //                    this.m_ViewportLeftHexX = origin.x;
-            //                    this.m_ViewportTopHexY = origin.y;
-            //                    MapLocation unitMapLocation = new MapLocation(unit.X, unit.Y);
-            //                    Point p = this.ConvertMapLocationToMousePosition(unitMapLocation);
-            //                    Mouse.SetPosition(p.X, p.Y);
-            //                }
-            //            }
-            //        } else {  // player is not the owner
-            //            // TODO: display unit's public stats
-            //        }
-            //    }
+                            // ensure the selected hex has at least the minimum required number of full hexes visible all around it
+                            MapLocation origin = this.CalculateViewportOriginForSelectedUnit(unit.CurrentX, unit.CurrentY);
+                            if (this.m_ViewportLeftHexX != origin.x || this.m_ViewportTopHexY != origin.y) {
+                                this.m_ViewportLeftHexX = origin.x;
+                                this.m_ViewportTopHexY = origin.y;
+                                MapLocation unitMapLocation = new MapLocation(unit.CurrentX, unit.CurrentY);
+                                Point p = this.ConvertMapLocationToMousePosition(unitMapLocation);
+                                Mouse.SetPosition(p.X, p.Y);
+                            }
+                        }
+                    } else {  // player is not the owner
+                        // TODO: display unit's public stats
+                    }
+                }
 
-            //}
+            }
 
-            //// see if user wants to deselect current unit
-            //if (this.m_SelectedUnitID != -1 && Mouse.GetState().RightButton == ButtonState.Pressed) {
-            //    this.m_Units[this.m_SelectedUnitID].EndMove();
-            //    this.m_SelectedUnitID = -1;
-            //    this.m_IsUnitSelected = false;
-            //}
+            // see if user wants to deselect current unit
+            if (this.m_SelectedUnitID != -1 && Mouse.GetState().RightButton == ButtonState.Pressed) {
+                this.m_Units[this.m_SelectedUnitID].EndMove();
+                this.m_SelectedUnitID = -1;
+                this.m_IsUnitSelected = false;
+            }
 
-            //// see if user wants to move the currently-selected unit
-            //if (this.IsMouseWithinViewport() && this.m_IsUnitSelected &&
-            //    Mouse.GetState().LeftButton == ButtonState.Pressed && !this.m_LeftButtonPressed &&
-            //    this.GetUnitIDAtMapLocation(this.m_MouseHexX, this.m_MouseHexY) == -1 &&
-            //    this.m_AllowableMoves[this.m_MouseHexX, this.m_MouseHexY] == Pathfinding.Allowed) {
-            //    this.m_MapUnits[this.m_Units[this.m_SelectedUnitID].X, this.m_Units[this.m_SelectedUnitID].Y] = -1;
-            //    this.m_Units[this.m_SelectedUnitID].Move(this.m_MouseHexX, this.m_MouseHexY);
-            //    this.m_MapUnits[this.m_MouseHexX, this.m_MouseHexY] = this.m_SelectedUnitID;
-            //}
+            // see if user wants to move the currently-selected unit
+            if (this.IsMouseWithinViewport() && this.m_IsUnitSelected &&
+                Mouse.GetState().LeftButton == ButtonState.Pressed && !this.m_LeftButtonPressed &&
+                this.GetUnitIDAtMapLocation(this.m_MouseHexX, this.m_MouseHexY) == -1 &&
+                this.m_AllowableMoves[this.m_MouseHexX, this.m_MouseHexY] == Pathfinding.Allowed) {
+                this.m_MapUnits[this.m_Units[this.m_SelectedUnitID].CurrentX, this.m_Units[this.m_SelectedUnitID].CurrentY] = -1;
+                this.m_Units[this.m_SelectedUnitID].Move(this.m_MouseHexX, this.m_MouseHexY);
+                this.m_MapUnits[this.m_MouseHexX, this.m_MouseHexY] = this.m_SelectedUnitID;
+            }
 
             // set previous keyboard & gamepad states = to current states so we can detect new keypresses
             previousKeyboardState = keyboardState;
@@ -443,8 +444,8 @@ namespace xnaPanzer1
 
                     // draw units on map
                     int id = this.GetUnitIDAtMapLocation(x, y);
-                    if (id >= 0) {
-                        ////this.m_Units[id].Draw(new Point(destRect.X, destRect.Y));
+                    if (id >= 0 && this.m_Units[id].IsVisible) {
+                        this.m_Units[id].Draw(new Point(destRect.X, destRect.Y));
                     }
 
                     // will need hex offsets for drawing hex cursor(s)
@@ -484,42 +485,42 @@ namespace xnaPanzer1
                 "\r\nNon-shaded hexes show where fictitious unit could NOT move.  Does not account\r\nfor terrain, enemy units, etc.",
                 new Vector2(10, 3), Color.White);
 
-            //if (this.IsMouseWithinViewport()) {
-            //    string selectedHex = "";
-            //    if (this.m_IsUnitSelected) {
-            //        this.m_spriteBatch.DrawString(this.m_font1,
-            //            "Selected Unit's Hex = " + this.m_Units[this.m_SelectedUnitID].X + ", " + this.m_Units[this.m_SelectedUnitID].Y
-            //            , new Vector2(10, 530), Color.White);
-            //    }
-            //    this.m_spriteBatch.DrawString(this.m_font1,
-            //        "m_ViewportLeftHexX = " + this.m_ViewportLeftHexX.ToString() +
-            //        ", m_ViewportTopHexY = " + this.m_ViewportTopHexY.ToString() +
-            //        ", Mouse hex X,Y = " + this.m_MouseHexX.ToString() + ", " + this.m_MouseHexY.ToString() +
-            //        selectedHex
-            //        , new Vector2(10, 550), Color.White);
-            //    this.m_spriteBatch.DrawString(this.m_font1,
-            //        "Mouse coord X,Y = " + Mouse.GetState().X.ToString() + ", " + Mouse.GetState().Y.ToString()
-            //        , new Vector2(10, 570), Color.White);
-            //    int id = this.GetUnitIDAtMapLocation(this.m_MouseHexX, this.m_MouseHexY);
-            //    if (id >= 0) {
-            //        Unit unit = this.m_Units[id];
-            //        this.m_spriteBatch.DrawString(this.m_font1,
-            //            (id + 1).ToString() + Util.GetOrdinalSuffix(id + 1) + " " + unit.UnitType.ToString() + "      Str: " + unit.Strength.ToString()
-            //            , new Vector2(550, 720), Color.White);
-            //        this.m_spriteBatch.DrawString(this.m_font1,
-            //            unit.UnitType.ToString() + "            Ent: 0"
-            //            , new Vector2(550, 735), Color.White);
-            //        this.m_spriteBatch.DrawString(this.m_font1,
-            //            "Ammo: 7     Fuel: 41   (obviously spoofed text but you get the idea)"
-            //            , new Vector2(550, 750), Color.White);
-            //    }
-            //} else {
-            //    MouseState ms = new MouseState();
-            //    ms = Mouse.GetState();
-            //    this.m_spriteBatch.DrawString(this.m_font1,
-            //        "Mouse coord X,Y = " + ms.X.ToString() + ", " + ms.Y.ToString() + ", Map = " + this.map[0].Name
-            //        , new Vector2(10, 550), Color.White);
-            //}
+            if (this.IsMouseWithinViewport()) {
+                string selectedHex = "";
+                if (this.m_IsUnitSelected) {
+                    this.m_spriteBatch.DrawString(this.m_font1,
+                        "Selected Unit's Hex = " + this.m_Units[this.m_SelectedUnitID].CurrentX + ", " + this.m_Units[this.m_SelectedUnitID].CurrentY
+                        , new Vector2(10, 530), Color.White);
+                }
+                this.m_spriteBatch.DrawString(this.m_font1,
+                    "m_ViewportLeftHexX = " + this.m_ViewportLeftHexX.ToString() +
+                    ", m_ViewportTopHexY = " + this.m_ViewportTopHexY.ToString() +
+                    ", Mouse hex X,Y = " + this.m_MouseHexX.ToString() + ", " + this.m_MouseHexY.ToString() +
+                    selectedHex
+                    , new Vector2(10, 550), Color.White);
+                this.m_spriteBatch.DrawString(this.m_font1,
+                    "Mouse coord X,Y = " + Mouse.GetState().X.ToString() + ", " + Mouse.GetState().Y.ToString()
+                    , new Vector2(10, 570), Color.White);
+                int id = this.GetUnitIDAtMapLocation(this.m_MouseHexX, this.m_MouseHexY);
+                if (id >= 0) {
+                    Unit unit = this.m_Units[id];
+                    this.m_spriteBatch.DrawString(this.m_font1,
+                        (id + 1).ToString() + Util.GetOrdinalSuffix(id + 1) + " " + unit.Name + "      Str: " + unit.Strength.ToString()
+                        , new Vector2(550, 720), Color.White);
+                    this.m_spriteBatch.DrawString(this.m_font1,
+                        unit.UnitType.Name + "            Ent: " + unit.Entrenchment.ToString()
+                        , new Vector2(550, 735), Color.White);
+                    this.m_spriteBatch.DrawString(this.m_font1,
+                        "Ammo: " + unit.Ammo.ToString() + "     Fuel: " + unit.Fuel.ToString()
+                        , new Vector2(550, 750), Color.White);
+                }
+            } else {
+                MouseState ms = new MouseState();
+                ms = Mouse.GetState();
+                this.m_spriteBatch.DrawString(this.m_font1,
+                    "Mouse coord X,Y = " + ms.X.ToString() + ", " + ms.Y.ToString() //+ ", Map = " + this.map[0].Name
+                    , new Vector2(10, 550), Color.White);
+            }
 
             // TEST DRAW ONLY
             ////this.m_UnitTypes[1].Draw(new Point(100, 100));
@@ -693,41 +694,41 @@ namespace xnaPanzer1
             this.m_ClosedList.Clear();
 
             // add starting location to open list
-            //MapNode nodeStart = new MapNode(unit.X, unit.Y);
-            //this.m_AllowableMoves[unit.X, unit.Y] = Pathfinding.StartHex;
-            //nodeStart.cost = 0;
-            //this.m_OpenList.Add(nodeStart);
+            MapNode nodeStart = new MapNode(unit.CurrentX, unit.CurrentY);
+            this.m_AllowableMoves[unit.CurrentX, unit.CurrentY] = Pathfinding.StartHex;
+            nodeStart.cost = 0;
+            this.m_OpenList.Add(nodeStart);
 
-            //// evaluate open list until empty
-            //while (this.m_OpenList.Count > 0) {
-            //    // pop the top node
-            //    MapNode nodeCurrent = this.m_OpenList[0];
-            //    this.m_OpenList.Remove(nodeCurrent);
-            //    this.m_ClosedList.Add(nodeCurrent);
+            // evaluate open list until empty
+            while (this.m_OpenList.Count > 0) {
+                // pop the top node
+                MapNode nodeCurrent = this.m_OpenList[0];
+                this.m_OpenList.Remove(nodeCurrent);
+                this.m_ClosedList.Add(nodeCurrent);
 
-            //    // evaluate all 6 adjacent nodes
-            //    for (int dir = 0; dir < 6; dir++) {
-            //        // get node for current direction
-            //        MapNode nodeDir = this.GetMapNodeForDirection(nodeCurrent, dir);
+                // evaluate all 6 adjacent nodes
+                for (int dir = 0; dir < 6; dir++) {
+                    // get node for current direction
+                    MapNode nodeDir = this.GetMapNodeForDirection(nodeCurrent, dir);
 
-            //        // evaluate node if it is valid (within playable portion of the map) AND it is not on the closed list
-            //        if (nodeDir.isValid && !this.IsNodeInClosedList(nodeDir.x, nodeDir.y)) { //closedList.Contains(nodeDir)) {
-            //            // get total cost to enter adjacent node (i.e. cost to enter current node + cost to enter new node)
-            //            int totalCost = nodeCurrent.cost + CalculateCostToEnterNode(nodeDir, dir, MoveType.Land);
+                    // evaluate node if it is valid (within playable portion of the map) AND it is not on the closed list
+                    if (nodeDir.isValid && !this.IsNodeInClosedList(nodeDir.x, nodeDir.y)) { //closedList.Contains(nodeDir)) {
+                        // get total cost to enter adjacent node (i.e. cost to enter current node + cost to enter new node)
+                        int totalCost = nodeCurrent.cost + CalculateCostToEnterNode(nodeDir, dir, MoveType.Land);
 
-            //            // if unit has enough moves to enter new node AND cost to enter new node by this route is less than
-            //            // cost to enter it by other current routes then make current node its parent and add it to open
-            //            // list
-            //            if (unit.Moves >= totalCost && nodeDir.cost > totalCost) {
-            //                nodeDir.cost = totalCost;
-            //                this.m_AllowableMoves[nodeDir.x, nodeDir.y] = Pathfinding.Allowed;
-            //                if (!this.IsNodeInOpenList(nodeDir.x, nodeDir.y)) {
-            //                    this.m_OpenList.Add(nodeDir);
-            //                }
-            //            }
-            //        }
-            //    }
-            //}
+                        // if unit has enough moves to enter new node AND cost to enter new node by this route is less than
+                        // cost to enter it by other current routes then make current node its parent and add it to open
+                        // list
+                        if (unit.Moves >= totalCost && nodeDir.cost > totalCost) {
+                            nodeDir.cost = totalCost;
+                            this.m_AllowableMoves[nodeDir.x, nodeDir.y] = Pathfinding.Allowed;
+                            if (!this.IsNodeInOpenList(nodeDir.x, nodeDir.y)) {
+                                this.m_OpenList.Add(nodeDir);
+                            }
+                        }
+                    }
+                }
+            }
 
             // write array grid to console window
             //Console.WriteLine("X = 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26");
