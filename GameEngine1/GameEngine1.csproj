@@ -85,7 +85,7 @@
     <Compile Include="Unit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnitType.cs" />
-    <Compile Include="Viewport.cs" />
+    <Compile Include="Mapport.cs" />
   </ItemGroup>
   <ItemGroup>
     <NestedContentProject Include="Content\Content.contentproj">
