@@ -18,7 +18,8 @@
  * 
  * Error Log Reference #108a56b5-f77f-4ca8-81cc-ea551e823b98 (when trying to add new component to Issue Tracker)
  *
- * xmas: Zuzu's hand-painted beer/wine glasses; W.S. pro. multichopper, xmas cookie cutters, spa
+ * W.S. pro. multichopper, xmas cookie cutters, spa
+ * 
  * Tutorials:
  * http://www.ziggyware.com/readarticle.php?article_id=160
  * http://msdn.microsoft.com/en-us/library/bb203924(MSDN.9).aspx
@@ -46,17 +47,14 @@ namespace xnaPanzer1
     {
         #region Member variables
 
-        GraphicsDeviceManager m_graphics;
-        SpriteBatch m_spriteBatch;
-        Texture2D m_MapSpriteSheet;
-        Texture2D m_UnitSpriteSheet;
+        GameEngine1.Mapport Mapport { get; set; }
+        GraphicsDeviceManager Graphics { get; set; }
+        SpriteBatch SpriteBatch { get; set; }
+        Texture2D MapSpriteSheet;
         Texture2D m_DeltaTextures;
         SpriteFont m_font1;
         SpriteFont m_UnispaceFont;
 
-        Texture2D m_BevelLeftHook;
-        Texture2D m_BevelRightHook;
-        Texture2D m_BevelStraightLine;
         Texture2D m_DefaultGameScreenMask;
 
         Texture2D m_HexGridParts;
@@ -64,8 +62,6 @@ namespace xnaPanzer1
         List<MapNode> m_OpenList = new List<MapNode>();
         List<MapNode> m_ClosedList = new List<MapNode>();
         private int[] m_DeltaX = new int[6] { 0, 1, 1, 0, -1, -1 };
-        //private int[] m_DeltaYForEvenColumn = new int[6] { -1, -1, 0, 1, 0, -1 };
-        //private int[] m_DeltaYForOddColumn = new int[6] { -1, 0, 1, 1, 1, 0 };
         private int[] m_DeltaYForEvenColumn = new int[6] { -1, 0, 1, 1, 1, 0 };
         private int[] m_DeltaYForOddColumn = new int[6] { -1, -1, 0, 1, 0, -1 };
 
@@ -144,8 +140,8 @@ namespace xnaPanzer1
         Rectangle sourceRectangleForPartialHexGrid;
         Rectangle sourceRectangleForHexGridCursor;
 
-        List<Unit> m_Units;
-        List<UnitType> m_UnitTypes;
+        public List<Unit> Units {get; set; }
+        List<UnitType> UnitTypes { get; set; }
         int[,] m_MapUnits;
         Int16 m_CurrentPlayer;
         bool m_IsUnitSelected = false;
@@ -154,7 +150,7 @@ namespace xnaPanzer1
         const bool m_IS_FULL_SCREEN = false;
         readonly Color m_BACKGROUND_COLOR = new Color(128, 128, 0);     // cannot be const
 
-        List<Unit> map;
+        ////List<Unit> map;
 
         #endregion Member variables
 
@@ -162,7 +158,7 @@ namespace xnaPanzer1
 
         public Game1()
         {
-            m_graphics = new GraphicsDeviceManager(this);
+            Graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
         }
 
@@ -174,18 +170,22 @@ namespace xnaPanzer1
         /// </summary>
         protected override void Initialize()
         {
+            // init Mapport area
+            this.Mapport = new Mapport(m_VIEWPORT_MIN_X_COORD_DRAW, m_VIEWPORT_MAX_X_COORD_DRAW, m_VIEWPORT_MIN_Y_COORD_DRAW, m_VIEWPORT_MAX_Y_COORD_DRAW,
+                m_VIEWPORT_MIN_X_COORD_VISIBLE, m_VIEWPORT_MAX_X_COORD_VISIBLE, m_VIEWPORT_MIN_X_COORD_VISIBLE, m_VIEWPORT_MAX_Y_COORD_VISIBLE);
+
             // create a new SpriteBatch, which can be used to draw textures.
-            this.m_spriteBatch = new SpriteBatch(GraphicsDevice);
+            this.SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             // init static Unit variables (must be done before initializing individual units due to needing pixel width/height)
-            UnitType.SpriteBatch = this.m_spriteBatch;
+            UnitType.SpriteBatch = this.SpriteBatch;
             UnitType.ImageWidth = m_UNIT_IMAGE_WIDTH;
             UnitType.ImageHeight = m_UNIT_IMAGE_HEIGHT;
 
-            this.m_graphics.PreferredBackBufferWidth = m_PreferredBackBufferWidth;
-            this.m_graphics.PreferredBackBufferHeight = m_PreferredBackBufferHeight;
-            this.m_graphics.IsFullScreen = m_IS_FULL_SCREEN;
-            this.m_graphics.ApplyChanges();
+            this.Graphics.PreferredBackBufferWidth = m_PreferredBackBufferWidth;
+            this.Graphics.PreferredBackBufferHeight = m_PreferredBackBufferHeight;
+            this.Graphics.IsFullScreen = m_IS_FULL_SCREEN;
+            this.Graphics.ApplyChanges();
             this.IsMouseVisible = true;
 
             //this.m_map = new int[m_MAP_HEX_WIDTH, m_MAP_HEX_HEIGHT];
@@ -221,7 +221,7 @@ namespace xnaPanzer1
         protected override void LoadContent()
         {
             //Load the images for map terrain and combat units from bitmap files
-            this.m_MapSpriteSheet = this.Content.Load<Texture2D>("Sprites/Maps/tacmap_terrain_xnaPanzer");
+            this.MapSpriteSheet = this.Content.Load<Texture2D>("Sprites/Maps/tacmap_terrain_xnaPanzer");
             this.m_DeltaTextures = this.Content.Load<Texture2D>("Sprites/Maps/DeltaTextures");
 
             this.m_font1 = Content.Load<SpriteFont>("Fonts/SpriteFont1");
@@ -240,21 +240,21 @@ namespace xnaPanzer1
             UnitType.SpriteSheet = this.Content.Load<Texture2D>("Sprites/Units/tacicons_start_at_0");
 
             // load UnitTypes from XML file
-            this.m_UnitTypes = new List<UnitType>();
-            this.m_UnitTypes = Content.Load<List<UnitType>>(@"Xml/UnitTypeList");
+            this.UnitTypes = new List<UnitType>();
+            this.UnitTypes = Content.Load<List<UnitType>>(@"Xml/UnitTypeList");
             //this.map = Content.Load<List<Unit>>(@"Xml/MapList");
-            //foreach (UnitType ut in this.m_UnitTypes) {
+            //foreach (UnitType ut in this.UnitTypes) {
             //    Point p = Util.CalculateSpritesheetCoordinates(1);
             //    if (p != null) {
-            //        this.m_UnitTypes.Texture = UnitType.SpriteSheet.GetData<
+            //        this.UnitTypes.Texture = UnitType.SpriteSheet.GetData<
             //}
 
             // let's init a few test units
-            this.m_Units = new List<Unit>();
-            this.m_Units = Content.Load<List<Unit>>(@"Xml/UnitList");
+            this.Units = new List<Unit>();
+            this.Units = Content.Load<List<Unit>>(@"Xml/UnitList");
 
-            foreach (Unit u in this.m_Units) {
-                u.UnitType = this.m_UnitTypes[u.UnitTypeID];    // HACK !!!
+            foreach (Unit u in this.Units) {
+                u.UnitType = this.UnitTypes[u.UnitTypeID];    // HACK !!!
                 this.m_MapUnits[u.StartingX, u.StartingY] = u.ID;
             }
 
@@ -322,7 +322,7 @@ namespace xnaPanzer1
                 }
             }
 
-            // calculate current hex x,y of mouse cursor (-1,-1 if off viewport)
+            // calculate current hex x,y of mouse cursor (-1,-1 if off mapport)
             MapLocation ml = this.ConvertMousePositionToMapLocation(Mouse.GetState().X, Mouse.GetState().Y);
             this.m_MouseHexX = ml.x;
             this.m_MouseHexY = ml.y;
@@ -334,7 +334,7 @@ namespace xnaPanzer1
                 //this.m_HexSelected = new MapLocation(this.m_MouseHexX, this.m_MouseHexY);
                 int id = this.GetUnitIDAtMapLocation(this.m_MouseHexX, this.m_MouseHexY);
                 if (id > -1) {
-                    Unit unit = this.m_Units[id];
+                    Unit unit = this.Units[id];
                     if (this.m_CurrentPlayer == unit.Owner) {						// see if the current player is the unit's owner
                         // if unit has already moved this turn then just display its stats
                         if (unit.HasMoved) {
@@ -362,7 +362,7 @@ namespace xnaPanzer1
 
             // see if user wants to deselect current unit
             if (this.m_SelectedUnitID != -1 && Mouse.GetState().RightButton == ButtonState.Pressed) {
-                this.m_Units[this.m_SelectedUnitID].EndMove();
+                this.Units[this.m_SelectedUnitID].EndMove();
                 this.m_SelectedUnitID = -1;
                 this.m_IsUnitSelected = false;
             }
@@ -372,8 +372,8 @@ namespace xnaPanzer1
                 Mouse.GetState().LeftButton == ButtonState.Pressed && !this.m_LeftButtonPressed &&
                 this.GetUnitIDAtMapLocation(this.m_MouseHexX, this.m_MouseHexY) == -1 &&
                 this.m_AllowableMoves[this.m_MouseHexX, this.m_MouseHexY] == Pathfinding.Allowed) {
-                this.m_MapUnits[this.m_Units[this.m_SelectedUnitID].CurrentX, this.m_Units[this.m_SelectedUnitID].CurrentY] = -1;
-                this.m_Units[this.m_SelectedUnitID].Move(this.m_MouseHexX, this.m_MouseHexY);
+                this.m_MapUnits[this.Units[this.m_SelectedUnitID].CurrentX, this.Units[this.m_SelectedUnitID].CurrentY] = -1;
+                this.Units[this.m_SelectedUnitID].Move(this.m_MouseHexX, this.m_MouseHexY);
                 this.m_MapUnits[this.m_MouseHexX, this.m_MouseHexY] = this.m_SelectedUnitID;
             }
 
@@ -394,17 +394,17 @@ namespace xnaPanzer1
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            this.m_graphics.GraphicsDevice.Clear(m_BACKGROUND_COLOR);
+            this.Graphics.GraphicsDevice.Clear(m_BACKGROUND_COLOR);
 
-            this.m_spriteBatch.Begin();
+            this.SpriteBatch.Begin();
 
             // uncomment the following line to display all the unit sprites (collage)
-            //this.m_spriteBatch.Draw(this.m_UnitSpriteSheet, new Rectangle(0, 0, this.m_UnitSpriteSheet.Width, this.m_UnitSpriteSheet.Height), Color.White);
+            //this.SpriteBatch.Draw(this.m_UnitSpriteSheet, new Rectangle(0, 0, this.m_UnitSpriteSheet.Width, this.m_UnitSpriteSheet.Height), Color.White);
 
             Point offset = new Point();                                // used to store spritesheet source coords
 
-            // draw all the hexes that are fully or partially visible within the viewport
-            // note: the game GUI will mask out partial hexes around the edges of the viewport when it is drawn
+            // draw all the hexes that are fully or partially visible within the mapport
+            // note: the game GUI will mask out partial hexes around the edges of the mapport when it is drawn
             // in a later step
             int rightmostHexX = this.m_ViewportLeftHexX + m_VIEWPORT_HEX_WIDTH;
             int bottommostHexY = this.m_ViewportTopHexY + m_VIEWPORT_HEX_HEIGHT;
@@ -420,7 +420,7 @@ namespace xnaPanzer1
                     sourceRect.X = offset.X;
                     sourceRect.Y = offset.Y;
 
-                    // calculate where the hex should be drawn on the viewport
+                    // calculate where the hex should be drawn on the mapport
                     relativeY = (y % m_VIEWPORT_HEX_HEIGHT) - 1;
                     Rectangle destRect = new Rectangle(m_VIEWPORT_MIN_X_COORD_DRAW + (columnNumber * m_HEXPART_LENGTH_BBA),
                             m_VIEWPORT_MIN_Y_COORD_DRAW + (rowNumber * m_HEXPART_FULL_HEIGHT), m_HEXPART_FULL_WIDTH, m_HEXPART_FULL_HEIGHT);
@@ -431,12 +431,12 @@ namespace xnaPanzer1
 
                     // draw the hex
                     if (!this.m_IsUnitSelected) {  // is a hex/unit currently selected?  if not, don't apply tinting
-                        this.m_spriteBatch.Draw(this.m_MapSpriteSheet,
+                        this.SpriteBatch.Draw(this.MapSpriteSheet,
                             destRect,                                       // destination rectangle
                             sourceRect,                                     // source rectangle
                             Color.White);                                   // white = don't apply tinting
                     } else { // if so, apply tinting to hex based on whether selected unit can move to this location
-                        this.m_spriteBatch.Draw(this.m_MapSpriteSheet,
+                        this.SpriteBatch.Draw(this.MapSpriteSheet,
                             destRect,                                       // destination rectangle
                             sourceRect,                                     // source rectangle
                             this.m_HexTintForPathfinding[(int)this.m_AllowableMoves[x, y]]);
@@ -444,8 +444,8 @@ namespace xnaPanzer1
 
                     // draw units on map
                     int id = this.GetUnitIDAtMapLocation(x, y);
-                    if (id >= 0 && this.m_Units[id].IsVisible) {
-                        this.m_Units[id].Draw(new Point(destRect.X, destRect.Y));
+                    if (id >= 0 && this.Units[id].IsVisible) {
+                        this.Units[id].Draw(new Point(destRect.X, destRect.Y));
                     }
 
                     // will need hex offsets for drawing hex cursor(s)
@@ -453,15 +453,15 @@ namespace xnaPanzer1
 
                     // draw hex grid if desired
                     if (this.m_IsHexGridDisplayed) {
-                        this.m_spriteBatch.Draw(this.m_HexGridParts,
+                        this.SpriteBatch.Draw(this.m_HexGridParts,
                             destRect,                                       // destination rectangle
                             this.sourceRectangleForPartialHexGrid,
                             Color.White);                                   // white = don't apply tinting
                     }
 
-                    // draw hex cursor if mouse is within viewport
+                    // draw hex cursor if mouse is within mapport
                     if (this.m_MouseHexX == x && this.m_MouseHexY == y) {
-                        this.m_spriteBatch.Draw(this.m_HexGridParts,
+                        this.SpriteBatch.Draw(this.m_HexGridParts,
                             destRect,                                       // destination rectangle
                             this.sourceRectangleForHexGridCursor,
                             Color.White);                                   // white = don't apply tinting
@@ -471,61 +471,58 @@ namespace xnaPanzer1
                 ++columnNumber;
             }
 
-            // turn on mouse cursor if mouse is outside viewport; turn it off if within (we've already drawn a hexagon cursor)
+            // turn on mouse cursor if mouse is outside mapport; turn it off if within (we've already drawn a hexagon cursor)
             this.IsMouseVisible = !this.IsMouseWithinViewport();
 
-            // mask out viewport border
-            this.m_spriteBatch.Draw(this.m_DefaultGameScreenMask, new Rectangle(0, 0, 800, 600), Color.White);
-
-            // 85,75 straight down
-            //this.m_spriteBatch.Draw(this.m_BevelLeftHook, new Rectangle(85,75,8, 120), Color.White);
+            // mask out mapport border
+            this.SpriteBatch.Draw(this.m_DefaultGameScreenMask, new Rectangle(0, 0, 800, 600), Color.White);
 
             // display info text at top
-            this.m_spriteBatch.DrawString(this.m_font1, "Scroll map with arrow keys and mouse.  Select/deselect a hex with left/right clicks." +
+            this.SpriteBatch.DrawString(this.m_font1, "Scroll map with arrow keys and mouse.  Select/deselect a hex with left/right clicks." +
                 "\r\nNon-shaded hexes show where fictitious unit could NOT move.  Does not account\r\nfor terrain, enemy units, etc.",
                 new Vector2(10, 3), Color.White);
 
             if (this.IsMouseWithinViewport()) {
                 string selectedHex = "";
                 if (this.m_IsUnitSelected) {
-                    this.m_spriteBatch.DrawString(this.m_font1,
-                        "Selected Unit's Hex = " + this.m_Units[this.m_SelectedUnitID].CurrentX + ", " + this.m_Units[this.m_SelectedUnitID].CurrentY
+                    this.SpriteBatch.DrawString(this.m_font1,
+                        "Selected Unit's Hex = " + this.Units[this.m_SelectedUnitID].CurrentX + ", " + this.Units[this.m_SelectedUnitID].CurrentY
                         , new Vector2(10, 530), Color.White);
                 }
-                this.m_spriteBatch.DrawString(this.m_font1,
+                this.SpriteBatch.DrawString(this.m_font1,
                     "m_ViewportLeftHexX = " + this.m_ViewportLeftHexX.ToString() +
                     ", m_ViewportTopHexY = " + this.m_ViewportTopHexY.ToString() +
                     ", Mouse hex X,Y = " + this.m_MouseHexX.ToString() + ", " + this.m_MouseHexY.ToString() +
                     selectedHex
                     , new Vector2(10, 550), Color.White);
-                this.m_spriteBatch.DrawString(this.m_font1,
+                this.SpriteBatch.DrawString(this.m_font1,
                     "Mouse coord X,Y = " + Mouse.GetState().X.ToString() + ", " + Mouse.GetState().Y.ToString()
                     , new Vector2(10, 570), Color.White);
                 int id = this.GetUnitIDAtMapLocation(this.m_MouseHexX, this.m_MouseHexY);
                 if (id >= 0) {
-                    Unit unit = this.m_Units[id];
-                    this.m_spriteBatch.DrawString(this.m_font1,
+                    Unit unit = this.Units[id];
+                    this.SpriteBatch.DrawString(this.m_font1,
                         (id + 1).ToString() + Util.GetOrdinalSuffix(id + 1) + " " + unit.Name + "      Str: " + unit.Strength.ToString()
                         , new Vector2(550, 720), Color.White);
-                    this.m_spriteBatch.DrawString(this.m_font1,
+                    this.SpriteBatch.DrawString(this.m_font1,
                         unit.UnitType.Name + "            Ent: " + unit.Entrenchment.ToString()
                         , new Vector2(550, 735), Color.White);
-                    this.m_spriteBatch.DrawString(this.m_font1,
+                    this.SpriteBatch.DrawString(this.m_font1,
                         "Ammo: " + unit.Ammo.ToString() + "     Fuel: " + unit.Fuel.ToString()
                         , new Vector2(550, 750), Color.White);
                 }
             } else {
                 MouseState ms = new MouseState();
                 ms = Mouse.GetState();
-                this.m_spriteBatch.DrawString(this.m_font1,
+                this.SpriteBatch.DrawString(this.m_font1,
                     "Mouse coord X,Y = " + ms.X.ToString() + ", " + ms.Y.ToString() //+ ", Map = " + this.map[0].Name
                     , new Vector2(10, 550), Color.White);
             }
 
             // TEST DRAW ONLY
-            ////this.m_UnitTypes[1].Draw(new Point(100, 100));
+            ////this.UnitTypes[1].Draw(new Point(100, 100));
 
-            this.m_spriteBatch.End();
+            this.SpriteBatch.End();
 
             base.Draw(gameTime);
         }
@@ -535,17 +532,17 @@ namespace xnaPanzer1
         #region Algorithms
 
         /// <summary>
-        /// Calculates the viewport's upper left hex location for a given selected unit to ensure there is a cetain
+        /// Calculates the mapport's upper left hex location for a given selected unit to ensure there is a cetain
         /// number of full hexes visible all around the selected unit (essentially auto-scrolls the map).
         /// </summary>
         /// <param name="_x">Selected unit's X map location</param>
         /// <param name="_y">Selected unit's Y map location</param>
-        /// <returns>MapLocation indicating the viewport's new upper-left origin</returns>
+        /// <returns>MapLocation indicating the mapport's new upper-left origin</returns>
         protected MapLocation CalculateViewportOriginForSelectedUnit(int _x, int _y)
         {
             MapLocation origin = new MapLocation(this.m_ViewportLeftHexX, this.m_ViewportTopHexY);
 
-            // first, check if we need to scroll the viewport left or up
+            // first, check if we need to scroll the mapport left or up
             int adjustmentX = _x - origin.x - m_VIEWPORT_MIN_VISIBLE_RADIUS_FOR_SELECTED_HEX;
             int adjustmentY = _y - origin.y - m_VIEWPORT_MIN_VISIBLE_RADIUS_FOR_SELECTED_HEX;
             if (adjustmentX < 0) {
@@ -555,7 +552,7 @@ namespace xnaPanzer1
                 origin.y += adjustmentY;
             }
 
-            // now check if we need to scroll the viewport right or down
+            // now check if we need to scroll the mapport right or down
             adjustmentX = this.m_ViewportLeftHexX + m_VIEWPORT_HEX_WIDTH - _x;
             adjustmentY = this.m_ViewportTopHexY + m_VIEWPORT_HEX_HEIGHT - _y;
             if (adjustmentX < m_VIEWPORT_MIN_VISIBLE_RADIUS_FOR_SELECTED_HEX) {
@@ -568,7 +565,7 @@ namespace xnaPanzer1
                 }
             }
 
-            // ensure viewport origin is within suitable boundaries
+            // ensure mapport origin is within suitable boundaries
             origin.x = Math.Max(origin.x, 0);
             origin.y = Math.Max(origin.y, 0);
             origin.x = Math.Min(origin.x, m_MAP_HEX_WIDTH - m_VIEWPORT_HEX_WIDTH);
@@ -585,15 +582,14 @@ namespace xnaPanzer1
         /// <returns>MapLocation (x,y point) of hex map x,y (or -1,-1 if off map)</returns>
         public MapLocation ConvertMousePositionToMapLocation(int _mouseX, int _mouseY)
         {
-            // abort if mouse is not within the viewport (the map portion of the screen)
-            if (_mouseX < m_VIEWPORT_MIN_X_COORD_VISIBLE || _mouseX > m_VIEWPORT_MAX_X_COORD_VISIBLE ||
-                _mouseY < m_VIEWPORT_MIN_Y_COORD_VISIBLE || _mouseY > m_VIEWPORT_MAX_Y_COORD_VISIBLE) {
+            // abort if mouse is not within the mapport (the map portion of the screen)
+            if (!this.Mapport.IsMouseWithinMapport(_mouseX, _mouseY)) {
                 return new MapLocation(-1, -1);
             }
 
-            // adjust mouse coords for viewport position relative to top-left of screen
-            _mouseX = _mouseX - m_VIEWPORT_MIN_X_COORD_VISIBLE;
-            _mouseY = _mouseY - m_VIEWPORT_MIN_Y_COORD_VISIBLE;
+            // adjust mouse coords for mapport position relative to top-left of screen
+            _mouseX = _mouseX - this.Mapport.MinXCoordVisible;
+            _mouseY = _mouseY - this.Mapport.MinYCoordVisible;
 
             // calculate which map square mouse cursor is in (each square is composed of 3 partial hexes)
             // there are 2 types of map squares, one for hex X being even and one for odd
@@ -601,7 +597,7 @@ namespace xnaPanzer1
             int squareHexY = (int)(_mouseY / m_HEXPART_FULL_HEIGHT);
 
             // calculate relative mouse position within that square using the modulo operator
-            // e.g. if mouse x,y = 390,300 (within the map viewport) and hex 3/4 width,height = 60,50 then
+            // e.g. if mouse x,y = 390,300 (within the map mapport) and hex 3/4 width,height = 60,50 then
             //      : mouse is (390 % 45) = 30 pixels from left edge of that square
             //      : mouse is (300 % 50) = 0 pixels from top edge of that square
             //      : thus, the mouse cursor is at the very top-center of that map square
@@ -640,7 +636,7 @@ namespace xnaPanzer1
             }
 
             // now calculate the actual map hex x,y by adding basic square x,y + delta x,y adjustments + upper left
-            // hex x,y of viewport 
+            // hex x,y of mapport 
             int hexX = squareHexX + deltaX + this.m_ViewportLeftHexX;
             int hexY = squareHexY + deltaY + this.m_ViewportTopHexY;
 
@@ -681,7 +677,7 @@ namespace xnaPanzer1
         /// <param name="_unit"></param>
         public void SetAllowableMoves(int _id)
         {
-            Unit unit = this.m_Units[_id];
+            Unit unit = this.Units[_id];
             // clear out the array that contains whether the selected unit can move to a given hex
             for (int x = 0; x <= m_MAP_MAX_X; x++) {
                 for (int y = 0; y <= m_MAP_MAX_Y; y++) {
@@ -797,7 +793,7 @@ namespace xnaPanzer1
         /// Returns true if the mouse cursor is currently within the application window, false if not
         /// </summary>
         /// <remarks>
-        /// Not sure if using this.m_graphics.PreferredBackBufferXXX is the proper way to get max x,y coordinate
+        /// Not sure if using this.Graphics.PreferredBackBufferXXX is the proper way to get max x,y coordinate
         /// values for the app window
         /// </remarks>
         /// <returns>
@@ -805,8 +801,8 @@ namespace xnaPanzer1
         /// </returns>
         private bool IsMouseWithinAppWindow()
         {
-            return (Mouse.GetState().X >= 0 && Mouse.GetState().X < this.m_graphics.PreferredBackBufferWidth &&
-                Mouse.GetState().Y >= 0 && Mouse.GetState().Y < this.m_graphics.PreferredBackBufferHeight);
+            return (Mouse.GetState().X >= 0 && Mouse.GetState().X < this.Graphics.PreferredBackBufferWidth &&
+                Mouse.GetState().Y >= 0 && Mouse.GetState().Y < this.Graphics.PreferredBackBufferHeight);
         }
 
         /// <summary>
@@ -938,46 +934,6 @@ namespace xnaPanzer1
             }
         }
     }
-
-    ///// <summary>
-    ///// Super simple representation of a combat unit.
-    ///// </summary>
-    //public struct Unit
-    //{
-    //    public int id;
-    //    public int x, y;
-    //    public int moves;
-    //    public int owner;
-    //    public int strength;
-    //    public bool hasMoved;
-    //    public UnitType type;
-    //    public string typeName;
-
-    //    //public Unit(int _x, int _y) // : base(_x, _y, 3, 0, 10, UnitType.Infantry)
-    //    //{
-    //    //    x = _x;
-    //    //    y = _y;
-    //    //    moves = 2;
-    //    //    owner = 0;
-    //    //    strength = 10;
-    //    //    hasMoved = false;
-    //    //    type = UnitType.Infantry;
-    //    //}
-
-    //    public Unit(int _id, int _x, int _y, int _moves, int _owner, int _strength, UnitType _type)
-    //    {
-    //        id = _id;
-    //        x = _x;
-    //        y = _y;
-    //        moves = _moves;
-    //        owner = _owner;
-    //        strength = _strength;
-    //        type = _type;
-    //        typeName = Enum.GetName(typeof(UnitType), type);
-    //        // TEST: string s = UnitType.Infantry.ToString();
-    //        hasMoved = false;
-    //    }
-    //}
 
     #endregion Structures
 
