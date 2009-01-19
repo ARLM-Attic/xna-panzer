@@ -583,7 +583,7 @@ namespace xnaPanzer1
         public MapLocation ConvertMousePositionToMapLocation(int _mouseX, int _mouseY)
         {
             // abort if mouse is not within the mapport (the map portion of the screen)
-            if (!this.Mapport.IsMouseWithinMapport(_mouseX, _mouseY)) {
+            if (!this.Mapport.AreCoordinatesWithinMapport(_mouseX, _mouseY)) {
                 return new MapLocation(-1, -1);
             }
 
