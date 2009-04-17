@@ -225,7 +225,7 @@ namespace xnaPanzer1
             this.m_DeltaTextures = this.Content.Load<Texture2D>("Sprites/Maps/DeltaTextures");
 
             this.m_font1 = Content.Load<SpriteFont>("Fonts/SpriteFont1");
-            this.m_UnispaceFont = Content.Load<SpriteFont>("Fonts/Unispace");
+            //this.m_UnispaceFont = Content.Load<SpriteFont>("Fonts/Unispace");
 
             //this.m_BevelLeftHook = Content.Load<Texture2D>("Sprites/Gui/Bevel_Left_Hook");
             //this.m_BevelRightHook = Content.Load<Texture2D>("Sprites/Gui/Bevel_Right_Hook");
