@@ -17,8 +17,6 @@
  * All rights not forfeited by the designated license are hereby reserved by Troy Scheffel
  * 
  * Error Log Reference #108a56b5-f77f-4ca8-81cc-ea551e823b98 (when trying to add new component to Issue Tracker)
- *
- * W.S. pro. multichopper, xmas cookie cutters, spa
  * 
  * Tutorials:
  * http://www.ziggyware.com/readarticle.php?article_id=160
