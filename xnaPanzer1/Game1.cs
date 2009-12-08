@@ -476,8 +476,8 @@ namespace xnaPanzer1
             this.SpriteBatch.Draw(this.m_DefaultGameScreenMask, new Rectangle(0, 0, 800, 600), Color.White);
 
             // display info text at top
-            this.SpriteBatch.DrawString(this.m_font1, "Scroll map with arrow keys and mouse.  Select/deselect a hex with left/right clicks." +
-                "\r\nNon-shaded hexes show where fictitious unit could NOT move.  Does not account\r\nfor terrain, enemy units, etc.",
+            this.SpriteBatch.DrawString(this.m_font1, "Scroll map with arrow keys and mouse.  Select/deselect a unit with left/right clicks." +
+                "\r\nNon-shaded hexes show where unit can move to.  Does not currently account\r\nfor terrain, enemy units, etc.",
                 new Vector2(10, 3), Color.White);
 
             if (this.IsMouseWithinViewport()) {
